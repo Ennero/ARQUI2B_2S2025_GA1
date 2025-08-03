@@ -1,0 +1,7 @@
+aqui iria la doc, los bocetos y lo diagramas correspondientes :)
+
+Intentemos usar convenciones:
+
+cuando se suba algo relacionado con la doc se pondria en el commit:
+
+doc: [lo que se hizo]
