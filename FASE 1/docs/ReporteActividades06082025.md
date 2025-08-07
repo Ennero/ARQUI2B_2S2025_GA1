@@ -1,0 +1,83 @@
+# 📝 Reporte de Actividades - Proyecto IoT Zona 1
+**Fecha:** 5 de agosto de 2025  
+**Equipo:** Arquitectura de Computadoras y Ensambladores 2  
+**Fase:** Diseño y preparación inicial (Fase 1)
+
+---
+
+## ✅ Actividades Realizadas
+
+### 🏗️ 1. Inicio del Diseño de la Maqueta Física
+- Se inició la construcción de la maqueta a escala representando **6 cuadras del Centro Histórico**.
+- Se delimitó la ubicación de:
+  - 2 paradas de Transmetro
+  - 2 paradas de Transurbano
+  - 2 puntos históricos
+
+**Captura del avance:**  
+![Foto de maqueta - ](./Imagenes/Imagen%20de%20WhatsApp%202025-08-05%20a%20las%2020.10.26_b79377be.jpg)
+![Foto de maqueta - ](./Imagenes/Imagen%20de%20WhatsApp%202025-08-05%20a%20las%2020.10.50_32c2b8e3.jpg)
+![Foto de maqueta - ](./Imagenes/Imagen%20de%20WhatsApp%202025-08-05%20a%20las%2020.10.50_af3f7a97.jpg)
+
+
+---
+
+### 🖥️ 2. Diseño Digital en SketchUp
+- Se desarrolló el **modelo 3D de referencia** en SketchUp, usando como base el mapa del Centro Histórico.
+- El diseño permite una visualización previa para definir ubicación de sensores, botones de pánico y semáforos.
+
+**Vista preliminar del modelo:**  
+https://app.sketchup.com/share/tc/northAmerica/aJ2IbRWgOl0?stoken=XyzgiDlDwOA2tYNCufjUEXr-pC4gbiujco70CVSAYh1IWYxRf9vRuN2l5BS9yo0-&source=web
+
+![Foto de modelo ](./Imagenes/Imagen%20de%20WhatsApp%202025-08-05%20a%20las%2020.10.49_a79d2031.jpg)
+![Foto de modelo ](./Imagenes/Imagen%20de%20WhatsApp%202025-08-05%20a%20las%2020.10.51_596ab6af.jpg)
+
+---
+
+### 🛒 3. Componentes Electrónicos
+
+![Foto de componentes](./Imagenes/Imagen%20de%20WhatsApp%202025-08-05%20a%20las%2016.18.30_0e85813b.jpg)
+
+
+
+---
+
+## 👥 Distribución del Trabajo en el Equipo
+
+| Integrante         | Actividad Realizada                                                                 |
+|--------------------|--------------------------------------------------------------------------------------|
+| David, Alfredo, Juan José | Construcción de edificios físicos de la maqueta                              |
+| Álvaro             | Conseguir y gestionar el material de trabajo                                        |
+| Enner y Carlos (modelado) | Diseño digital en SketchUp, organización espacial y simulación del entorno urbano   |
+| Esteban, Marcos, Tú| Revisión y pruebas de sensores (HC-SR04, MQ-2, piezo), conexiones y cableado        |
+
+
+## 📌 Observaciones
+- Se verificó compatibilidad de sensores con Arduino UNO.
+- El siguiente paso es la interconexión del sistema Master-Slave con I2C.
+- Se están considerando los umbrales de los sensores para programarlos correctamente.
+
+---
+
+## 💰 Registro de Gastos (Parcial)
+
+![Foto de gastos](./Imagenes/Imagen%20de%20WhatsApp%202025-08-06%20a%20las%2012.03.47_3a926169.jpg)
+
+---
+
+## 📸 Galería (Agregar más fotos según avancen)
+
+
+---
+
+## 🗂️ Archivos Adjuntos
+
+---
+
+## 🚧 Próximas Actividades
+- Finalizar base de la maqueta
+- Probar sensores HC-SR04 con LEDs
+- Implementar comunicación entre Arduino Master y Slaves
+- Iniciar el dashboard en **Processing**
+
+---
