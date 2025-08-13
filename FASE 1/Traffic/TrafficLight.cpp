@@ -1,21 +1,51 @@
 #include "TrafficLight.h"
 
-TrafficLight::TrafficLight(uint8_t redPin, uint8_t yellowPin, uint8_t greenPin)
-  : pinRed(redPin), pinYellow(yellowPin), pinGreen(greenPin), currentState(RED)
+TrafficLight::TrafficLight(int redPin, int yellowPin, int greenPin)
 {
-  pinMode(pinRed, OUTPUT);
-  pinMode(pinYellow, OUTPUT);
-  pinMode(pinGreen, OUTPUT);
-  setState(RED);
+    pinRed = redPin;
+    pinYellow = yellowPin;
+    pinGreen = greenPin;
+    state = RED; // default initial state
 }
 
-void TrafficLight::setState(TrafficLightState state) {
-  currentState = state;
-  digitalWrite(pinRed,    state == RED    ? HIGH : LOW);
-  digitalWrite(pinYellow, state == YELLOW ? HIGH : LOW);
-  digitalWrite(pinGreen,  state == GREEN  ? HIGH : LOW);
+void TrafficLight::begin()
+{
+    pinMode(pinRed, OUTPUT);
+    pinMode(pinYellow, OUTPUT);
+    pinMode(pinGreen, OUTPUT);
+
+    turnOffAll();
+    setState(state);
 }
 
-TrafficLightState TrafficLight::getState() const {
-  return currentState;
+void TrafficLight::setState(State newState)
+{
+    state = newState;
+
+    turnOffAll();
+
+    switch (state)
+    {
+        case RED:
+            digitalWrite(pinRed, HIGH);
+            break;
+        case YELLOW:
+            digitalWrite(pinYellow, HIGH);
+            break;
+        case GREEN:
+            digitalWrite(pinGreen, HIGH);
+            break;
+    }
+}
+
+TrafficLight::State TrafficLight::getState() const
+{
+    return state;
+}
+
+void TrafficLight::turnOffAll()
+{
+    digitalWrite(pinRed, LOW);
+    digitalWrite(pinYellow, LOW);
+    digitalWrite(pinGreen, LOW);
 }

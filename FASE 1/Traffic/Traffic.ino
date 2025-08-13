@@ -1,87 +1,156 @@
 #include <NewPing.h>
 #include "TrafficLight.h"
-#include "TrafficLightPair.h"
 
-#define SONAR_NUM 2  // Ahora 2 sensores
 #define MAX_DISTANCE 50
 #define PING_INTERVAL 33
-#define NUM_PAIRS 1
-#define NUM_LIGHTS (NUM_PAIRS * 2)
 
-unsigned long pingTimer[SONAR_NUM];
+enum SensorPurpose { SENSOR_PASS, SENSOR_ARRIVAL };
+
+struct Sensor {
+  NewPing* sonar;
+  SensorPurpose purpose;
+  uint8_t id;
+  uint8_t group;  // 0 = A, 1 = B
+};
+
+NewPing sonar[] = {
+  NewPing(22, 23, MAX_DISTANCE), // 0
+  NewPing(2, 3, MAX_DISTANCE),   // 1
+  NewPing(4, 5, MAX_DISTANCE),   // 2
+  NewPing(6, 7, MAX_DISTANCE)    // 3
+};
+
+Sensor sensors[] = {
+  { &sonar[0], SENSOR_PASS,    0, 0 },
+  { &sonar[1], SENSOR_ARRIVAL, 1, 0 },
+  { &sonar[2], SENSOR_PASS,    2, 1 },
+  { &sonar[3], SENSOR_ARRIVAL, 3, 1 }
+};
+
+const uint8_t NUM_SENSORS = sizeof(sensors) / sizeof(sensors[0]);
+
+unsigned long pingTimer[NUM_SENSORS];
+uint16_t distances[NUM_SENSORS];
 uint8_t currentSensor = 0;
-unsigned int cm[SONAR_NUM];
 
-NewPing sonar[SONAR_NUM] = {
-  NewPing(22, 23, MAX_DISTANCE),  // Sensor 0
-  NewPing(2, 3, MAX_DISTANCE)     // Sensor 1
-};
+TrafficLight trafficA(25, 27, 29);
+TrafficLight trafficB(24, 26, 28);
 
-TrafficLight trafficLights[NUM_LIGHTS] = {
-  TrafficLight(25, 27, 29),
-  TrafficLight(26, 28, 30)
-};
+enum TrafficCycle { GREEN_A, YELLOW_A, GREEN_B, YELLOW_B };
+TrafficCycle currentCycle = GREEN_A;
 
-TrafficLightPair pairs[NUM_PAIRS] = {
-  TrafficLightPair(trafficLights[0], trafficLights[1])
-};
+unsigned long stateStartTime = 0;
+const unsigned long greenTime = 4000;
+const unsigned long yellowTime = 1500;
 
 void setup() {
   Serial.begin(9600);
-
-  globalStartMillis = millis();
-  
-  for (int i = 0; i < NUM_PAIRS; i++) {
-    pairs[i].begin();
-  }
+  trafficA.begin();
+  trafficB.begin();
+  trafficA.setState(TrafficLight::GREEN);
+  trafficB.setState(TrafficLight::RED);
+  currentCycle = GREEN_A;
+  stateStartTime = millis();
 
   unsigned long startTime = millis() + 75;
-  for (uint8_t i = 0; i < SONAR_NUM; i++) {
+  for (uint8_t i = 0; i < NUM_SENSORS; i++) {
     pingTimer[i] = startTime + i * PING_INTERVAL;
+    distances[i] = 0;
   }
 }
 
 void loop() {
-  // Actualizar semáforos coordinados
-  for (int i = 0; i < NUM_PAIRS; i++) {
-    pairs[i].update();
-  }
+  unsigned long now = millis();
 
-  // Manejo de sensores
-  for (uint8_t i = 0; i < SONAR_NUM; i++) {
-    if (millis() >= pingTimer[i]) {
-      pingTimer[i] += PING_INTERVAL * SONAR_NUM;
+  // Actualiza semáforos
+  updateTrafficLights(now);
 
-      sonar[currentSensor].timer_stop();
+  // Maneja sensores ultrasónicos
+  for (uint8_t i = 0; i < NUM_SENSORS; i++) {
+    if (now >= pingTimer[i]) {
+      pingTimer[i] += PING_INTERVAL * NUM_SENSORS;
+      sensors[currentSensor].sonar->timer_stop();
       currentSensor = i;
-      cm[currentSensor] = 0;
-      sonar[currentSensor].ping_timer(echoCheck);
+      distances[currentSensor] = 0;
+      sensors[currentSensor].sonar->ping_timer(echoCheck);
     }
   }
 
-  if (currentSensor == SONAR_NUM - 1) {
-    oneSensorCycle();
+  if (currentSensor == NUM_SENSORS - 1) {
+    processSensorReadings();
   }
 }
 
 void echoCheck() {
-  if (sonar[currentSensor].check_timer()) {
-    cm[currentSensor] = sonar[currentSensor].ping_result / US_ROUNDTRIP_CM;
+  if (sensors[currentSensor].sonar->check_timer()) {
+    distances[currentSensor] = sensors[currentSensor].sonar->ping_result / US_ROUNDTRIP_CM;
   }
 }
 
-void oneSensorCycle() {
-  for (uint8_t i = 0; i < SONAR_NUM; i++) {
-    if (cm[i] > 0 && cm[i] <= 3) {
-      Serial.print("Sensor ");
-      Serial.print(i);
-      Serial.println(": Object detected");
+void processSensorReadings() {
+  for (uint8_t i = 0; i < NUM_SENSORS; i++) {
+    uint16_t dist = distances[i];
+    if (dist == 0) continue;
 
-      if (trafficLights[i].getState() == RED) {
-        Serial.print("ALERT! Sensor ");
-        Serial.print(i);
-        Serial.println(" passed on RED light!");
-      }
+    switch (sensors[i].purpose) {
+      case SENSOR_PASS:
+        if (dist <= 3) {
+          Serial.print("Alert: Red light violation at sensor ");
+          Serial.println(sensors[i].id);
+          // Confirmar infracción según grupo y estado
+          if (sensors[i].group == 0 && (currentCycle == GREEN_B || currentCycle == YELLOW_B)) {
+            Serial.println("Confirmed violation in Group A");
+          } else if (sensors[i].group == 1 && (currentCycle == GREEN_A || currentCycle == YELLOW_A)) {
+            Serial.println("Confirmed violation in Group B");
+          } else {
+            Serial.println("No violation - group has green/yellow");
+          }
+        }
+        break;
+
+      case SENSOR_ARRIVAL:
+        if (dist <= 10) {
+          Serial.print("Bus arrival at sensor ");
+          Serial.println(sensors[i].id);
+        }
+        break;
     }
+  }
+}
+
+void updateTrafficLights(unsigned long now) {
+  switch (currentCycle) {
+    case GREEN_A:
+      if (now - stateStartTime >= greenTime) {
+        currentCycle = YELLOW_A;
+        trafficA.setState(TrafficLight::YELLOW);
+        trafficB.setState(TrafficLight::RED);
+        stateStartTime = now;
+      }
+      break;
+    case YELLOW_A:
+      if (now - stateStartTime >= yellowTime) {
+        currentCycle = GREEN_B;
+        trafficA.setState(TrafficLight::RED);
+        trafficB.setState(TrafficLight::GREEN);
+        stateStartTime = now;
+      }
+      break;
+    case GREEN_B:
+      if (now - stateStartTime >= greenTime) {
+        currentCycle = YELLOW_B;
+        trafficA.setState(TrafficLight::RED);
+        trafficB.setState(TrafficLight::YELLOW);
+        stateStartTime = now;
+      }
+      break;
+    case YELLOW_B:
+      if (now - stateStartTime >= yellowTime) {
+        currentCycle = GREEN_A;
+        trafficA.setState(TrafficLight::GREEN);
+        trafficB.setState(TrafficLight::RED);
+        stateStartTime = now;
+      }
+      break;
   }
 }

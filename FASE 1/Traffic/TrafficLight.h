@@ -3,24 +3,24 @@
 
 #include <Arduino.h>
 
-enum TrafficLightState {
-  RED,
-  YELLOW,
-  GREEN
-};
+class TrafficLight
+{
+public:
+    enum State { RED, YELLOW, GREEN };
 
-class TrafficLight {
-  private:
-    uint8_t pinRed;
-    uint8_t pinYellow;
-    uint8_t pinGreen;
-    TrafficLightState currentState;
+private:
+    int pinRed;
+    int pinYellow;
+    int pinGreen;
+    State state;
 
-  public:
-    TrafficLight(uint8_t redPin, uint8_t yellowPin, uint8_t greenPin);
+public:
+    TrafficLight(int redPin, int yellowPin, int greenPin);
 
-    void setState(TrafficLightState state);
-    TrafficLightState getState() const;
+    void begin();
+    void setState(State newState);
+    State getState() const;
+    void turnOffAll();
 };
 
 #endif
