@@ -86,13 +86,13 @@ const unsigned long smokeInterval = 1000;
 
 // --- Funciones Modulares ---
 void inicializarPerifericos() {
-  for (int i = 0; i < NUM_BOTONES; i++) {
-    pinMode(PINES_BOTONES[i], INPUT_PULLUP);
-    pinMode(PINES_BUZZER[i], OUTPUT);
-    digitalWrite(PINES_BUZZER[i], LOW);
-  }
-  pinMode(MQ2_SENSOR_1, INPUT);
-  pinMode(MQ2_SENSOR_2, INPUT);
+    for (int i = 0; i < NUM_BOTONES; i++) {
+        pinMode(PINES_BOTONES[i], INPUT_PULLUP);
+        pinMode(PINES_BUZZER[i], OUTPUT);
+        digitalWrite(PINES_BUZZER[i], LOW);
+    }
+    pinMode(MQ2_SENSOR_1, INPUT);
+    pinMode(MQ2_SENSOR_2, INPUT);
 }
 
 void sonarBuzzer(int buzzerIndex, unsigned long now) {
@@ -103,7 +103,7 @@ void sonarBuzzer(int buzzerIndex, unsigned long now) {
         Serial.print(";BUS");
         Serial.print(buzzerIndex + 1);
         Serial.print("=");
-        Serial.print(1)
+        Serial.print(1);
     }
 }
 
@@ -154,13 +154,13 @@ void leerSensoresHumo() {
     if (smoke1 > SMOKE_THRESHOLD) {
         // Serial.println("⚠ ALERTA: Nivel de humo ALTO en sensor 1");
         //! DATA EMITION
-        Serial.print(";SMOKE1=")
-        Serial.print(1)
+        Serial.print(";SMOKE1=");
+        Serial.print(1);
     }
     if (smoke2 > SMOKE_THRESHOLD) {
         //! DATA EMITION
-        Serial.print(";SMOKE2=")
-        Serial.print(1)
+        Serial.print(";SMOKE2=");
+        Serial.print(1);
         // Serial.println("⚠ ALERTA: Nivel de humo ALTO en sensor 2");
     }
 }
@@ -304,6 +304,8 @@ void loop() {
         leerSensoresHumo();
         lastSmokeCheck = now;
     }
+
+    Serial.println();
 
     // TODO: still need to implement piezoelectrico data emition
 }
