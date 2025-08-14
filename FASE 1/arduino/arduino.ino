@@ -41,8 +41,8 @@ const unsigned long yellowTime = 1500;
 
 // -------------------- CONFIGURACIÓN BOTONES Y BUZZERS --------------------
 const uint8_t NUM_BOTONES = 5;
-const int PINES_BOTONES[NUM_BOTONES] = {30, 31, 32, 33, 34};
-const int PINES_BUZZER[NUM_BOTONES] = {35, 36, 37, 38, 39};
+const int PINES_BOTONES[NUM_BOTONES] = {48, 52, A15, A13, A11};
+const int PINES_BUZZER[NUM_BOTONES] = {49, 53, A14, A12, A10};
 
 bool estadosBotones[NUM_BOTONES] = {false};
 bool estadoAnteriorBotones[NUM_BOTONES] = {false};
