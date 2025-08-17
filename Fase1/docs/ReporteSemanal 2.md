@@ -74,6 +74,6 @@ Durante esta semana se alcanzaron los siguientes resultados:
 
 ## 📸 Evidencias
 
-![evidencia1](Fase1/img/evidencia1.jpg)
+![evidencia1](https://github.com/Ennero/ARQUI2B_2S2025_GA1/blob/docs/Fase1/img/evidencia1.jpg)
 
 ---
