@@ -74,6 +74,6 @@ Durante esta semana se alcanzaron los siguientes resultados:
 
 ## 📸 Evidencias
 
-![evidencia1](img/evidencia1.jpg)
+![evidencia1](Fase1/img/evidencia1.jpg)
 
 ---
