@@ -75,5 +75,16 @@ Durante esta semana se alcanzaron los siguientes resultados:
 ## 📸 Evidencias
 
 ![evidencia1](https://github.com/Ennero/ARQUI2B_2S2025_GA1/blob/docs/Fase1/img/evidencia1.jpg)
+![evidencia2](https://github.com/Ennero/ARQUI2B_2S2025_GA1/blob/docs/Fase1/img/evidencia2.jpg)
+![evidencia3](https://github.com/Ennero/ARQUI2B_2S2025_GA1/blob/docs/Fase1/img/evidencia3.jpg)
+![evidencia4](https://github.com/Ennero/ARQUI2B_2S2025_GA1/blob/docs/Fase1/img/evidencia4.jpg)
+![evidencia5](https://github.com/Ennero/ARQUI2B_2S2025_GA1/blob/docs/Fase1/img/evidencia5.jpg)
+![evidencia6](https://github.com/Ennero/ARQUI2B_2S2025_GA1/blob/docs/Fase1/img/evidencia6.jpg)
+![evidencia7](https://github.com/Ennero/ARQUI2B_2S2025_GA1/blob/docs/Fase1/img/evidencia7.jpg)
+![evidencia8](https://github.com/Ennero/ARQUI2B_2S2025_GA1/blob/docs/Fase1/img/evidencia8.jpg)
+![evidencia9](https://github.com/Ennero/ARQUI2B_2S2025_GA1/blob/docs/Fase1/img/evidencia9.jpg)
+![evidencia10](https://github.com/Ennero/ARQUI2B_2S2025_GA1/blob/docs/Fase1/img/evidencia10.jpg)
+![evidencia11](https://github.com/Ennero/ARQUI2B_2S2025_GA1/blob/docs/Fase1/img/evidencia11.jpg)
+![evidencia12](https://github.com/Ennero/ARQUI2B_2S2025_GA1/blob/docs/Fase1/img/evidencia12.jpg)
 
 ---
