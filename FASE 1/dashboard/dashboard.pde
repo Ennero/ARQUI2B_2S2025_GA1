@@ -40,12 +40,17 @@ int halfIndexBus1 = 0; // 0 or 1 -> dos semiperímetros
 int halfIndexBus2 = 0;
 
 boolean[] panicoBtns = {false, false, false, false, false};
+long[] panicoTimestamps = new long[5];
+long lastSismoTimestamp = 0;
+long[] incendioTimestamps = new long[2];
+long[] semaforoInfraccionTimestamps = new long[4];
 boolean sismo = false;
 
 // Variables visuales
+final int ALERT_HOLD_MS = 5000; // ms para mantener visible una alerta
 float pulsoAlerta = 0;
 int tiempoUltimaInfraccion = 0;
-String ultimaInfraccionSemaforo = "";
+String ultimaInfraccionSemaforo = ""; 
 
 void setup() {
   size(1200, 790);
@@ -71,6 +76,7 @@ void setup() {
 void draw() {
   dibujarFondoGradiente();
   pulsoAlerta += 0.1;
+  actualizarEstadosAlertas();
   dibujarTitulo();
 
   float topPanelX1 = 30;
@@ -241,11 +247,13 @@ void dibujarMonitoreoIncendios(float x, float y, float w, float h) {
 
   float sensorW = w - 30;
   float sensorH = 85;
-  dibujarSensorParticulas(x + 15, y + 85, sensorW, sensorH, "M-1", nivelParticulas1);
-  dibujarSensorParticulas(x + 15, y + 85 + sensorH + 15, sensorW, sensorH, "M-2", nivelParticulas2);
+  boolean alto1 = (millis() - incendioTimestamps[0] < ALERT_HOLD_MS);
+  boolean alto2 = (millis() - incendioTimestamps[1] < ALERT_HOLD_MS);
+  dibujarSensorParticulas(x + 15, y + 85, sensorW, sensorH, "M-1", nivelParticulas1, alto1);
+  dibujarSensorParticulas(x + 15, y + 85 + sensorH + 15, sensorW, sensorH, "M-2", nivelParticulas2, alto2);
 }
-void dibujarSensorParticulas(float x, float y, float w, float h, String id, float nivel) {
-  boolean altoNivel = nivel > 1000;
+
+void dibujarSensorParticulas(float x, float y, float w, float h, String id, float nivel, boolean altoNivel) {
   if (altoNivel) {
     fill(80, 20, 20);
     stroke(255, 100, 100);
@@ -315,9 +323,9 @@ void dibujarMapaBuses(float x, float y, float w, float h) {
   rect(rutaOuterX, rutaOuterY, rutaOuterW, rutaOuterH, 10);
 
   // Posición del bus 1: calculada a partir de progresoBus1, pero desplazamos
-  // el inicio (progreso=0) para que coincida con la parada seleccionada (top-center)
+  // el inicio (progreso=0) para que coincida con la parada seleccionada (TOP -> 3/4 de la anchura)
   float perOuter = 2 * (rutaOuterW + rutaOuterH);
-  float stationTopOuter = rutaOuterW / 2.0; // distancia desde esquina superior izquierda hasta estación superior centro
+  float stationTopOuter = rutaOuterW * 0.75; // 3/4 desde izquierda
   float stationTopOuterFrac = (perOuter > 0) ? (stationTopOuter / perOuter) : 0;
 
   PVector posBus1 = calcularPosicionEnRutaRect(rutaOuterX, rutaOuterY, rutaOuterW, rutaOuterH, (progresoBus1 + stationTopOuterFrac) % 1.0);
@@ -388,12 +396,12 @@ void dibujarMapaBuses(float x, float y, float w, float h) {
   textSize(12);
   text("Distancia a parada: " + nf(distanciaParada2, 1, 0) + " cm", rutaInnerX, rutaInnerY + rutaInnerH + 15);
 
-  // Paradas: Outer -> TOP y BOTTOM (centradas)
+  // Paradas: Outer -> TOP (3/4) y BOTTOM (1/4)
   fill(255, 255, 100);
   stroke(255, 255, 200);
   strokeWeight(2);
-  ellipse(rutaOuterX + rutaOuterW/2, rutaOuterY + 10, 12, 12);
-  ellipse(rutaOuterX + rutaOuterW/2, rutaOuterY + rutaOuterH - 10, 12, 12);
+  ellipse(rutaOuterX + rutaOuterW * 0.75, rutaOuterY + 10, 12, 12);
+  ellipse(rutaOuterX + rutaOuterW * 0.25, rutaOuterY + rutaOuterH - 10, 12, 12);
 
   // Paradas inner -> LEFT y RIGHT (centradas)
   float marginInner = 12;
@@ -457,6 +465,7 @@ void dibujarMapaBuses(float x, float y, float w, float h) {
   textSize(13);
   text("Buses en circulacion: 2", leyendaX + 12, leyendaY + 160);
 }
+
 
 // helper: distancia circular mínima entre dos posiciones sobre un perímetro
 float minimalCircularDistance(float a, float b, float per) {
@@ -557,6 +566,29 @@ void dibujarAlertas(float x, float y, float w, float h) {
   text(nf(hour(), 2) + ":" + nf(minute(), 2) + ":" + nf(second(), 2), x + 10, y + h - 8);
 }
 
+void registrarInfraccion(int idx) {
+  if (idx >= 0 && idx < semaforoInfraccionTimestamps.length) {
+    semaforoInfraccionTimestamps[idx] = millis();
+  }
+}
+
+void actualizarEstadosAlertas() {
+  // pánico: mantener visible ALERT_HOLD_MS ms desde la última vez que se activó
+  for (int i = 0; i < panicoBtns.length; i++) {
+    panicoBtns[i] = (millis() - panicoTimestamps[i] < ALERT_HOLD_MS);
+  }
+  // sismo
+  sismo = (millis() - lastSismoTimestamp < ALERT_HOLD_MS);
+  // incendios
+  incendio1 = (millis() - incendioTimestamps[0] < ALERT_HOLD_MS);
+  incendio2 = (millis() - incendioTimestamps[1] < ALERT_HOLD_MS);
+  // infracciones en semáforos
+  semaforoInfraccion1 = (millis() - semaforoInfraccionTimestamps[0] < ALERT_HOLD_MS);
+  semaforoInfraccion2 = (millis() - semaforoInfraccionTimestamps[1] < ALERT_HOLD_MS);
+  semaforoInfraccion3 = (millis() - semaforoInfraccionTimestamps[2] < ALERT_HOLD_MS);
+  semaforoInfraccion4 = (millis() - semaforoInfraccionTimestamps[3] < ALERT_HOLD_MS);
+}
+
 void dibujarBarraEstado() {
   fill(30, 35, 40);
   stroke(60, 70, 80);
@@ -587,7 +619,7 @@ void serialEvent(Serial myPort) {
     else if (key.equals("SEM2")) estadoSem2 = val;
 
     else if (key.equals("BUS1")) {
-      String clean = val.replaceAll("[^0-9\\.\\-]", "");
+      String clean = val.replaceAll("[^0-9\\\\.\\\\-]", "");
       if (clean.length() > 0) {
         float d = float(clean);
         if (d < 0) d = 0;
@@ -596,7 +628,7 @@ void serialEvent(Serial myPort) {
       }
     }
     else if (key.equals("BUS2")) {
-      String clean = val.replaceAll("[^0-9\\.\\-]", "");
+      String clean = val.replaceAll("[^0-9\\\\.\\\\-]", "");
       if (clean.length() > 0) {
         float d = float(clean);
         if (d < 0) d = 0;
@@ -607,30 +639,43 @@ void serialEvent(Serial myPort) {
 
     // --- PM1 / PM2: valores en ppm (siempre recibidos) ---
     else if (key.equals("PM1")) {
-      String clean = val.replaceAll("[^0-9\\.\\-]", "");
+      String clean = val.replaceAll("[^0-9\\\\.\\\\-]", "");
       if (clean.length() > 0) {
         nivelParticulas1 = float(clean);
+        if (nivelParticulas1 > 1000) {
+          incendioTimestamps[0] = millis();
+        }
       }
     } else if (key.equals("PM2")) {
-      String clean = val.replaceAll("[^0-9\\.\\-]", "");
+      String clean = val.replaceAll("[^0-9\\\\.\\\\-]", "");
       if (clean.length() > 0) {
         nivelParticulas2 = float(clean);
+        if (nivelParticulas2 > 1000) {
+          incendioTimestamps[1] = millis();
+        }
       }
     }
 
     // Compatibilidad: INC1/INC2 puede venir pero la visual se basa en PMx
-    else if (key.equals("INC1")) incendio1 = val.equals("1");
-    else if (key.equals("INC2")) incendio2 = val.equals("1");
+    else if (key.equals("INC1")) {
+      if (val.equals("1")) incendioTimestamps[0] = millis();
+      incendio1 = val.equals("1");
+    }
+    else if (key.equals("INC2")) {
+      if (val.equals("1")) incendioTimestamps[1] = millis();
+      incendio2 = val.equals("1");
+    }
 
-    else if (key.equals("PANICO1")) panicoBtns[0] = val.equals("1");
-    else if (key.equals("PANICO2")) panicoBtns[1] = val.equals("1");
-    else if (key.equals("PANICO3")) panicoBtns[2] = val.equals("1");
-    else if (key.equals("PANICO4")) panicoBtns[3] = val.equals("1");
-    else if (key.equals("PANICO5")) panicoBtns[4] = val.equals("1");
+    else if (key.equals("PANICO1")) { if (val.equals("1")) panicoTimestamps[0] = millis(); }
+    else if (key.equals("PANICO2")) { if (val.equals("1")) panicoTimestamps[1] = millis(); }
+    else if (key.equals("PANICO3")) { if (val.equals("1")) panicoTimestamps[2] = millis(); }
+    else if (key.equals("PANICO4")) { if (val.equals("1")) panicoTimestamps[3] = millis(); }
+    else if (key.equals("PANICO5")) { if (val.equals("1")) panicoTimestamps[4] = millis(); }
 
-    else if (key.equals("SISMO")) sismo = val.equals("1");
+    else if (key.equals("SISMO")) { if (val.equals("1")) lastSismoTimestamp = millis(); }
   }
 }
+
 
 // Procesa BUSx como distancia 0..MAX que cicla 0->MAX->0
 void procesarBusComoDistancia(int busId, float newDist) {
