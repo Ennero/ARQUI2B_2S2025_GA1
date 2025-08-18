@@ -1,6 +1,4 @@
 import processing.serial.*;
-
-// ====== Comunicación Serial ======
 Serial myPort; 
 String datosSerial = "";
 
@@ -15,18 +13,26 @@ boolean semaforoInfraccion4 = false;
 String estadoSem1 = "VERDE"; // Controla cara 1 de todos los semáforos
 String estadoSem2 = "ROJO";  // Controla cara 2 de todos los semáforos
 
+// Configuración de caras por semáforo (para que no todas estén alineadas)
+// 0 = cara1 es SEM1, cara2 es SEM2
+// 1 = cara1 es SEM2, cara2 es SEM1
+int[] configCaras = {0, 1, 0, 1}; // Intersecciones A, B, C, D
+
 // Sensores de incendio (2 sensores)
 boolean incendio1 = false;
 boolean incendio2 = false;
 
+// ====== Variables para partículas ======
+float nivelParticulas1 = 45.0; // PM2.5 en µg/m³
+float nivelParticulas2 = 32.0;
 String alertaExtra = "Sin alertas";
 
 // ====== Variables para dos buses ======
-// Bus 1 (Ruta Azul)
+// Bus 1 (Ruta Transmetro)
 float distanciaParada1 = 300;
 float progresoBus1 = 0; // 0-1 para completar el circuito cuadrado
 
-// Bus 2 (Ruta Roja)
+// Bus 2 (Ruta Transurbano)
 float distanciaParada2 = 150;
 float progresoBus2 = 0.5; // Inicia en la mitad del circuito
 
@@ -42,7 +48,7 @@ int tiempoUltimaInfraccion = 0;
 String ultimaInfraccionSemaforo = "";
 
 void setup() {
-  size(1200, 750); // Aumenté altura para el título
+  size(1200, 900);
   //surface.setTitle("Dashboard IoT - Sistema de Monitoreo Urbano");
 
   // ====== Configuración Serial ======
@@ -54,35 +60,36 @@ void setup() {
   */
 }
 
+// Ciclo principal
 void draw() {
   // Fondo con gradiente
   dibujarFondoGradiente();
 
   pulsoAlerta += 0.1;
 
-  // === Título Principal ===
+  // Función para dibujar el título
   dibujarTitulo();
 
-  // === Panel Estado de Semáforos ===
-  dibujarSemaforos(30, 80, 540, 200); // Ajusté posición Y y altura
+  // Panel Estado de Semáforos
+  dibujarSemaforos(30, 80, 540, 300);
 
-  // === Panel Monitor de Incendios ===
-  dibujarMonitorIncendios(600, 80, 540, 200); // Ajusté posición Y y altura
+  // Panel Monitor Ambiental (unifica incendios y calidad del aire)
+  dibujarMonitorAmbiental(600, 80, 540, 280);
 
-  // === Panel Mapa de Rutas de Buses ===
-  dibujarMapaBuses(30, 310, 820, 350); // Ajusté posición Y
+  // Panel Mapa de Rutas de Buses (reposicionado)
+  dibujarMapaBuses(30, 400, 820, 320);
 
-  // === Panel de Alertas ===
-  dibujarAlertas(880, 310, 260, 350); // Ajusté posición Y
+  // Panel de Alertas (reposicionado)
+  dibujarAlertas(880, 480, 260, 240);
 
-  // === Barra de estado inferior ===
+  // Barra de estado inferior
   dibujarBarraEstado();
   
-  // Simulación para testing (comentar cuando uses serial real)
+  // Simulación para testing
   simularDatos();
 }
 
-// ====== Función para dibujar título principal ======
+// Función para dibujar el título
 void dibujarTitulo() {
   // Fondo del título con gradiente
   for (int i = 0; i < 60; i++) {
@@ -116,7 +123,7 @@ void dibujarTitulo() {
   ellipse(width/2 + 160, 55, 8, 8);
 }
 
-// ====== Función para fondo con gradiente ======
+// Función para fondo con gradiente 
 void dibujarFondoGradiente() {
   for (int i = 0; i <= height; i++) {
     float inter = map(i, 0, height, 0, 1);
@@ -126,11 +133,11 @@ void dibujarFondoGradiente() {
   }
 }
 
-// ====== Funciones de Paneles ======
+// Funciones de Paneles
 void dibujarSemaforos(float x, float y, float w, float h) {
   // Panel con bordes redondeados y sombra
   fill(0, 0, 0, 50);
-  rect(x + 5, y + 5, w, h, 15); // Sombra
+  rect(x + 5, y + 5, w, h, 15);
   
   fill(40, 45, 55);
   stroke(80, 90, 110);
@@ -156,12 +163,27 @@ void dibujarSemaforos(float x, float y, float w, float h) {
 
   // Dibujar los 4 semáforos en una cuadrícula 2x2
   float semaforoW = (w - 60) / 2;
-  float semaforoH = (h - 100) / 2; // Reduje altura para dar espacio a la info
+  float semaforoH = (h - 100) / 2;
   
-  dibujarSemaforoDobleIndividual(x + 15, y + 80, semaforoW, semaforoH, "INTERSECCION A", estadoSem1, estadoSem2, semaforoInfraccion1);
-  dibujarSemaforoDobleIndividual(x + 15 + semaforoW + 15, y + 80, semaforoW, semaforoH, "INTERSECCION B", estadoSem1, estadoSem2, semaforoInfraccion2);
-  dibujarSemaforoDobleIndividual(x + 15, y + 80 + semaforoH + 15, semaforoW, semaforoH, "INTERSECCION C", estadoSem1, estadoSem2, semaforoInfraccion3);
-  dibujarSemaforoDobleIndividual(x + 15 + semaforoW + 15, y + 80 + semaforoH + 15, semaforoW, semaforoH, "INTERSECCION D", estadoSem1, estadoSem2, semaforoInfraccion4);
+  // Semáforo A - configuración normal (cara1=SEM1, cara2=SEM2)
+  String sem1_A = (configCaras[0] == 0) ? estadoSem1 : estadoSem2;
+  String sem2_A = (configCaras[0] == 0) ? estadoSem2 : estadoSem1;
+  dibujarSemaforoDobleIndividual(x + 15, y + 80, semaforoW, semaforoH, "INTERSECCION A", sem1_A, sem2_A, semaforoInfraccion1);
+  
+  // Semáforo B - configuración invertida (cara1=SEM2, cara2=SEM1)
+  String sem1_B = (configCaras[1] == 0) ? estadoSem1 : estadoSem2;
+  String sem2_B = (configCaras[1] == 0) ? estadoSem2 : estadoSem1;
+  dibujarSemaforoDobleIndividual(x + 15 + semaforoW + 15, y + 80, semaforoW, semaforoH, "INTERSECCION B", sem1_B, sem2_B, semaforoInfraccion2);
+  
+  // Semáforo C - configuración normal
+  String sem1_C = (configCaras[2] == 0) ? estadoSem1 : estadoSem2;
+  String sem2_C = (configCaras[2] == 0) ? estadoSem2 : estadoSem1;
+  dibujarSemaforoDobleIndividual(x + 15, y + 80 + semaforoH + 15, semaforoW, semaforoH, "INTERSECCION C", sem1_C, sem2_C, semaforoInfraccion3);
+  
+  // Semáforo D - configuración invertida
+  String sem1_D = (configCaras[3] == 0) ? estadoSem1 : estadoSem2;
+  String sem2_D = (configCaras[3] == 0) ? estadoSem2 : estadoSem1;
+  dibujarSemaforoDobleIndividual(x + 15 + semaforoW + 15, y + 80 + semaforoH + 15, semaforoW, semaforoH, "INTERSECCION D", sem1_D, sem2_D, semaforoInfraccion4);
 }
 
 void dibujarSemaforoDobleIndividual(float x, float y, float w, float h, String id, String estadoCara1, String estadoCara2, boolean infraccion) {
@@ -263,10 +285,10 @@ void dibujarLucesSemaforo(float centerX, float centerY, String estado) {
   ellipse(centerX, centerY + 52, 15, 15);
 }
 
-void dibujarMonitorIncendios(float x, float y, float w, float h) {
+void dibujarMonitorAmbiental(float x, float y, float w, float h) {
   // Panel con bordes redondeados y sombra
   fill(0, 0, 0, 50);
-  rect(x + 5, y + 5, w, h, 15); // Sombra
+  rect(x + 5, y + 5, w, h, 15);
   
   fill(40, 45, 55);
   stroke(80, 90, 110);
@@ -277,19 +299,106 @@ void dibujarMonitorIncendios(float x, float y, float w, float h) {
   fill(255, 255, 255);
   textSize(20);
   textAlign(LEFT, TOP);
-  text("SISTEMA DE DETECCION DE INCENDIOS", x + 15, y + 15);
+  text("MONITOREO AMBIENTAL", x + 15, y + 15);
   
   // Línea decorativa
-  stroke(255, 150, 50);
+  stroke(150, 255, 150);
   strokeWeight(3);
   line(x + 15, y + 45, x + w - 15, y + 45);
 
-  // Dibujar los 2 sensores de incendio
+  // === SECCIÓN CALIDAD DEL AIRE ===
+  fill(200, 220, 255);
+  textSize(16);
+  textAlign(LEFT, TOP);
+  text("SENSORES DE PARTICULAS PM2.5", x + 15, y + 60);
+
+  // Dibujar los 2 sensores de partículas
   float sensorW = (w - 45) / 2;
-  float sensorH = h - 80;
+  float sensorH = 90;
   
-  dibujarSensorIncendio(x + 15, y + 60, sensorW, sensorH, "INC-01", incendio1);
-  dibujarSensorIncendio(x + 15 + sensorW + 15, y + 60, sensorW, sensorH, "INC-02", incendio2);
+  dibujarSensorParticulas(x + 15, y + 85, sensorW, sensorH, "PM-01", nivelParticulas1);
+  dibujarSensorParticulas(x + 15 + sensorW + 15, y + 85, sensorW, sensorH, "PM-02", nivelParticulas2);
+
+  // === SECCIÓN DETECCIÓN DE INCENDIOS ===
+  fill(200, 220, 255);
+  textSize(16);
+  textAlign(LEFT, TOP);
+  text("SENSORES DE INCENDIO", x + 15, y + 190);
+
+  // Dibujar los 2 sensores de incendio
+  dibujarSensorIncendio(x + 15, y + 215, sensorW, 50, "INC-01", incendio1);
+  dibujarSensorIncendio(x + 15 + sensorW + 15, y + 215, sensorW, 50, "INC-02", incendio2);
+}
+
+void dibujarSensorParticulas(float x, float y, float w, float h, String id, float nivel) {
+  // Determinar estado basado en nivel de partículas PM2.5
+  // Bueno: 0-12, Moderado: 12-35, Insalubre: 35-55, Muy insalubre: 55+
+  boolean altoNivel = nivel > 55;
+  boolean medioNivel = nivel > 35 && nivel <= 55;
+  
+  // Fondo del sensor
+  if (altoNivel) {
+    fill(80, 20, 20);
+    stroke(255, 100, 100);
+  } else if (medioNivel) {
+    fill(80, 60, 20);
+    stroke(255, 200, 100);
+  } else {
+    fill(30, 35, 40);
+    stroke(60, 70, 80);
+  }
+  strokeWeight(1);
+  rect(x, y, w, h, 8);
+
+  // ID del sensor
+  fill(200, 220, 255);
+  textSize(16);
+  textAlign(CENTER, TOP);
+  text(id, x + w/2, y + 10);
+
+  // Icono del sensor y nivel
+  float iconX = x + w/2;
+  float iconY = y + 45;
+  
+  if (altoNivel) {
+    // Nivel peligroso
+    fill(255, 100 + sin(pulsoAlerta * 2) * 50, 100);
+    noStroke();
+    ellipse(iconX, iconY, 35, 35);
+    
+    fill(255, 50, 50);
+    textSize(14);
+    textAlign(CENTER, TOP);
+    text("PELIGROSO", iconX, iconY + 20);
+  } else if (medioNivel) {
+    // Nivel medio
+    fill(255, 200, 50);
+    stroke(255, 255, 100);
+    strokeWeight(2);
+    ellipse(iconX, iconY, 30, 30);
+    
+    fill(255, 220, 100);
+    textSize(14);
+    textAlign(CENTER, TOP);
+    text("MODERADO", iconX, iconY + 20);
+  } else {
+    // Nivel bueno
+    fill(100, 255, 100);
+    stroke(150, 255, 150);
+    strokeWeight(2);
+    ellipse(iconX, iconY, 30, 30);
+    
+    fill(150, 255, 150);
+    textSize(14);
+    textAlign(CENTER, TOP);
+    text("BUENO", iconX, iconY + 20);
+  }
+  
+  // Mostrar valor numérico
+  fill(255);
+  textSize(12);
+  textAlign(CENTER, TOP);
+  text(nf(nivel, 1, 1) + " µg/m³", iconX, iconY + 38);
 }
 
 void dibujarSensorIncendio(float x, float y, float w, float h, String id, boolean incendio) {
@@ -306,52 +415,47 @@ void dibujarSensorIncendio(float x, float y, float w, float h, String id, boolea
 
   // ID del sensor
   fill(200, 220, 255);
-  textSize(16);
+  textSize(12);
   textAlign(CENTER, TOP);
-  text(id, x + w/2, y + 10);
+  text(id, x + w/2, y + 5);
 
-  // Icono del sensor
+  // Estado del sensor con icono más compacto
   float iconX = x + w/2;
-  float iconY = y + 45;
+  float iconY = y + 25;
   
   if (incendio) {
-    // Llamas animadas
+    // Llama pequeña animada
     fill(255, 100 + sin(pulsoAlerta * 2) * 50, 0);
-    noStroke();
-    ellipse(iconX, iconY, 40, 40);
-    
-    fill(255, 150 + sin(pulsoAlerta * 3) * 50, 0);
-    ellipse(iconX - 5, iconY - 5, 30, 30);
-    ellipse(iconX + 5, iconY - 5, 30, 30);
-    
-    // Estado
-    fill(255, 150, 150);
-    textSize(14);
-    textAlign(CENTER, TOP);
-    text("INCENDIO", iconX, iconY + 25);
-    text("DETECTADO", iconX, iconY + 42);
-  } else {
-    // Sensor normal
-    fill(100, 100, 100);
-    stroke(150);
-    strokeWeight(2);
-    ellipse(iconX, iconY, 30, 30);
-    fill(50, 150, 50);
     noStroke();
     ellipse(iconX, iconY, 20, 20);
     
     // Estado
-    fill(150, 255, 150);
-    textSize(14);
+    fill(255, 150, 150);
+    textSize(10);
     textAlign(CENTER, TOP);
-    text("NORMAL", iconX, iconY + 25);
+    text("INCENDIO", iconX, iconY + 12);
+  } else {
+    // Sensor normal pequeño
+    fill(100, 100, 100);
+    stroke(150);
+    strokeWeight(1);
+    ellipse(iconX, iconY, 15, 15);
+    fill(50, 150, 50);
+    noStroke();
+    ellipse(iconX, iconY, 10, 10);
+    
+    // Estado
+    fill(150, 255, 150);
+    textSize(10);
+    textAlign(CENTER, TOP);
+    text("NORMAL", iconX, iconY + 12);
   }
 }
 
 void dibujarMapaBuses(float x, float y, float w, float h) {
   // Panel con bordes redondeados y sombra
   fill(0, 0, 0, 50);
-  rect(x + 5, y + 5, w, h, 15); // Sombra
+  rect(x + 5, y + 5, w, h, 15);
   
   fill(40, 45, 55);
   stroke(80, 90, 110);
@@ -370,11 +474,11 @@ void dibujarMapaBuses(float x, float y, float w, float h) {
   line(x + 15, y + 45, x + w - 15, y + 45);
 
   // Dimensiones de las rutas cuadradas
-  float rutaSize = 140;
+  float rutaSize = 120;
   
-  // === RUTA 1 (Azul) ===
+  // === RUTA TRANSMETRO (Azul) ===
   float ruta1X = x + 60;
-  float ruta1Y = y + 80;
+  float ruta1Y = y + 90; // Bajado de y + 70 a y + 90
   
   // Dibujar ruta cuadrada 1 con efectos
   stroke(50, 150, 255);
@@ -391,11 +495,9 @@ void dibujarMapaBuses(float x, float y, float w, float h) {
   PVector posBus1 = calcularPosicionEnRuta(ruta1X, ruta1Y, rutaSize, progresoBus1);
   
   // Dibujar Bus 1 con efectos
-  // Sombra del bus
   fill(0, 0, 0, 100);
   noStroke();
   ellipse(posBus1.x + 2, posBus1.y + 2, 20, 20);
-  // Bus
   fill(50, 150, 255);
   stroke(255);
   strokeWeight(2);
@@ -403,20 +505,20 @@ void dibujarMapaBuses(float x, float y, float w, float h) {
   fill(255);
   textSize(10);
   textAlign(CENTER, CENTER);
-  text("1", posBus1.x, posBus1.y);
+  text("T", posBus1.x, posBus1.y);
   
   // Etiquetas Ruta 1
   fill(100, 200, 255);
   textSize(16);
   textAlign(LEFT, TOP);
-  text("RUTA AZUL", ruta1X, ruta1Y - 25);
+  text("RUTA TRANSMETRO", ruta1X, ruta1Y - 20); // Subido de -25 a -20
   fill(200, 220, 255);
   textSize(12);
-  text("Distancia a parada: " + nf(distanciaParada1, 1, 0) + "m", ruta1X, ruta1Y + rutaSize + 20);
+  text("Distancia a parada: " + nf(distanciaParada1, 1, 0) + "m", ruta1X, ruta1Y + rutaSize + 15);
 
-  // === RUTA 2 (Roja) ===
-  float ruta2X = x + 350;
-  float ruta2Y = y + 80;
+  // === RUTA TRANSURBANO (Roja) ===
+  float ruta2X = x + 300;
+  float ruta2Y = y + 90; // Bajado de y + 70 a y + 90
   
   // Dibujar ruta cuadrada 2 con efectos
   stroke(255, 100, 100);
@@ -433,11 +535,9 @@ void dibujarMapaBuses(float x, float y, float w, float h) {
   PVector posBus2 = calcularPosicionEnRuta(ruta2X, ruta2Y, rutaSize, progresoBus2);
   
   // Dibujar Bus 2 con efectos
-  // Sombra del bus
   fill(0, 0, 0, 100);
   noStroke();
   ellipse(posBus2.x + 2, posBus2.y + 2, 20, 20);
-  // Bus
   fill(255, 100, 100);
   stroke(255);
   strokeWeight(2);
@@ -445,43 +545,38 @@ void dibujarMapaBuses(float x, float y, float w, float h) {
   fill(255);
   textSize(10);
   textAlign(CENTER, CENTER);
-  text("2", posBus2.x, posBus2.y);
+  text("U", posBus2.x, posBus2.y);
   
   // Etiquetas Ruta 2
   fill(255, 150, 150);
   textSize(16);
   textAlign(LEFT, TOP);
-  text("RUTA ROJA", ruta2X, ruta2Y - 25);
+  text("RUTA TRANSURBANO", ruta2X, ruta2Y - 20); // Subido de -25 a -20
   fill(255, 200, 200);
   textSize(12);
-  text("Distancia a parada: " + nf(distanciaParada2, 1, 0) + "m", ruta2X, ruta2Y + rutaSize + 20);
+  text("Distancia a parada: " + nf(distanciaParada2, 1, 0) + "m", ruta2X, ruta2Y + rutaSize + 15);
 
-  // === PARADAS ===
-  // Paradas en las esquinas con efectos
+  // === PARADAS (solo 2 por ruta) ===
   fill(255, 255, 100);
   stroke(255, 255, 200);
   strokeWeight(2);
   
-  // Paradas Ruta 1
+  // Paradas Ruta Transmetro (solo esquinas superior izquierda e inferior derecha)
   ellipse(ruta1X, ruta1Y, 12, 12); // esquina superior izquierda
-  ellipse(ruta1X + rutaSize, ruta1Y, 12, 12); // esquina superior derecha
   ellipse(ruta1X + rutaSize, ruta1Y + rutaSize, 12, 12); // esquina inferior derecha
-  ellipse(ruta1X, ruta1Y + rutaSize, 12, 12); // esquina inferior izquierda
   
-  // Paradas Ruta 2
-  ellipse(ruta2X, ruta2Y, 12, 12);
-  ellipse(ruta2X + rutaSize, ruta2Y, 12, 12);
-  ellipse(ruta2X + rutaSize, ruta2Y + rutaSize, 12, 12);
-  ellipse(ruta2X, ruta2Y + rutaSize, 12, 12);
+  // Paradas Ruta Transurbano (solo esquinas superior derecha e inferior izquierda)
+  ellipse(ruta2X + rutaSize, ruta2Y, 12, 12); // esquina superior derecha
+  ellipse(ruta2X, ruta2Y + rutaSize, 12, 12); // esquina inferior izquierda
 
   // === LEYENDA ===
-  float leyendaX = x + 580;
-  float leyendaY = y + 80;
+  float leyendaX = x + 500;
+  float leyendaY = y + 90; // Bajado de y + 70 a y + 90
   
   fill(30, 35, 40);
   stroke(60, 70, 80);
   strokeWeight(1);
-  rect(leyendaX, leyendaY, 180, 160, 8);
+  rect(leyendaX, leyendaY, 180, 140, 8);
   
   fill(255);
   textSize(14);
@@ -492,47 +587,47 @@ void dibujarMapaBuses(float x, float y, float w, float h) {
   fill(255, 255, 100);
   stroke(255, 255, 200);
   strokeWeight(2);
-  ellipse(leyendaX + 20, leyendaY + 40, 12, 12);
+  ellipse(leyendaX + 20, leyendaY + 35, 12, 12);
   fill(200, 220, 255);
   textSize(12);
   textAlign(LEFT, TOP);
-  text("Parada de Bus", leyendaX + 35, leyendaY + 35);
+  text("Parada de Bus", leyendaX + 35, leyendaY + 30);
   
-  // Bus Azul
+  // Bus Transmetro
   fill(50, 150, 255);
   stroke(255);
   strokeWeight(2);
-  ellipse(leyendaX + 20, leyendaY + 65, 18, 18);
+  ellipse(leyendaX + 20, leyendaY + 55, 18, 18);
   fill(255);
   textSize(10);
   textAlign(CENTER, CENTER);
-  text("1", leyendaX + 20, leyendaY + 65);
+  text("T", leyendaX + 20, leyendaY + 55);
   fill(200, 220, 255);
   textSize(12);
   textAlign(LEFT, TOP);
-  text("Bus Ruta Azul", leyendaX + 35, leyendaY + 60);
+  text("Bus Transmetro", leyendaX + 35, leyendaY + 50);
   
-  // Bus Rojo
+  // Bus Transurbano
   fill(255, 100, 100);
   stroke(255);
   strokeWeight(2);
-  ellipse(leyendaX + 20, leyendaY + 90, 18, 18);
+  ellipse(leyendaX + 20, leyendaY + 75, 18, 18);
   fill(255);
   textSize(10);
   textAlign(CENTER, CENTER);
-  text("2", leyendaX + 20, leyendaY + 90);
+  text("U", leyendaX + 20, leyendaY + 75);
   fill(200, 220, 255);
   textSize(12);
   textAlign(LEFT, TOP);
-  text("Bus Ruta Roja", leyendaX + 35, leyendaY + 85);
+  text("Bus Transurbano", leyendaX + 35, leyendaY + 70);
   
   // Estado del sistema
   fill(100, 255, 100);
   textSize(12);
   textAlign(LEFT, TOP);
-  text("Sistema Operativo", leyendaX + 10, leyendaY + 120);
+  text("Sistema Operativo", leyendaX + 10, leyendaY + 100);
   fill(150, 200, 255);
-  text("Buses en circulacion: 2", leyendaX + 10, leyendaY + 135);
+  text("Buses en circulacion: 2", leyendaX + 10, leyendaY + 115);
 }
 
 // Función para calcular la posición de un bus en una ruta cuadrada
@@ -568,7 +663,7 @@ PVector calcularPosicionEnRuta(float x, float y, float tamaño, float progreso) 
 void dibujarAlertas(float x, float y, float w, float h) {
   // Panel con bordes redondeados y sombra
   fill(0, 0, 0, 50);
-  rect(x + 5, y + 5, w, h, 15); // Sombra
+  rect(x + 5, y + 5, w, h, 15);
   
   fill(40, 45, 55);
   stroke(80, 90, 110);
@@ -593,20 +688,20 @@ void dibujarAlertas(float x, float y, float w, float h) {
     fill(80, 20, 20);
     stroke(255, 100, 100);
     strokeWeight(2);
-    rect(x + 10, alertaY, w - 20, 80, 8);
+    rect(x + 10, alertaY, w - 20, 60, 8);
     
     float brillo = 200 + sin(pulsoAlerta * 2) * 55;
     fill(brillo, 100, 100);
-    textSize(16);
+    textSize(14);
     textAlign(CENTER, TOP);
-    text("SISMO DETECTADO", x + w/2, alertaY + 15);
+    text("SISMO DETECTADO", x + w/2, alertaY + 10);
     
     fill(255, 200, 200);
-    textSize(12);
-    text("Activar protocolo de", x + w/2, alertaY + 35);
-    text("emergencia sismica", x + w/2, alertaY + 50);
+    textSize(10);
+    text("Activar protocolo", x + w/2, alertaY + 28);
+    text("de emergencia", x + w/2, alertaY + 40);
     
-    alertaY += 100;
+    alertaY += 80;
   }
   
   // Alerta de pánico
@@ -614,20 +709,20 @@ void dibujarAlertas(float x, float y, float w, float h) {
     fill(80, 60, 20);
     stroke(255, 200, 100);
     strokeWeight(2);
-    rect(x + 10, alertaY, w - 20, 80, 8);
+    rect(x + 10, alertaY, w - 20, 60, 8);
     
     float brillo = 200 + sin(pulsoAlerta * 3) * 55;
     fill(brillo, brillo * 0.8, 0);
-    textSize(16);
+    textSize(14);
     textAlign(CENTER, TOP);
-    text("BOTON DE PANICO", x + w/2, alertaY + 15);
+    text("BOTON DE PANICO", x + w/2, alertaY + 10);
     
     fill(255, 220, 150);
-    textSize(12);
-    text("Solicitud de ayuda", x + w/2, alertaY + 35);
-    text("de emergencia", x + w/2, alertaY + 50);
+    textSize(10);
+    text("Solicitud de ayuda", x + w/2, alertaY + 28);
+    text("de emergencia", x + w/2, alertaY + 40);
     
-    alertaY += 100;
+    alertaY += 80;
   }
   
   // Si no hay alertas activas
@@ -635,24 +730,24 @@ void dibujarAlertas(float x, float y, float w, float h) {
     fill(30, 60, 30);
     stroke(100, 200, 100);
     strokeWeight(1);
-    rect(x + 10, alertaY, w - 20, 60, 8);
+    rect(x + 10, alertaY, w - 20, 50, 8);
     
     fill(150, 255, 150);
-    textSize(14);
+    textSize(12);
     textAlign(CENTER, CENTER);
-    text("Sistema Normal", x + w/2, alertaY + 30);
+    text("Sistema Normal", x + w/2, alertaY + 25);
   }
   
   // Información de estado del sistema
   fill(200, 220, 255);
-  textSize(10);
+  textSize(9);
   textAlign(LEFT, BOTTOM);
-  text("Ultima actualizacion:", x + 10, y + h - 25);
-  text(nf(hour(), 2) + ":" + nf(minute(), 2) + ":" + nf(second(), 2), x + 10, y + h - 10);
+  text("Ultima actualizacion:", x + 10, y + h - 20);
+  text(nf(hour(), 2) + ":" + nf(minute(), 2) + ":" + nf(second(), 2), x + 10, y + h - 8);
 }
 
+// Barra inferior de estado
 void dibujarBarraEstado() {
-  // Barra inferior de estado
   fill(30, 35, 40);
   stroke(60, 70, 80);
   strokeWeight(1);
@@ -662,11 +757,11 @@ void dibujarBarraEstado() {
   textSize(12);
   textAlign(LEFT, CENTER);
   text("Sistema Conectado  |  Recibiendo datos  |  " + 
-       nf(hour(), 2) + ":" + nf(minute(), 2) + ":" + nf(second(), 2), 
-       15, height - 20);
-       
+      nf(hour(), 2) + ":" + nf(minute(), 2) + ":" + nf(second(), 2), 
+      15, height - 20);
+      
   textAlign(RIGHT, CENTER);
-  text("Dashboard IoT v2.0", width - 15, height - 20);
+  text("Dashboard IoT v2.0 - Creado por el Grupo 1 ", width - 15, height - 20);
 }
 
 // ====== Simulación de datos para testing ======
@@ -697,6 +792,16 @@ void simularDatos() {
     incendio2 = random(1) > 0.97; // 3% probabilidad
   }
 
+  // Simular niveles de partículas (cambios graduales)
+  if (frameCount % 120 == 0) { // Cada 2 segundos aprox
+    nivelParticulas1 += random(-5, 5);
+    nivelParticulas2 += random(-5, 5);
+    
+    // Mantener en rangos realistas
+    nivelParticulas1 = constrain(nivelParticulas1, 5, 120);
+    nivelParticulas2 = constrain(nivelParticulas2, 5, 120);
+  }
+
   // Simular movimiento de buses
   progresoBus1 += velocidadBus;
   if (progresoBus1 >= 1.0) progresoBus1 = 0.0;
@@ -704,9 +809,9 @@ void simularDatos() {
   progresoBus2 += velocidadBus * 0.8; // Bus 2 va un poco más lento
   if (progresoBus2 >= 1.0) progresoBus2 = 0.0;
 
-  // Actualizar distancias basadas en progreso
-  distanciaParada1 = (abs((progresoBus1 * 4) % 1.0 - 0.5) * 200);
-  distanciaParada2 = (abs((progresoBus2 * 4) % 1.0 - 0.5) * 200);
+  // Actualizar distancias basadas en progreso (para 2 paradas)
+  distanciaParada1 = (abs((progresoBus1 * 2) % 1.0 - 0.5) * 150);
+  distanciaParada2 = (abs((progresoBus2 * 2) % 1.0 - 0.5) * 150);
 
   // Simular alertas de emergencia (eventos muy raros)
   if (frameCount % 900 == 0) { // Cada 15 segundos aprox
@@ -720,7 +825,7 @@ void serialEvent(Serial myPort) {
   datosSerial = myPort.readStringUntil('\n');
   if (datosSerial != null) {
     datosSerial = trim(datosSerial);
-    println("Recibido: " + datosSerial); // Para debug
+    println("Recibido: " + datosSerial); // Para debuggear
 
     String[] partes = split(datosSerial, ';');
     for (String parte : partes) {
@@ -750,10 +855,10 @@ void serialEvent(Serial myPort) {
         // Buses
         else if (key.equals("BUS1")) {
           distanciaParada1 = float(val);
-          progresoBus1 = map(distanciaParada1, 100, 0, 0.0, 1.0);
+          progresoBus1 = map(distanciaParada1, 150, 0, 0.0, 1.0);
         } else if (key.equals("BUS2")) {
           distanciaParada2 = float(val);
-          progresoBus2 = map(distanciaParada2, 100, 0, 0.0, 1.0);
+          progresoBus2 = map(distanciaParada2, 150, 0, 0.0, 1.0);
         }
         
         // Sensores de incendio
@@ -761,6 +866,13 @@ void serialEvent(Serial myPort) {
           incendio1 = val.equals("1");
         } else if (key.equals("INC2")) {
           incendio2 = val.equals("1");
+        }
+        
+        // Sensores de partículas
+        else if (key.equals("PM1")) {
+          nivelParticulas1 = float(val);
+        } else if (key.equals("PM2")) {
+          nivelParticulas2 = float(val);
         }
         
         // Alertas
