@@ -25,7 +25,7 @@ String alertaExtra = "Sin alertas";
 // BUSES: ahora se mapea directamente desde distancia 0..MAX (no hay inversión)
 final float MAX_BUS = 120.0; // maqueta
 
-float distanciaParada1 = 0; // iniciar en 0
+float distanciaParada1 = 0; // iniciar en 0 (valor recibido)
 float distanciaParada2 = 0;
 
 float progresoBus1 = 0; // 0-1
@@ -314,8 +314,13 @@ void dibujarMapaBuses(float x, float y, float w, float h) {
   strokeWeight(10);
   rect(rutaOuterX, rutaOuterY, rutaOuterW, rutaOuterH, 10);
 
-  // usamos progresoBus1 calculado desde BUS1 (0..1)
-  PVector posBus1 = calcularPosicionEnRutaRect(rutaOuterX, rutaOuterY, rutaOuterW, rutaOuterH, progresoBus1);
+  // Posición del bus 1: calculada a partir de progresoBus1, pero desplazamos
+  // el inicio (progreso=0) para que coincida con la parada seleccionada (top-center)
+  float perOuter = 2 * (rutaOuterW + rutaOuterH);
+  float stationTopOuter = rutaOuterW / 2.0; // distancia desde esquina superior izquierda hasta estación superior centro
+  float stationTopOuterFrac = (perOuter > 0) ? (stationTopOuter / perOuter) : 0;
+
+  PVector posBus1 = calcularPosicionEnRutaRect(rutaOuterX, rutaOuterY, rutaOuterW, rutaOuterH, (progresoBus1 + stationTopOuterFrac) % 1.0);
 
   fill(0, 0, 0, 100);
   noStroke();
@@ -333,10 +338,13 @@ void dibujarMapaBuses(float x, float y, float w, float h) {
   textSize(16);
   textAlign(LEFT, TOP);
   text("RUTA TRANSMETRO", rutaOuterX, rutaOuterY - 20);
+
+  // MOSTRAR la distancia que llega directamente desde Arduino (0..MAX_BUS)
   fill(200, 220, 255);
   textSize(12);
   text("Distancia a parada: " + nf(distanciaParada1, 1, 0) + " cm", rutaOuterX, rutaOuterY + rutaOuterH + 15);
 
+  // RUTA INTERNA (TRANSURBANO) - mantenemos paradas izquierda/derecha
   float rutaInnerW = rutaOuterW * 0.40;  
   float rutaInnerH = rutaOuterH * 0.50; 
   float rutaInnerX = rutaOuterX + (rutaOuterW - rutaInnerW) / 2;
@@ -350,7 +358,13 @@ void dibujarMapaBuses(float x, float y, float w, float h) {
   strokeWeight(8);
   rect(rutaInnerX, rutaInnerY, rutaInnerW, rutaInnerH, 8);
 
-  PVector posBus2 = calcularPosicionEnRutaRect(rutaInnerX, rutaInnerY, rutaInnerW, rutaInnerH, progresoBus2);
+  // Para el inner, desplazamos el inicio (progreso=0) para que coincida con la parada derecha
+  float perInner = 2 * (rutaInnerW + rutaInnerH);
+  // distancia desde esquina superior izquierda hasta la mitad del lado derecho
+  float stationRightInner = rutaInnerW + (rutaInnerH / 2.0);
+  float stationRightInnerFrac = (perInner > 0) ? (stationRightInner / perInner) : 0;
+
+  PVector posBus2 = calcularPosicionEnRutaRect(rutaInnerX, rutaInnerY, rutaInnerW, rutaInnerH, (progresoBus2 + stationRightInnerFrac) % 1.0);
 
   fill(0, 0, 0, 100);
   noStroke();
@@ -368,72 +382,86 @@ void dibujarMapaBuses(float x, float y, float w, float h) {
   textSize(16);
   textAlign(LEFT, TOP);
   text("RUTA TRANSURBANO", rutaInnerX, rutaInnerY - 20);
+
+  // MOSTRAR la distancia que llega directamente desde Arduino (0..MAX_BUS)
   fill(255, 200, 200);
   textSize(12);
   text("Distancia a parada: " + nf(distanciaParada2, 1, 0) + " cm", rutaInnerX, rutaInnerY + rutaInnerH + 15);
 
-  // Paradas y leyenda
+  // Paradas: Outer -> TOP y BOTTOM (centradas)
   fill(255, 255, 100);
   stroke(255, 255, 200);
   strokeWeight(2);
-  ellipse(rutaOuterX + 10, rutaOuterY + rutaOuterH/2, 12, 12);
-  ellipse(rutaOuterX + rutaOuterW - 10, rutaOuterY + rutaOuterH/2, 12, 12);
+  ellipse(rutaOuterX + rutaOuterW/2, rutaOuterY + 10, 12, 12);
+  ellipse(rutaOuterX + rutaOuterW/2, rutaOuterY + rutaOuterH - 10, 12, 12);
+
+  // Paradas inner -> LEFT y RIGHT (centradas)
   float marginInner = 12;
   ellipse(rutaInnerX + marginInner, rutaInnerY + rutaInnerH/2, 12, 12);
   ellipse(rutaInnerX + rutaInnerW - marginInner, rutaInnerY + rutaInnerH/2, 12, 12);
 
-  float leyendaX = x + w - 180 - 20;
+  // Leyenda (mantengo la versión agrandada)
+  float leyendaW = 240;
+  float leyendaH = 200;
+  float leyendaX = x + w - leyendaW - 20;
   float leyendaY = y + 90;
   fill(30, 35, 40);
   stroke(60, 70, 80);
   strokeWeight(1);
-  rect(leyendaX, leyendaY, 180, 140, 8);
+  rect(leyendaX, leyendaY, leyendaW, leyendaH, 8);
   fill(255);
-  textSize(14);
+  textSize(16);
   textAlign(LEFT, TOP);
-  text("LEYENDA", leyendaX + 10, leyendaY + 10);
+  text("LEYENDA", leyendaX + 12, leyendaY + 12);
 
   fill(255, 255, 100);
   stroke(255, 255, 200);
   strokeWeight(2);
-  ellipse(leyendaX + 20, leyendaY + 35, 12, 12);
+  ellipse(leyendaX + 24, leyendaY + 52, 14, 14);
   fill(200, 220, 255);
-  textSize(12);
+  textSize(14);
   textAlign(LEFT, TOP);
-  text("Estación", leyendaX + 35, leyendaY + 30);
+  text("Estación (parada)", leyendaX + 44, leyendaY + 46);
 
   fill(50, 150, 255);
   stroke(255);
   strokeWeight(2);
-  ellipse(leyendaX + 20, leyendaY + 55, 18, 18);
+  ellipse(leyendaX + 24, leyendaY + 86, 20, 20);
   fill(255);
-  textSize(10);
-  textAlign(CENTER, CENTER);
-  text("T", leyendaX + 20, leyendaY + 55);
-  fill(200, 220, 255);
   textSize(12);
+  textAlign(CENTER, CENTER);
+  text("T", leyendaX + 24, leyendaY + 86);
+  fill(200, 220, 255);
+  textSize(14);
   textAlign(LEFT, TOP);
-  text("Bus Transmetro", leyendaX + 35, leyendaY + 50);
+  text("Bus Transmetro", leyendaX + 44, leyendaY + 78);
 
   fill(255, 100, 100);
   stroke(255);
   strokeWeight(2);
-  ellipse(leyendaX + 20, leyendaY + 75, 18, 18);
+  ellipse(leyendaX + 24, leyendaY + 114, 20, 20);
   fill(255);
-  textSize(10);
-  textAlign(CENTER, CENTER);
-  text("U", leyendaX + 20, leyendaY + 75);
-  fill(200, 220, 255);
   textSize(12);
+  textAlign(CENTER, CENTER);
+  text("U", leyendaX + 24, leyendaY + 114);
+  fill(200, 220, 255);
+  textSize(14);
   textAlign(LEFT, TOP);
-  text("Bus Transurbano", leyendaX + 35, leyendaY + 70);
+  text("Bus Transurbano", leyendaX + 44, leyendaY + 106);
 
   fill(100, 255, 100);
-  textSize(12);
+  textSize(14);
   textAlign(LEFT, TOP);
-  text("Sistema Operativo", leyendaX + 10, leyendaY + 100);
+  text("Sistema Operativo", leyendaX + 12, leyendaY + 144);
   fill(150, 200, 255);
-  text("Buses en circulacion: 2", leyendaX + 10, leyendaY + 115);
+  textSize(13);
+  text("Buses en circulacion: 2", leyendaX + 12, leyendaY + 160);
+}
+
+// helper: distancia circular mínima entre dos posiciones sobre un perímetro
+float minimalCircularDistance(float a, float b, float per) {
+  float diff = abs(a - b);
+  return min(diff, per - diff);
 }
 
 PVector calcularPosicionEnRutaRect(float x, float y, float ancho, float alto, float progreso) {
@@ -606,22 +634,24 @@ void serialEvent(Serial myPort) {
 
 // Procesa BUSx como distancia 0..MAX que cicla 0->MAX->0
 void procesarBusComoDistancia(int busId, float newDist) {
-  // detectamos reinicio (cuando valor baja de un valor alto a uno bajo)
+  // aseguramos rango
+  newDist = constrain(newDist, 0, MAX_BUS);
+
   if (busId == 1) {
+    // detectamos reinicio (cuando el valor baja bruscamente: MAX -> 0)
     if (prevDistBus1 >= 0 && newDist < prevDistBus1 - 1.0) {
-      halfIndexBus1 = (halfIndexBus1 + 1) % 2;
+      halfIndexBus1 = (halfIndexBus1 + 1) & 1; // togglear entre 0 y 1
     }
     distanciaParada1 = newDist;
     prevDistBus1 = newDist;
-    float frac = (MAX_BUS > 0) ? (newDist / MAX_BUS) : 0;
-    progresoBus1 = (halfIndexBus1 * 0.5) + (frac * 0.5);
+    // calculamos progreso en 0..1 (usando la mitad del perímetro por semiperímetro)
+    progresoBus1 = (halfIndexBus1 * 0.5) + ((MAX_BUS > 0 ? newDist / MAX_BUS : 0) * 0.5);
   } else {
     if (prevDistBus2 >= 0 && newDist < prevDistBus2 - 1.0) {
-      halfIndexBus2 = (halfIndexBus2 + 1) % 2;
+      halfIndexBus2 = (halfIndexBus2 + 1) & 1;
     }
     distanciaParada2 = newDist;
     prevDistBus2 = newDist;
-    float frac = (MAX_BUS > 0) ? (newDist / MAX_BUS) : 0;
-    progresoBus2 = (halfIndexBus2 * 0.5) + (frac * 0.5);
+    progresoBus2 = (halfIndexBus2 * 0.5) + ((MAX_BUS > 0 ? newDist / MAX_BUS : 0) * 0.5);
   }
 }
