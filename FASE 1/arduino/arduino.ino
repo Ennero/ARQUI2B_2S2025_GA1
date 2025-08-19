@@ -5,6 +5,12 @@
 #define MAX_DISTANCE 50
 #define PING_INTERVAL 33
 
+// --- CONFIGURACIÓN PIEZOELECTRICO ---
+const int PIEZO_PIN = A8;
+const int PIEZO_THRESHOLD = 100;  // Ajusta según sensibilidad
+unsigned long lastPiezoCheck = 0;
+const unsigned long piezoInterval = 500; // revisar cada 0.5s
+
 enum SensorPurpose { SENSOR_PASS,
                      SENSOR_ARRIVAL };
 
@@ -155,12 +161,12 @@ void leerSensoresHumo() {
     if (smoke1 > SMOKE_THRESHOLD) {
         // Serial.println("⚠ ALERTA: Nivel de humo ALTO en sensor 1");
         //! DATA EMITION
-        Serial.print(";SMOKE1=");
+        Serial.print(";INC1=");
         Serial.print(1);
     }
     if (smoke2 > SMOKE_THRESHOLD) {
         //! DATA EMITION
-        Serial.print(";SMOKE2=");
+        Serial.print(";INC2=");
         Serial.print(1);
         // Serial.println("⚠ ALERTA: Nivel de humo ALTO en sensor 2");
     }
@@ -276,6 +282,21 @@ void setup() {
         pingTimer[i] = startTime + i * PING_INTERVAL;
         distances[i] = 0;
     }
+
+    // Init piezoeletrico
+    pinMode(PIEZO_PIN, INPUT);
+}
+
+// --- Piezoelectrico ---
+void leerPiezoelectrico() {
+    int piezoValue = analogRead(PIEZO_PIN);
+
+    if (piezoValue > PIEZO_THRESHOLD) {
+        //! DATA EMITION (Piezoelectric)
+        Serial.print(";SISMO");
+        Serial.print("=");
+        Serial.print(1);
+    }
 }
 
 // --- Bucle Principal (loop) ---
@@ -306,7 +327,12 @@ void loop() {
         lastSmokeCheck = now;
     }
 
-    Serial.println();
+    if (now - lastPiezoCheck >= piezoInterval) {
+        leerPiezoelectrico();
+        lastPiezoCheck = now;
+    }
+
+    // Serial.println();
 
     // TODO: still need to implement piezoelectrico data emition
 }
