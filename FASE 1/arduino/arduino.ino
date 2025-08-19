@@ -239,7 +239,7 @@ void updateTrafficLights(unsigned long now) {
                 currentCycle = GREEN_B;
                 trafficA.setState(TrafficLight::RED);
                 trafficB.setState(TrafficLight::GREEN);
-                stateStartTime = now;0
+                stateStartTime = now;
                 //! DATA EMITION (TRAFFIC LIGHTS)
                 // Serial.print(";SEM1=RED");
                 // Serial.print(";SEM2=GREEN");
@@ -337,7 +337,7 @@ void loop() {
         leerPiezoelectrico();
         lastPiezoCheck = now;
     } else {
-        Serial.println(";SISMO=0");
+        // Serial.println(";SISMO=0");
     }
 
     // Serial.println();
