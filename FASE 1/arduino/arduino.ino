@@ -158,6 +158,12 @@ void leerSensoresHumo() {
     //   Serial.print("MQ-2 Sensor 2: ");
     //   Serial.println(smoke2);
 
+    //! DATA EMITION (particles)
+    Serial.print(";PM1=");
+    Serial.print(smoke1);
+    Serial.print(";PM2=");
+    Serial.print(smoke2);
+
     if (smoke1 > SMOKE_THRESHOLD) {
         // Serial.println("⚠ ALERTA: Nivel de humo ALTO en sensor 1");
         //! DATA EMITION
