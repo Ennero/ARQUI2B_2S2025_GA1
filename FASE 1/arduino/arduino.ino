@@ -170,6 +170,7 @@ void leerSensoresHumo() {
         Serial.print(";INC1=");
         Serial.print(1);
     }
+
     if (smoke2 > SMOKE_THRESHOLD) {
         //! DATA EMITION
         Serial.print(";INC2=");
@@ -336,6 +337,8 @@ void loop() {
     if (now - lastPiezoCheck >= piezoInterval) {
         leerPiezoelectrico();
         lastPiezoCheck = now;
+    } else {
+        Serial.println(";SISMO=0");
     }
 
     // Serial.println();
