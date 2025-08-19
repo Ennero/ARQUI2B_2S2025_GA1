@@ -45,8 +45,8 @@ Sensor sensors[] = {
   { &sonar[4], SENSOR_PASS   , 5, 1 },
   { &sonar[5], SENSOR_PASS   , 6, 1 },
   { &sonar[6], SENSOR_PASS   , 7, 0 },
-  { &sonar[7], SENSOR_ARRIVAL, 8, 0 },
-  { &sonar[8], SENSOR_ARRIVAL, 9, 0 },
+  { &sonar[7], SENSOR_PASS   , 8, 0 },
+  { &sonar[8], SENSOR_PASS   , 9, 1 },
   { &sonar[9], SENSOR_ARRIVAL, 10, 0 },
   { &sonar[10], SENSOR_ARRIVAL, 11, 0 },
   { &sonar[11], SENSOR_ARRIVAL, 12, 0 },
@@ -107,10 +107,10 @@ void sonarBuzzer(int buzzerIndex, unsigned long now) {
         digitalWrite(PINES_BUZZER[buzzerIndex], HIGH);
         tiempoInicioBuzzer[buzzerIndex] = now;
         //! DATA EMITION (sonar buzzer)
-        Serial.print(";BUS");
-        Serial.print(buzzerIndex + 1);
-        Serial.print("=");
-        Serial.print(1);
+        // Serial.print(";BUS");
+        // Serial.print(buzzerIndex + 1);
+        // Serial.print("=");
+        // Serial.print(1);
     }
 }
 
@@ -119,9 +119,9 @@ void controlarBuzzer() {
     for (int i = 0; i < NUM_BOTONES; i++) {
         if (digitalRead(PINES_BUZZER[i]) == HIGH && (now - tiempoInicioBuzzer[i] >= duracionBuzzer)) {
             digitalWrite(PINES_BUZZER[i], LOW);
-            //   Serial.print("Buzzer ");
-            //   Serial.print(i + 1);
-            //   Serial.println(" apagado.");
+            Serial.print("Buzzer ");
+            Serial.print(i + 1);
+            Serial.println(" apagado.");
         }
     }
 }
@@ -133,15 +133,15 @@ void manejarBotones() {
 
         if (estadoActual != estadoAnteriorBotones[i] && (now - ultimaLecturaBoton[i] >= debounceTime)) {
             if (estadoActual) {
-                // Serial.print("Boton ");
-                // Serial.print(i + 1);
-                // Serial.println(" presionado. Activando buzzer.");
+                Serial.print("Boton ");
+                Serial.print(i + 1);
+                Serial.println(" presionado. Activando buzzer.");
                 sonarBuzzer(i, now);
                 //! DATA EMITION (on clicked button)
-                Serial.print(";PANICO=");
-                Serial.print(i + 1);
-                Serial.print("=");
-                Serial.print(1);
+                // Serial.print(";PANICO=");
+                // Serial.print(i + 1);
+                // Serial.print("=");
+                // Serial.print(1);
             }
             estadoAnteriorBotones[i] = estadoActual;
             ultimaLecturaBoton[i] = now;
@@ -153,10 +153,10 @@ void leerSensoresHumo() {
     int smoke1 = analogRead(MQ2_SENSOR_1);
     int smoke2 = analogRead(MQ2_SENSOR_2);
 
-    //   Serial.print("MQ-2 Sensor 1: ");
-    //   Serial.println(smoke1);
-    //   Serial.print("MQ-2 Sensor 2: ");
-    //   Serial.println(smoke2);
+    Serial.print("MQ-2 Sensor 1: ");
+    Serial.println(smoke1);
+    Serial.print("MQ-2 Sensor 2: ");
+    Serial.println(smoke2);
 
     //! DATA EMITION (particles)
     Serial.print(";PM1=");
@@ -165,17 +165,17 @@ void leerSensoresHumo() {
     Serial.print(smoke2);
 
     if (smoke1 > SMOKE_THRESHOLD) {
-        // Serial.println("⚠ ALERTA: Nivel de humo ALTO en sensor 1");
+        Serial.println("⚠ ALERTA: Nivel de humo ALTO en sensor 1");
         //! DATA EMITION
-        Serial.print(";INC1=");
-        Serial.print(1);
+        // Serial.print(";SMOKE1=");
+        // Serial.print(1);
     }
 
     if (smoke2 > SMOKE_THRESHOLD) {
         //! DATA EMITION
-        Serial.print(";INC2=");
-        Serial.print(1);
-        // Serial.println("⚠ ALERTA: Nivel de humo ALTO en sensor 2");
+        // Serial.print(";SMOKE2=");
+        // Serial.print(1);
+        Serial.println("⚠ ALERTA: Nivel de humo ALTO en sensor 2");
     }
 }
 
@@ -190,33 +190,32 @@ void processSensorReadings() {
         uint16_t dist = distances[i];
         if (dist == 0) continue;
 
-        switch (sensors[i].purpose) {
-        case SENSOR_PASS:
-            if (dist <= 3) {
-                //   Serial.print("Alert: Red light violation at sensor ");
-                //   Serial.println(sensors[i].id);
+        if (dist <= 3) {
+            switch (sensors[i].purpose) {
+            case SENSOR_PASS:
+                Serial.print("Bus detectado en sensor ");
+                Serial.print(sensors[i].id);
+                Serial.print(": ");
                 //! DATA EMITION (Ultrasonic)
-                Serial.print(";INFRACCION");
-                Serial.print(sensors[i].id + 1);
-                Serial.print("=");
-                Serial.print(1);
+                // Serial.print(";INFRACCION");
+                // Serial.print(sensors[i].id + 1);
+                // Serial.print("=");
+                // Serial.print(1);
                 
                 if (sensors[i].group == 0 && (currentCycle == GREEN_B || currentCycle == YELLOW_B)) {
-                    // Serial.println("Confirmed violation in Group A");
+                    Serial.println("violación - paso en rojo en un semáforo del grupo A");
                 } else if (sensors[i].group == 1 && (currentCycle == GREEN_A || currentCycle == YELLOW_A)) {
-                    // Serial.println("Confirmed violation in Group B");
-                } else {
-                    // Serial.println("No violation - group has green/yellow");
+                    Serial.println("violación - paso en rojo en un semáforo del grupo B");
+                } else { 
+                    Serial.println("sin violación - paso con el semáforo verde/amarillo");
                 }
-            }
-            break;
+                break;
 
-        case SENSOR_ARRIVAL:
-            if (dist <= 10) {
-            //   Serial.print("Bus arrival at sensor ");
-            //   Serial.println(sensors[i].id);
+            case SENSOR_ARRIVAL:
+                Serial.print("Bus llego al sensor ");
+                Serial.println(sensors[i].id);
+                break;
             }
-            break;
         }
     }
 }
@@ -230,8 +229,8 @@ void updateTrafficLights(unsigned long now) {
                 trafficB.setState(TrafficLight::RED);
                 stateStartTime = now;
                 //! DATA EMITION (TRAFFIC LIGHTS)
-                Serial.print(";SEM1=YELLOW");
-                Serial.print(";SEM2=RED");
+                // Serial.print(";SEM1=YELLOW");
+                // Serial.print(";SEM2=RED");
             }
             break;
 
@@ -240,10 +239,10 @@ void updateTrafficLights(unsigned long now) {
                 currentCycle = GREEN_B;
                 trafficA.setState(TrafficLight::RED);
                 trafficB.setState(TrafficLight::GREEN);
-                stateStartTime = now;
+                stateStartTime = now;0
                 //! DATA EMITION (TRAFFIC LIGHTS)
-                Serial.print(";SEM1=RED");
-                Serial.print(";SEM2=GREEN");
+                // Serial.print(";SEM1=RED");
+                // Serial.print(";SEM2=GREEN");
             }
             break;
 
@@ -254,8 +253,8 @@ void updateTrafficLights(unsigned long now) {
                 trafficB.setState(TrafficLight::YELLOW);
                 stateStartTime = now;
                 //! DATA EMITION (TRAFFIC LIGHTS)
-                Serial.print(";SEM1=RED");
-                Serial.print(";SEM2=YELLOW");
+                // Serial.print(";SEM1=RED");
+                // Serial.print(";SEM2=YELLOW");
             }
             break;
 
@@ -266,8 +265,8 @@ void updateTrafficLights(unsigned long now) {
                 trafficB.setState(TrafficLight::RED);
                 stateStartTime = now;
                 //! DATA EMITION (TRAFFIC LIGHTS)
-                Serial.print(";SEM1=GREEN");
-                Serial.print(";SEM2=RED");
+                // Serial.print(";SEM1=GREEN");
+                // Serial.print(";SEM2=RED");
             }
             break;
     }
