@@ -1,11 +1,12 @@
 #include <NewPing.h>
 #include "TrafficLight.h"
 
-// --- Constantes para Sensores Ultrasónicos ---
+// -------------------- CONFIGURACIÓN SENSORES ULTRASÓNICOS --------------------
 #define MAX_DISTANCE 50
 #define PING_INTERVAL 33
 
-enum SensorPurpose { SENSOR_PASS, SENSOR_ARRIVAL };
+enum SensorPurpose { SENSOR_PASS,
+                     SENSOR_ARRIVAL };
 
 struct Sensor {
   NewPing* sonar;
@@ -15,35 +16,35 @@ struct Sensor {
 };
 
 NewPing sonar[] = {
-  NewPing(22, 23, MAX_DISTANCE), // 0
-  NewPing(24, 25, MAX_DISTANCE),
-  NewPing(26, 27, MAX_DISTANCE),
-  NewPing(28, 29, MAX_DISTANCE),
-  NewPing(30, 31, MAX_DISTANCE),
-  NewPing(32, 33, MAX_DISTANCE),
-  NewPing(34, 35, MAX_DISTANCE),
-  NewPing(36, 37, MAX_DISTANCE),
-  NewPing(38, 39, MAX_DISTANCE),
-  NewPing(40, 41, MAX_DISTANCE),
-  NewPing(42, 43, MAX_DISTANCE),
-  NewPing(44, 45, MAX_DISTANCE),
-  NewPing(46, 47, MAX_DISTANCE) // 12
+  NewPing(22, 23, MAX_DISTANCE),  // 1
+  NewPing(24, 25, MAX_DISTANCE),  // 2
+  NewPing(26, 27, MAX_DISTANCE),  // 3
+  NewPing(28, 29, MAX_DISTANCE),  // 4
+  NewPing(30, 31, MAX_DISTANCE),  // 5
+  NewPing(32, 33, MAX_DISTANCE),  // 6
+  NewPing(34, 35, MAX_DISTANCE),  // 7
+  NewPing(36, 37, MAX_DISTANCE),  // 8
+  NewPing(38, 39, MAX_DISTANCE),  // 9
+  NewPing(40, 41, MAX_DISTANCE),  // 10
+  NewPing(42, 43, MAX_DISTANCE),  // 11
+  NewPing(44, 45, MAX_DISTANCE),  // 12
+  NewPing(46, 47, MAX_DISTANCE)   // 13
 };
 
 Sensor sensors[] = {
-  { &sonar[0],  SENSOR_PASS,    0, 0 },
-  { &sonar[1],  SENSOR_ARRIVAL, 1, 0 },
-  { &sonar[2],  SENSOR_PASS,    2, 1 },
-  { &sonar[3],  SENSOR_ARRIVAL, 3, 1 },
-  { &sonar[4],  SENSOR_PASS,    4, 0 },
-  { &sonar[5],  SENSOR_ARRIVAL, 5, 0 },
-  { &sonar[6],  SENSOR_PASS,    6, 1 },
-  { &sonar[7],  SENSOR_ARRIVAL, 7, 1 },
-  { &sonar[8],  SENSOR_PASS,    8, 0 },
-  { &sonar[9],  SENSOR_ARRIVAL, 9, 0 },
-  { &sonar[10], SENSOR_PASS,    10, 1 },
-  { &sonar[11], SENSOR_ARRIVAL, 11, 1 },
-  { &sonar[12], SENSOR_PASS,    12, 0 }
+  { &sonar[0], SENSOR_PASS   , 1, 0 },
+  { &sonar[1], SENSOR_PASS   , 2, 1 },
+  { &sonar[2], SENSOR_ARRIVAL, 3, 0 },
+  { &sonar[3], SENSOR_PASS   , 4, 0 },
+  { &sonar[4], SENSOR_PASS   , 5, 1 },
+  { &sonar[5], SENSOR_PASS   , 6, 1 },
+  { &sonar[6], SENSOR_PASS   , 7, 0 },
+  { &sonar[7], SENSOR_ARRIVAL, 8, 0 },
+  { &sonar[8], SENSOR_ARRIVAL, 9, 0 },
+  { &sonar[9], SENSOR_ARRIVAL, 10, 0 },
+  { &sonar[10], SENSOR_ARRIVAL, 11, 0 },
+  { &sonar[11], SENSOR_ARRIVAL, 12, 0 },
+  { &sonar[12], SENSOR_ARRIVAL, 13, 0 }
 };
 
 const uint8_t NUM_SENSORS = sizeof(sensors) / sizeof(sensors[0]);
