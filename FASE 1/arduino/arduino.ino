@@ -5,9 +5,11 @@
 #define MAX_DISTANCE 50
 #define PING_INTERVAL 33
 
-// --- CONFIGURACIÓN PIEZOELECTRICO ---
-const int PIEZO_PIN = A8;
-const int PIEZO_THRESHOLD = 100;  // Ajusta según sensibilidad
+// --- Buffer string for Processing inputs ---
+String messageBuffer = "";
+
+// --- CONFIGURACIÓN PIEZOELECTRICO (DIGITAL) ---
+const int PIEZO_PIN = 8;   // usa un pin digital (ej: D8)
 unsigned long lastPiezoCheck = 0;
 const unsigned long piezoInterval = 500; // revisar cada 0.5s
 
@@ -111,6 +113,7 @@ void sonarBuzzer(int buzzerIndex, unsigned long now) {
         // Serial.print(buzzerIndex + 1);
         // Serial.print("=");
         // Serial.print(1);
+        appendToBuffer(";BUS" + String(buzzerIndex + 1) + "=1");
     }
 }
 
@@ -142,6 +145,10 @@ void manejarBotones() {
                 // Serial.print(i + 1);
                 // Serial.print("=");
                 // Serial.print(1);
+                appendToBuffer(";PANICO=" + String(i + 1) + "=1");
+
+            } else {
+                appendToBuffer(";PANICO=" + String(i + 1) + "=0");
             }
             estadoAnteriorBotones[i] = estadoActual;
             ultimaLecturaBoton[i] = now;
@@ -157,18 +164,24 @@ void leerSensoresHumo() {
     Serial.println(smoke1);
     Serial.print("MQ-2 Sensor 2: ");
     Serial.println(smoke2);
+    appendToBuffer(";PM2=" + String(smoke2));
 
     //! DATA EMITION (particles)
-    Serial.print(";PM1=");
-    Serial.print(smoke1);
-    Serial.print(";PM2=");
-    Serial.print(smoke2);
+    // Serial.print(";PM1=");
+    // Serial.print(smoke1);
+    appendToBuffer(";PM1=" + String(smoke1));
+    // Serial.print(";PM2=");
+    // Serial.print(smoke2);
+    appendToBuffer(";PM2=" + String(smoke2));
 
     if (smoke1 > SMOKE_THRESHOLD) {
         Serial.println("⚠ ALERTA: Nivel de humo ALTO en sensor 1");
         //! DATA EMITION
         // Serial.print(";SMOKE1=");
         // Serial.print(1);
+        appendToBuffer(";SMOKE1=" + String(1));
+    } else {
+        appendToBuffer(";SMOKE1=" + String(0));
     }
 
     if (smoke2 > SMOKE_THRESHOLD) {
@@ -176,6 +189,9 @@ void leerSensoresHumo() {
         // Serial.print(";SMOKE2=");
         // Serial.print(1);
         Serial.println("⚠ ALERTA: Nivel de humo ALTO en sensor 2");
+        appendToBuffer(";SMOKE2=" + String(1));
+    } else {
+        appendToBuffer(";SMOKE2=" + String(0));
     }
 }
 
@@ -201,7 +217,8 @@ void processSensorReadings() {
                 // Serial.print(sensors[i].id + 1);
                 // Serial.print("=");
                 // Serial.print(1);
-                
+                appendToBuffer(";INFRACCION=" + String(sensors[i].id + 1) + "=1");
+
                 if (sensors[i].group == 0 && (currentCycle == GREEN_B || currentCycle == YELLOW_B)) {
                     Serial.println("violación - paso en rojo en un semáforo del grupo A");
                 } else if (sensors[i].group == 1 && (currentCycle == GREEN_A || currentCycle == YELLOW_A)) {
@@ -231,7 +248,11 @@ void updateTrafficLights(unsigned long now) {
                 //! DATA EMITION (TRAFFIC LIGHTS)
                 // Serial.print(";SEM1=YELLOW");
                 // Serial.print(";SEM2=RED");
+                appendToBuffer(";SEM1=YELLOW;SEM2=RED");
+            } else {
+                // appendToBuffer(";SEM1=GREEN;SEM2=RED");
             }
+
             break;
 
         case YELLOW_A:
@@ -243,6 +264,9 @@ void updateTrafficLights(unsigned long now) {
                 //! DATA EMITION (TRAFFIC LIGHTS)
                 // Serial.print(";SEM1=RED");
                 // Serial.print(";SEM2=GREEN");
+                appendToBuffer(";SEM1=RED;SEM2=GREEN");
+            } else {
+                // appendToBuffer(";SEM1=RED;SEM2=GREEN");
             }
             break;
 
@@ -255,6 +279,9 @@ void updateTrafficLights(unsigned long now) {
                 //! DATA EMITION (TRAFFIC LIGHTS)
                 // Serial.print(";SEM1=RED");
                 // Serial.print(";SEM2=YELLOW");
+                appendToBuffer(";SEM1=RED;SEM2=YELLOW");
+            } else {
+                // appendToBuffer(";SEM1=RED;SEM2=YELLOW");
             }
             break;
 
@@ -267,9 +294,17 @@ void updateTrafficLights(unsigned long now) {
                 //! DATA EMITION (TRAFFIC LIGHTS)
                 // Serial.print(";SEM1=GREEN");
                 // Serial.print(";SEM2=RED");
+                appendToBuffer(";SEM1=GREEN;SEM2=RED");
+            } else {
+                // appendToBuffer(";SEM1=GREEN;SEM2=RED");
             }
             break;
     }
+}
+
+// --- Función auxiliar ---
+void appendToBuffer(String msg) {
+    messageBuffer += msg;
 }
 
 // --- Configuración Inicial (setup) ---
@@ -290,18 +325,15 @@ void setup() {
     }
 
     // Init piezoeletrico
-    pinMode(PIEZO_PIN, INPUT);
+    pinMode(PIEZO_PIN, INPUT_PULLUP);
 }
 
 // --- Piezoelectrico ---
 void leerPiezoelectrico() {
-    int piezoValue = analogRead(PIEZO_PIN);
+    int piezoState = digitalRead(PIEZO_PIN);
 
-    if (piezoValue > PIEZO_THRESHOLD) {
-        //! DATA EMITION (Piezoelectric)
-        Serial.print(";SISMO");
-        Serial.print("=");
-        Serial.print(1);
+    if (piezoState == HIGH) {
+        appendToBuffer(";SISMO=1");
     }
 }
 
@@ -313,11 +345,11 @@ void loop() {
 
     for (uint8_t i = 0; i < NUM_SENSORS; i++) {
         if (now >= pingTimer[i]) {
-        pingTimer[i] += PING_INTERVAL * NUM_SENSORS;
-        sensors[currentSensor].sonar->timer_stop();
-        currentSensor = i;
-        distances[currentSensor] = 0;
-        sensors[currentSensor].sonar->ping_timer(echoCheck);
+            pingTimer[i] += PING_INTERVAL * NUM_SENSORS;
+            sensors[currentSensor].sonar->timer_stop();
+            currentSensor = i;
+            distances[currentSensor] = 0;
+            sensors[currentSensor].sonar->ping_timer(echoCheck);
         }
     }
 
@@ -337,10 +369,14 @@ void loop() {
         leerPiezoelectrico();
         lastPiezoCheck = now;
     } else {
-        // Serial.println(";SISMO=0");
+        // appendToBuffer(";SISMO=0");
     }
 
     // Serial.println();
 
     // TODO: still need to implement piezoelectrico data emition
+    if (messageBuffer.length() > 0) {
+        Serial.println(messageBuffer);
+        messageBuffer = "";
+    }
 }
