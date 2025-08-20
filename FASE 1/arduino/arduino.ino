@@ -6,7 +6,7 @@
 #define PING_INTERVAL 33
 
 // --- CONFIGURACIÓN PIEZOELECTRICO (DIGITAL) ---
-const int PIEZO_PIN = A9;
+const int PIEZO_PIN = 3;
 unsigned long lastPiezoCheck = 0;
 const unsigned long piezoInterval = 500;
 
@@ -50,8 +50,8 @@ NewPing sonar[] = {
 };
 
 Sensor sensors[] = {
-  { &sonar[0], SENSOR_PASS   , 1, 0 },
-  { &sonar[1], SENSOR_PASS   , 2, 1 },
+  { &sonar[0], SENSOR_PASS   , 1, 1 },
+  { &sonar[1], SENSOR_PASS   , 2, 0 },
   { &sonar[2], SENSOR_ARRIVAL, 3, 0 },
   { &sonar[3], SENSOR_PASS   , 4, 0 },
   { &sonar[4], SENSOR_PASS   , 5, 1 },
@@ -159,12 +159,12 @@ void loop() {
     }
 
     // Aquí se emite el estado completo en una sola línea
-    emitirEstado();
+    // emitirEstado();
 
-    // Test code
-    if(digitalRead(PIN_TEST) == HIGH){
-        // Serial.println("JAJAJAJAJAJJAJAJAJAJJAJAJA");
-    }
+    // // Test code
+    // if(digitalRead(PIN_TEST) == LOW){
+    //     Serial.println("JAJAJAJAJAJJAJAJAJAJJAJAJA");
+    // }
 }
 
 // --- Funciones Modulares ---
@@ -246,6 +246,13 @@ void echoCheck() {
     int* infra[] = { &INFRAA, &INFRAB, &INFRAC, &INFRAD };
     int buzzerIdx = -1;
 
+    // if(currentSensor == 0) {
+    //     Serial.print("Sensor "); Serial.print(currentSensor + 1);
+    //     Serial.print(" (ID "); Serial.print(sensors[currentSensor].id);
+    //     Serial.print(", Grupo "); Serial.print(sensors[currentSensor].group);
+    //     Serial.print("), Distancia = "); Serial.println(dist);
+    // }
+
     if (dist == 0 || dist > 3) {
         switch (sensors[currentSensor].id) {
             case 1: case 2: *infra[0] = 0; break;
@@ -264,28 +271,26 @@ void echoCheck() {
         if (!active) return;
 
         switch (sensors[currentSensor].id) {
-            case 1: 
-                break;
-            case 2: 
+            case 1: case 2:
                 INFRAA = 1;
-                // buzzerIdx = 4; 
+                buzzerIdx = 0; 
                 break;
             case 4: case 5: 
                 INFRAB = 1;
-                // buzzerIdx = 1;
+                buzzerIdx = 0;
                 break;
             case 6: case 7: 
                 INFRAC = 1;
-                // buzzerIdx = 1; 
+                buzzerIdx = 3; 
                 break;
             case 8: case 9: 
                 INFRAD = 1;
-                // buzzerIdx = 1;
+                buzzerIdx = 2;
                 break;
             default: Serial.println("No se actualiza ninguna infracción para este ID");
         }
 
-        // if (buzzerIdx >= 0) sonarBuzzer(buzzerIdx, millis());
+        if (buzzerIdx >= 0) sonarBuzzer(buzzerIdx, millis());
     }
 }
 
@@ -351,17 +356,15 @@ void leerPiezoelectrico() {
 
 // --- Emitir estado unificado ---
 void emitirEstado() {
-    String salida = "SEM1=" + SEM1 + ";SEM2=" + SEM2;
-    salida += ";BUS1=" + String(BUS1) + ";BUS2=" + String(BUS2);
-    salida += ";PM1=" + String(PM1) + ";PM2=" + String(PM2);
-    salida += ";INC1=" + String(INC1) + ";INC2=" + String(INC2);
-    for (int i = 0; i < NUM_BOTONES; i++) {
-        salida += ";PANICO" + String(i+1) + "=" + String(PANICO[i]);
-    }
-    salida += ";SISMO=" + String(SISMO);
-    salida += ";INFRAA=" + String(INFRAA);
-    salida += ";INFRAB=" + String(INFRAB);
-    salida += ";INFRAC=" + String(INFRAC);
-    salida += ";INFRAD=" + String(INFRAD);
+    char salida[200];  // ajusta el tamaño si necesitas más
+    sprintf(salida,
+        "SEM1=%s;SEM2=%s;BUS1=%d;BUS2=%d;PM1=%d;PM2=%d;INC1=%d;INC2=%d;"
+        "PANICO1=%d;PANICO2=%d;PANICO3=%d;PANICO4=%d;PANICO5=%d;"
+        "SISMO=%d;INFRAA=%d;INFRAB=%d;INFRAC=%d;INFRAD=%d",
+        SEM1.c_str(), SEM2.c_str(),
+        BUS1, BUS2, PM1, PM2, INC1, INC2,
+        PANICO[0], PANICO[1], PANICO[2], PANICO[3], PANICO[4],
+        SISMO, INFRAA, INFRAB, INFRAC, INFRAD
+    );
     Serial.println(salida);
 }
