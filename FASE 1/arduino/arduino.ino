@@ -5,38 +5,48 @@
 #define MAX_DISTANCE 50
 #define PING_INTERVAL 33
 
-// --- Buffer string for Processing inputs ---
-String messageBuffer = "";
-
 // --- CONFIGURACIÓN PIEZOELECTRICO (DIGITAL) ---
-const int PIEZO_PIN = 8;   // usa un pin digital (ej: D8)
+const int PIEZO_PIN = A9;
 unsigned long lastPiezoCheck = 0;
-const unsigned long piezoInterval = 500; // revisar cada 0.5s
+const unsigned long piezoInterval = 500;
 
-enum SensorPurpose { SENSOR_PASS,
-                     SENSOR_ARRIVAL };
+const int PIN_TEST = A8;
+
+// Estados globales para construir el buffer unificado
+String SEM1 = "ROJO";
+String SEM2 = "ROJO";
+int BUS1 = 0;
+int BUS2 = 0;
+int PM1 = 0;
+int PM2 = 0;
+int INC1 = 0;
+int INC2 = 0;
+int PANICO[5] = {0,0,0,0,0};
+int SISMO = 0;
+
+enum SensorPurpose { SENSOR_PASS, SENSOR_ARRIVAL };
 
 struct Sensor {
-  NewPing* sonar;
-  SensorPurpose purpose;
-  uint8_t id;
-  uint8_t group;  // 0 = A, 1 = B
+    NewPing* sonar;
+    SensorPurpose purpose;
+    uint8_t id;
+    uint8_t group;  // Grupo 1, Grupo 2
 };
 
 NewPing sonar[] = {
-  NewPing(22, 23, MAX_DISTANCE),  // 1
-  NewPing(24, 25, MAX_DISTANCE),  // 2
-  NewPing(26, 27, MAX_DISTANCE),  // 3
-  NewPing(28, 29, MAX_DISTANCE),  // 4
-  NewPing(30, 31, MAX_DISTANCE),  // 5
-  NewPing(32, 33, MAX_DISTANCE),  // 6
-  NewPing(34, 35, MAX_DISTANCE),  // 7
-  NewPing(36, 37, MAX_DISTANCE),  // 8
-  NewPing(38, 39, MAX_DISTANCE),  // 9
-  NewPing(40, 41, MAX_DISTANCE),  // 10
-  NewPing(42, 43, MAX_DISTANCE),  // 11
-  NewPing(44, 45, MAX_DISTANCE),  // 12
-  NewPing(46, 47, MAX_DISTANCE)   // 13
+    NewPing(22, 23, MAX_DISTANCE),  // 1
+    NewPing(24, 25, MAX_DISTANCE),  // 2
+    NewPing(26, 27, MAX_DISTANCE),  // 3
+    NewPing(28, 29, MAX_DISTANCE),  // 4
+    NewPing(30, 31, MAX_DISTANCE),  // 5
+    NewPing(32, 33, MAX_DISTANCE),  // 6
+    NewPing(34, 35, MAX_DISTANCE),  // 7
+    NewPing(36, 37, MAX_DISTANCE),  // 8
+    NewPing(38, 39, MAX_DISTANCE),  // 9
+    NewPing(40, 41, MAX_DISTANCE),  // 10
+    NewPing(42, 43, MAX_DISTANCE),  // 11
+    NewPing(44, 45, MAX_DISTANCE),  // 12
+    NewPing(46, 47, MAX_DISTANCE)   // 13
 };
 
 Sensor sensors[] = {
@@ -69,8 +79,8 @@ enum TrafficCycle { GREEN_A, YELLOW_A, GREEN_B, YELLOW_B };
 TrafficCycle currentCycle = GREEN_A;
 
 unsigned long stateStartTime = 0;
-const unsigned long greenTime = 4000;
-const unsigned long yellowTime = 1500;
+const unsigned long greenTime = 8000;
+const unsigned long yellowTime = 3000;
 
 // --- Constantes y Variables para Botones y Buzzers ---
 const uint8_t NUM_BOTONES = 5;
@@ -82,8 +92,7 @@ unsigned long ultimaLecturaBoton[NUM_BOTONES] = {0};
 const unsigned long debounceTime = 50;
 
 unsigned long tiempoInicioBuzzer[NUM_BOTONES] = {0};
-// Duración del buzzer: n segundos * 1000
-const unsigned long duracionBuzzer = 2000; // Sonará por 2 segundos
+const unsigned long duracionBuzzer = 2000;
 
 // --- CONFIGURACIÓN MQ-2 ---
 const int MQ2_SENSOR_1 = A0;
@@ -93,221 +102,13 @@ const int SMOKE_THRESHOLD = 400;
 unsigned long lastSmokeCheck = 0;
 const unsigned long smokeInterval = 1000;
 
-// --- Funciones Modulares ---
-void inicializarPerifericos() {
-    for (int i = 0; i < NUM_BOTONES; i++) {
-        pinMode(PINES_BOTONES[i], INPUT_PULLUP);
-        pinMode(PINES_BUZZER[i], OUTPUT);
-        digitalWrite(PINES_BUZZER[i], LOW);
-    }
-    pinMode(MQ2_SENSOR_1, INPUT);
-    pinMode(MQ2_SENSOR_2, INPUT);
-}
-
-void sonarBuzzer(int buzzerIndex, unsigned long now) {
-    if (buzzerIndex >= 0 && buzzerIndex < NUM_BOTONES) {
-        digitalWrite(PINES_BUZZER[buzzerIndex], HIGH);
-        tiempoInicioBuzzer[buzzerIndex] = now;
-        //! DATA EMITION (sonar buzzer)
-        // Serial.print(";BUS");
-        // Serial.print(buzzerIndex + 1);
-        // Serial.print("=");
-        // Serial.print(1);
-        appendToBuffer(";BUS" + String(buzzerIndex + 1) + "=1");
-    }
-}
-
-void controlarBuzzer() {
-    unsigned long now = millis();
-    for (int i = 0; i < NUM_BOTONES; i++) {
-        if (digitalRead(PINES_BUZZER[i]) == HIGH && (now - tiempoInicioBuzzer[i] >= duracionBuzzer)) {
-            digitalWrite(PINES_BUZZER[i], LOW);
-            Serial.print("Buzzer ");
-            Serial.print(i + 1);
-            Serial.println(" apagado.");
-        }
-    }
-}
-
-void manejarBotones() {
-    unsigned long now = millis();
-    for (int i = 0; i < NUM_BOTONES; i++) {
-        bool estadoActual = digitalRead(PINES_BOTONES[i]) == LOW;
-
-        if (estadoActual != estadoAnteriorBotones[i] && (now - ultimaLecturaBoton[i] >= debounceTime)) {
-            if (estadoActual) {
-                Serial.print("Boton ");
-                Serial.print(i + 1);
-                Serial.println(" presionado. Activando buzzer.");
-                sonarBuzzer(i, now);
-                //! DATA EMITION (on clicked button)
-                // Serial.print(";PANICO=");
-                // Serial.print(i + 1);
-                // Serial.print("=");
-                // Serial.print(1);
-                appendToBuffer(";PANICO=" + String(i + 1) + "=1");
-
-            } else {
-                appendToBuffer(";PANICO=" + String(i + 1) + "=0");
-            }
-            estadoAnteriorBotones[i] = estadoActual;
-            ultimaLecturaBoton[i] = now;
-        }
-    }
-}
-
-void leerSensoresHumo() {
-    int smoke1 = analogRead(MQ2_SENSOR_1);
-    int smoke2 = analogRead(MQ2_SENSOR_2);
-
-    Serial.print("MQ-2 Sensor 1: ");
-    Serial.println(smoke1);
-    Serial.print("MQ-2 Sensor 2: ");
-    Serial.println(smoke2);
-    appendToBuffer(";PM2=" + String(smoke2));
-
-    //! DATA EMITION (particles)
-    // Serial.print(";PM1=");
-    // Serial.print(smoke1);
-    appendToBuffer(";PM1=" + String(smoke1));
-    // Serial.print(";PM2=");
-    // Serial.print(smoke2);
-    appendToBuffer(";PM2=" + String(smoke2));
-
-    if (smoke1 > SMOKE_THRESHOLD) {
-        Serial.println("⚠ ALERTA: Nivel de humo ALTO en sensor 1");
-        //! DATA EMITION
-        // Serial.print(";SMOKE1=");
-        // Serial.print(1);
-        appendToBuffer(";SMOKE1=" + String(1));
-    } else {
-        appendToBuffer(";SMOKE1=" + String(0));
-    }
-
-    if (smoke2 > SMOKE_THRESHOLD) {
-        //! DATA EMITION
-        // Serial.print(";SMOKE2=");
-        // Serial.print(1);
-        Serial.println("⚠ ALERTA: Nivel de humo ALTO en sensor 2");
-        appendToBuffer(";SMOKE2=" + String(1));
-    } else {
-        appendToBuffer(";SMOKE2=" + String(0));
-    }
-}
-
-void echoCheck() {
-    if (sensors[currentSensor].sonar->check_timer()) {
-        distances[currentSensor] = sensors[currentSensor].sonar->ping_result / US_ROUNDTRIP_CM;
-    }
-}
-
-void processSensorReadings() {
-    for (uint8_t i = 0; i < NUM_SENSORS; i++) {
-        uint16_t dist = distances[i];
-        if (dist == 0) continue;
-
-        if (dist <= 3) {
-            switch (sensors[i].purpose) {
-            case SENSOR_PASS:
-                Serial.print("Bus detectado en sensor ");
-                Serial.print(sensors[i].id);
-                Serial.print(": ");
-                //! DATA EMITION (Ultrasonic)
-                // Serial.print(";INFRACCION");
-                // Serial.print(sensors[i].id + 1);
-                // Serial.print("=");
-                // Serial.print(1);
-                appendToBuffer(";INFRACCION=" + String(sensors[i].id + 1) + "=1");
-
-                if (sensors[i].group == 0 && (currentCycle == GREEN_B || currentCycle == YELLOW_B)) {
-                    Serial.println("violación - paso en rojo en un semáforo del grupo A");
-                } else if (sensors[i].group == 1 && (currentCycle == GREEN_A || currentCycle == YELLOW_A)) {
-                    Serial.println("violación - paso en rojo en un semáforo del grupo B");
-                } else { 
-                    Serial.println("sin violación - paso con el semáforo verde/amarillo");
-                }
-                break;
-
-            case SENSOR_ARRIVAL:
-                Serial.print("Bus llego al sensor ");
-                Serial.println(sensors[i].id);
-                break;
-            }
-        }
-    }
-}
-
-void updateTrafficLights(unsigned long now) {
-    switch (currentCycle) {
-        case GREEN_A:
-            if (now - stateStartTime >= greenTime) {
-                currentCycle = YELLOW_A;
-                trafficA.setState(TrafficLight::YELLOW);
-                trafficB.setState(TrafficLight::RED);
-                stateStartTime = now;
-                //! DATA EMITION (TRAFFIC LIGHTS)
-                // Serial.print(";SEM1=YELLOW");
-                // Serial.print(";SEM2=RED");
-                appendToBuffer(";SEM1=YELLOW;SEM2=RED");
-            } else {
-                // appendToBuffer(";SEM1=GREEN;SEM2=RED");
-            }
-
-            break;
-
-        case YELLOW_A:
-            if (now - stateStartTime >= yellowTime) {
-                currentCycle = GREEN_B;
-                trafficA.setState(TrafficLight::RED);
-                trafficB.setState(TrafficLight::GREEN);
-                stateStartTime = now;
-                //! DATA EMITION (TRAFFIC LIGHTS)
-                // Serial.print(";SEM1=RED");
-                // Serial.print(";SEM2=GREEN");
-                appendToBuffer(";SEM1=RED;SEM2=GREEN");
-            } else {
-                // appendToBuffer(";SEM1=RED;SEM2=GREEN");
-            }
-            break;
-
-        case GREEN_B:
-            if (now - stateStartTime >= greenTime) {
-                currentCycle = YELLOW_B;
-                trafficA.setState(TrafficLight::RED);
-                trafficB.setState(TrafficLight::YELLOW);
-                stateStartTime = now;
-                //! DATA EMITION (TRAFFIC LIGHTS)
-                // Serial.print(";SEM1=RED");
-                // Serial.print(";SEM2=YELLOW");
-                appendToBuffer(";SEM1=RED;SEM2=YELLOW");
-            } else {
-                // appendToBuffer(";SEM1=RED;SEM2=YELLOW");
-            }
-            break;
-
-        case YELLOW_B:
-            if (now - stateStartTime >= yellowTime) {
-                currentCycle = GREEN_A;
-                trafficA.setState(TrafficLight::GREEN);
-                trafficB.setState(TrafficLight::RED);
-                stateStartTime = now;
-                //! DATA EMITION (TRAFFIC LIGHTS)
-                // Serial.print(";SEM1=GREEN");
-                // Serial.print(";SEM2=RED");
-                appendToBuffer(";SEM1=GREEN;SEM2=RED");
-            } else {
-                // appendToBuffer(";SEM1=GREEN;SEM2=RED");
-            }
-            break;
-    }
-}
-
-// --- Función auxiliar ---
-void appendToBuffer(String msg) {
-    messageBuffer += msg;
-}
+int INFRAA = 0;
+int INFRAB = 0;
+int INFRAC = 0;
+int INFRAD = 0;
 
 // --- Configuración Inicial (setup) ---
+
 void setup() {
     Serial.begin(9600);
     trafficA.begin();
@@ -323,18 +124,9 @@ void setup() {
         pingTimer[i] = startTime + i * PING_INTERVAL;
         distances[i] = 0;
     }
-
-    // Init piezoeletrico
-    pinMode(PIEZO_PIN, INPUT_PULLUP);
-}
-
-// --- Piezoelectrico ---
-void leerPiezoelectrico() {
-    int piezoState = digitalRead(PIEZO_PIN);
-
-    if (piezoState == HIGH) {
-        appendToBuffer(";SISMO=1");
-    }
+    
+    pinMode(PIEZO_PIN, INPUT);
+    pinMode(PIN_TEST, INPUT);
 }
 
 // --- Bucle Principal (loop) ---
@@ -353,10 +145,6 @@ void loop() {
         }
     }
 
-    if (currentSensor == NUM_SENSORS - 1) {
-        processSensorReadings();
-    }
-
     manejarBotones();
     controlarBuzzer();
 
@@ -368,15 +156,212 @@ void loop() {
     if (now - lastPiezoCheck >= piezoInterval) {
         leerPiezoelectrico();
         lastPiezoCheck = now;
-    } else {
-        // appendToBuffer(";SISMO=0");
     }
 
-    // Serial.println();
+    // Aquí se emite el estado completo en una sola línea
+    emitirEstado();
 
-    // TODO: still need to implement piezoelectrico data emition
-    if (messageBuffer.length() > 0) {
-        Serial.println(messageBuffer);
-        messageBuffer = "";
+    // Test code
+    if(digitalRead(PIN_TEST) == HIGH){
+        // Serial.println("JAJAJAJAJAJJAJAJAJAJJAJAJA");
     }
+}
+
+// --- Funciones Modulares ---
+void inicializarPerifericos() {
+    for (int i = 0; i < NUM_BOTONES; i++) {
+        pinMode(PINES_BOTONES[i], INPUT_PULLUP);
+        pinMode(PINES_BUZZER[i], OUTPUT);
+        digitalWrite(PINES_BUZZER[i], LOW);
+    }
+    pinMode(MQ2_SENSOR_1, INPUT);
+    pinMode(MQ2_SENSOR_2, INPUT);
+}
+
+void sonarBuzzer(int buzzerIndex, unsigned long now) {
+    if (buzzerIndex >= 0 && buzzerIndex < NUM_BOTONES) {
+        digitalWrite(PINES_BUZZER[buzzerIndex], HIGH);
+        tiempoInicioBuzzer[buzzerIndex] = now;
+        PANICO[buzzerIndex] = 1;
+    }
+}
+
+// void controlarBuzzer() {
+//     unsigned long now = millis();
+//     for (int i = 0; i < NUM_BOTONES; i++) {
+//         if (digitalRead(PINES_BUZZER[i]) == HIGH && (now - tiempoInicioBuzzer[i] >= duracionBuzzer)) {
+//             digitalWrite(PINES_BUZZER[i], LOW);
+//             PANICO[i] = 0;
+//             Serial.print("Buzzer ");
+//             Serial.print(i + 1);
+//             Serial.println(" apagado.");
+//         }
+//     }
+// }
+void controlarBuzzer() {
+    unsigned long now = millis();
+    for (int i = 0; i < NUM_BOTONES; i++) {
+        if (PANICO[i] && (now - tiempoInicioBuzzer[i] >= duracionBuzzer)) {
+            digitalWrite(PINES_BUZZER[i], LOW);
+            PANICO[i] = 0;
+            Serial.print("Buzzer ");
+            Serial.print(i + 1);
+            Serial.println(" apagado.");
+        }
+    }
+}
+
+void manejarBotones() {
+    unsigned long now = millis();
+    for (int i = 0; i < NUM_BOTONES; i++) {
+        bool estadoActual = digitalRead(PINES_BOTONES[i]) == LOW;
+        if (estadoActual != estadoAnteriorBotones[i] && (now - ultimaLecturaBoton[i] >= debounceTime)) {
+            if (estadoActual) {
+                Serial.print("Boton ");
+                Serial.print(i + 1);
+                Serial.println(" presionado. Activando buzzer.");
+                sonarBuzzer(i, now);
+            } else {
+                PANICO[i] = 0;
+            }
+            estadoAnteriorBotones[i] = estadoActual;
+            ultimaLecturaBoton[i] = now;
+        }
+    }
+}
+
+void leerSensoresHumo() {
+    PM1 = analogRead(MQ2_SENSOR_1);
+    PM2 = analogRead(MQ2_SENSOR_2);
+    INC1 = (PM1 > SMOKE_THRESHOLD) ? 1 : 0;
+    INC2 = (PM2 > SMOKE_THRESHOLD) ? 1 : 0;
+}
+
+void echoCheck() {
+    if (!sensors[currentSensor].sonar->check_timer()) return;
+
+    distances[currentSensor] = sensors[currentSensor].sonar->ping_result / US_ROUNDTRIP_CM;
+    uint16_t dist = distances[currentSensor];
+
+    int* infra[] = { &INFRAA, &INFRAB, &INFRAC, &INFRAD };
+    int buzzerIdx = -1;
+
+    if (dist == 0 || dist > 3) {
+        switch (sensors[currentSensor].id) {
+            case 1: case 2: *infra[0] = 0; break;
+            case 4: case 5: *infra[1] = 0; break;
+            case 6: case 7: *infra[2] = 0; break;
+            case 8: case 9: *infra[3] = 0; break;
+        }
+        return;
+    }
+
+    if (sensors[currentSensor].purpose == SENSOR_PASS) {
+        bool active = false;
+        if (sensors[currentSensor].group == 0 && (currentCycle == GREEN_B || currentCycle == YELLOW_B)) active = true;
+        if (sensors[currentSensor].group == 1 && (currentCycle == GREEN_A || currentCycle == YELLOW_A)) active = true;
+
+        if (!active) return;
+
+        switch (sensors[currentSensor].id) {
+            case 1: 
+                break;
+            case 2: 
+                INFRAA = 1;
+                // buzzerIdx = 4; 
+                break;
+            case 4: case 5: 
+                INFRAB = 1;
+                // buzzerIdx = 1;
+                break;
+            case 6: case 7: 
+                INFRAC = 1;
+                // buzzerIdx = 1; 
+                break;
+            case 8: case 9: 
+                INFRAD = 1;
+                // buzzerIdx = 1;
+                break;
+            default: Serial.println("No se actualiza ninguna infracción para este ID");
+        }
+
+        // if (buzzerIdx >= 0) sonarBuzzer(buzzerIdx, millis());
+    }
+}
+
+void updateTrafficLights(unsigned long now) {
+    switch (currentCycle) {
+        case GREEN_A:
+            if (now - stateStartTime >= greenTime) {
+                currentCycle = YELLOW_A;
+                trafficA.setState(TrafficLight::YELLOW);
+                trafficB.setState(TrafficLight::RED);
+                stateStartTime = now;
+            }
+            SEM1 = (currentCycle == GREEN_A) ? "VERDE" : "AMARILLO";
+            SEM2 = "ROJO";
+            break;
+
+        case YELLOW_A:
+            if (now - stateStartTime >= yellowTime) {
+                currentCycle = GREEN_B;
+                trafficA.setState(TrafficLight::RED);
+                trafficB.setState(TrafficLight::GREEN);
+                stateStartTime = now;
+            }
+            SEM1 = "ROJO";
+            SEM2 = (currentCycle == GREEN_B) ? "VERDE" : "AMARILLO";
+            break;
+
+        case GREEN_B:
+            if (now - stateStartTime >= greenTime) {
+                currentCycle = YELLOW_B;
+                trafficA.setState(TrafficLight::RED);
+                trafficB.setState(TrafficLight::YELLOW);
+                stateStartTime = now;
+            }
+            SEM1 = "ROJO";
+            SEM2 = (currentCycle == GREEN_B) ? "VERDE" : "AMARILLO";
+            break;
+
+        case YELLOW_B:
+            if (now - stateStartTime >= yellowTime) {
+                currentCycle = GREEN_A;
+                trafficA.setState(TrafficLight::GREEN);
+                trafficB.setState(TrafficLight::RED);
+                stateStartTime = now;
+            }
+            SEM1 = (currentCycle == GREEN_A) ? "VERDE" : "AMARILLO";
+            SEM2 = "ROJO";
+            break;
+    }
+}
+
+// --- Piezoelectrico ---
+void leerPiezoelectrico() {
+    int piezoState = digitalRead(PIEZO_PIN);
+    SISMO = (piezoState == HIGH) ? 1 : 0;
+    if (SISMO == 1) {
+        unsigned long now = millis();
+        for (int i = 0; i < NUM_BOTONES; i++) {
+            sonarBuzzer(i, now);
+        }
+    }
+}
+
+// --- Emitir estado unificado ---
+void emitirEstado() {
+    String salida = "SEM1=" + SEM1 + ";SEM2=" + SEM2;
+    salida += ";BUS1=" + String(BUS1) + ";BUS2=" + String(BUS2);
+    salida += ";PM1=" + String(PM1) + ";PM2=" + String(PM2);
+    salida += ";INC1=" + String(INC1) + ";INC2=" + String(INC2);
+    for (int i = 0; i < NUM_BOTONES; i++) {
+        salida += ";PANICO" + String(i+1) + "=" + String(PANICO[i]);
+    }
+    salida += ";SISMO=" + String(SISMO);
+    salida += ";INFRAA=" + String(INFRAA);
+    salida += ";INFRAB=" + String(INFRAB);
+    salida += ";INFRAC=" + String(INFRAC);
+    salida += ";INFRAD=" + String(INFRAD);
+    Serial.println(salida);
 }
