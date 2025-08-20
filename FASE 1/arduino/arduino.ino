@@ -107,6 +107,11 @@ int INFRAB = 0;
 int INFRAC = 0;
 int INFRAD = 0;
 
+// --- Variables para emisión de estado ---
+unsigned long lastEmitTime = 0;
+const unsigned long emitInterval = 500;
+char salidaBuffer[250];
+
 // --- Configuración Inicial (setup) ---
 
 void setup() {
@@ -158,10 +163,13 @@ void loop() {
         lastPiezoCheck = now;
     }
 
-    // Aquí se emite el estado completo en una sola línea
-    // emitirEstado();
+    // Emitir estado con control de tiempo para evitar interferencias
+    if (now - lastEmitTime >= emitInterval) {
+        emitirEstado();
+        lastEmitTime = now;
+    }
 
-    // // Test code
+    // Test code
     // if(digitalRead(PIN_TEST) == LOW){
     //     Serial.println("JAJAJAJAJAJJAJAJAJAJJAJAJA");
     // }
@@ -186,27 +194,12 @@ void sonarBuzzer(int buzzerIndex, unsigned long now) {
     }
 }
 
-// void controlarBuzzer() {
-//     unsigned long now = millis();
-//     for (int i = 0; i < NUM_BOTONES; i++) {
-//         if (digitalRead(PINES_BUZZER[i]) == HIGH && (now - tiempoInicioBuzzer[i] >= duracionBuzzer)) {
-//             digitalWrite(PINES_BUZZER[i], LOW);
-//             PANICO[i] = 0;
-//             Serial.print("Buzzer ");
-//             Serial.print(i + 1);
-//             Serial.println(" apagado.");
-//         }
-//     }
-// }
 void controlarBuzzer() {
     unsigned long now = millis();
     for (int i = 0; i < NUM_BOTONES; i++) {
         if (PANICO[i] && (now - tiempoInicioBuzzer[i] >= duracionBuzzer)) {
             digitalWrite(PINES_BUZZER[i], LOW);
             PANICO[i] = 0;
-            Serial.print("Buzzer ");
-            Serial.print(i + 1);
-            Serial.println(" apagado.");
         }
     }
 }
@@ -217,9 +210,6 @@ void manejarBotones() {
         bool estadoActual = digitalRead(PINES_BOTONES[i]) == LOW;
         if (estadoActual != estadoAnteriorBotones[i] && (now - ultimaLecturaBoton[i] >= debounceTime)) {
             if (estadoActual) {
-                Serial.print("Boton ");
-                Serial.print(i + 1);
-                Serial.println(" presionado. Activando buzzer.");
                 sonarBuzzer(i, now);
             } else {
                 PANICO[i] = 0;
@@ -245,13 +235,6 @@ void echoCheck() {
 
     int* infra[] = { &INFRAA, &INFRAB, &INFRAC, &INFRAD };
     int buzzerIdx = -1;
-
-    // if(currentSensor == 0) {
-    //     Serial.print("Sensor "); Serial.print(currentSensor + 1);
-    //     Serial.print(" (ID "); Serial.print(sensors[currentSensor].id);
-    //     Serial.print(", Grupo "); Serial.print(sensors[currentSensor].group);
-    //     Serial.print("), Distancia = "); Serial.println(dist);
-    // }
 
     if (dist == 0 || dist > 3) {
         switch (sensors[currentSensor].id) {
@@ -287,7 +270,6 @@ void echoCheck() {
                 INFRAD = 1;
                 buzzerIdx = 2;
                 break;
-            default: Serial.println("No se actualiza ninguna infracción para este ID");
         }
 
         if (buzzerIdx >= 0) sonarBuzzer(buzzerIdx, millis());
@@ -356,8 +338,7 @@ void leerPiezoelectrico() {
 
 // --- Emitir estado unificado ---
 void emitirEstado() {
-    char salida[200];  // ajusta el tamaño si necesitas más
-    sprintf(salida,
+    snprintf(salidaBuffer, sizeof(salidaBuffer),
         "SEM1=%s;SEM2=%s;BUS1=%d;BUS2=%d;PM1=%d;PM2=%d;INC1=%d;INC2=%d;"
         "PANICO1=%d;PANICO2=%d;PANICO3=%d;PANICO4=%d;PANICO5=%d;"
         "SISMO=%d;INFRAA=%d;INFRAB=%d;INFRAC=%d;INFRAD=%d",
@@ -366,5 +347,5 @@ void emitirEstado() {
         PANICO[0], PANICO[1], PANICO[2], PANICO[3], PANICO[4],
         SISMO, INFRAA, INFRAB, INFRAC, INFRAD
     );
-    Serial.println(salida);
+    Serial.println(salidaBuffer);
 }
