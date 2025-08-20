@@ -1,10 +1,11 @@
-// Arduino - simulador serial actualizado
-// Envía: SEM1, SEM2, BUS1, BUS2, PM1, PM2, INC1, INC2, PANICO1..PANICO5, SISMO
+// Arduino - simulador serial actualizado (con INFRAA..INFRAD)
+// Envía: SEM1, SEM2, BUS1, BUS2, PM1, PM2, INC1, INC2, PANICO1..PANICO5, SISMO, INFRAA, INFRAB, INFRAC, INFRAD
 // Distancias: 0..120 (ciclan 0->MAX->0)
 // PM simulados: valores en ppm, cambian gradualmente (100..3000)
 
 const unsigned long INTERVAL_MS = 300; // envía cada 300 ms
 const int MAX_BUS_CM = 120; // 120 cm (maqueta)
+const unsigned long INFRA_DURATION_MS = 3000; // duración simulated infracción (3s)
 
 unsigned long lastMillis = 0;
 
@@ -21,6 +22,16 @@ float pm2 = 150.0;
 // semáforos
 static unsigned long lastSemChange = 0;
 static int semPhase = 0;
+
+// simulación de infracciones (A, B, C, D)
+bool infraA_active = false;
+unsigned long infraA_since = 0;
+bool infraB_active = false;
+unsigned long infraB_since = 0;
+bool infraC_active = false;
+unsigned long infraC_since = 0;
+bool infraD_active = false;
+unsigned long infraD_since = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -46,10 +57,7 @@ void loop() {
   // --- BUSES: incrementan 0->MAX, al llegar a MAX vuelven a 0 (ciclo)
   distBus1 += step1;
   if (distBus1 >= MAX_BUS_CM) {
-    // enviar MAX una vez (opcional) y reiniciar a 0 para siguiente tramo
     distBus1 = MAX_BUS_CM;
-    // (Enviaré MAX en esta iteración y luego lo pondré a 0 así Processing detecta el pico)
-    // pero para que no quede en MAX muchos ciclos, reinicio inmediatamente
     distBus1 = 0;
   }
 
@@ -59,8 +67,7 @@ void loop() {
     distBus2 = 0;
   }
 
-  // --- PM: actualizar gradualmente como en tu primer código ---
-  // variación pequeña por ciclo
+  // --- PM: actualizar gradualmente ---
   pm1 += random(-15, 16); // [-15,15]
   pm2 += random(-15, 16);
 
@@ -84,6 +91,44 @@ void loop() {
   // --- SISMO (muy raro) ---
   int sismo = (random(0, 2000) > 1995) ? 1 : 0;
 
+  // --- SIMULAR INFRAECCIONES (activación aleatoria corta) ---
+  if (!infraA_active && random(0, 2000) > 1995) {
+    infraA_active = true;
+    infraA_since = millis();
+  }
+  if (infraA_active && (millis() - infraA_since > INFRA_DURATION_MS)) {
+    infraA_active = false;
+  }
+
+  if (!infraB_active && random(0, 2000) > 1995) {
+    infraB_active = true;
+    infraB_since = millis();
+  }
+  if (infraB_active && (millis() - infraB_since > INFRA_DURATION_MS)) {
+    infraB_active = false;
+  }
+
+  if (!infraC_active && random(0, 2000) > 1995) {
+    infraC_active = true;
+    infraC_since = millis();
+  }
+  if (infraC_active && (millis() - infraC_since > INFRA_DURATION_MS)) {
+    infraC_active = false;
+  }
+
+  if (!infraD_active && random(0, 2000) > 1995) {
+    infraD_active = true;
+    infraD_since = millis();
+  }
+  if (infraD_active && (millis() - infraD_since > INFRA_DURATION_MS)) {
+    infraD_active = false;
+  }
+
+  int infraA_val = infraA_active ? 1 : 0;
+  int infraB_val = infraB_active ? 1 : 0;
+  int infraC_val = infraC_active ? 1 : 0;
+  int infraD_val = infraD_active ? 1 : 0;
+
   // --- ENVIO SERIAL (una línea, campos separados por ';') ---
   Serial.print("SEM1="); Serial.print(estadoSem1);
   Serial.print(";SEM2="); Serial.print(estadoSem2);
@@ -106,12 +151,24 @@ void loop() {
 
   Serial.print(";SISMO="); Serial.print(sismo);
 
+  // NUEVOS CAMPOS: INFRAA..INFRAD
+  Serial.print(";INFRAA="); Serial.print(infraA_val);
+  Serial.print(";INFRAB="); Serial.print(infraB_val);
+  Serial.print(";INFRAC="); Serial.print(infraC_val);
+  Serial.print(";INFRAD="); Serial.print(infraD_val);
+
   Serial.println();
 
-  // DEBUG opcional (comentar si quieres menos ruido en monitor serie)
+  // DEBUG opcional
   if (pan[0]||pan[1]||pan[2]||pan[3]||pan[4]) {
     Serial.print("# PANICO: ");
     for (int i=0;i<5;i++) if (pan[i]) { Serial.print(i+1); Serial.print(" "); }
     Serial.println();
+  }
+  if (infraA_val || infraB_val || infraC_val || infraD_val) {
+    Serial.print("# INFRA: A="); Serial.print(infraA_val);
+    Serial.print(" B="); Serial.print(infraB_val);
+    Serial.print(" C="); Serial.print(infraC_val);
+    Serial.print(" D="); Serial.println(infraD_val);
   }
 }

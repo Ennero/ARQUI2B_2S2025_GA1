@@ -608,7 +608,7 @@ void serialEvent(Serial myPort) {
   if (datosSerial == null) return;
   datosSerial = trim(datosSerial);
 
-  String[] partes = split(datosSerial, ';');
+    String[] partes = split(datosSerial, ';');
   for (String parte : partes) {
     String[] kv = split(parte, '=');
     if (kv.length != 2) continue;
