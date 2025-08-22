@@ -597,22 +597,22 @@ PVector calcularPosicionEnRutaRectTransurbano(float x, float y, float ancho, flo
   float perimetro = 2 * (ancho + alto);
   float distancia = progreso * perimetro;
   
-  if (distancia <= ancho) {
-    // Lado superior: derecha a izquierda (inicia en superior derecha)
-    pos.x = x + ancho - distancia;
-    pos.y = y;
-  } else if (distancia <= ancho + alto) {
-    // Lado izquierdo: arriba a abajo
-    pos.x = x;
-    pos.y = y + (distancia - ancho);
-  } else if (distancia <= ancho + alto + ancho) {
-    // Lado inferior: izquierda a derecha
-    pos.x = x + (distancia - (ancho + alto));
-    pos.y = y + alto;
-  } else {
-    // Lado derecho: abajo a arriba
+  if (distancia <= alto) {
+    // Lado derecho: arriba a abajo (desde esquina superior derecha)
     pos.x = x + ancho;
-    pos.y = y + alto - (distancia - (2*ancho + alto));
+    pos.y = y + distancia;
+  } else if (distancia <= alto + ancho) {
+    // Lado inferior: derecha a izquierda
+    pos.x = x + ancho - (distancia - alto);
+    pos.y = y + alto;
+  } else if (distancia <= alto + ancho + alto) {
+    // Lado izquierdo: abajo a arriba
+    pos.x = x;
+    pos.y = y + alto - (distancia - (alto + ancho));
+  } else {
+    // Lado superior: izquierda a derecha
+    pos.x = x + (distancia - (2*alto + ancho));
+    pos.y = y;
   }
   return pos;
 }
