@@ -1,305 +1,185 @@
-// Arduino - simulador serial FLEXIBLE
-// Envía datos de forma independiente según diferentes intervalos y eventos
-// Cada tipo de dato puede enviarse por separado sin esperar a los demás
+// Arduino Simulator for Serial Data - MODIFICADO PARA INTERPOLACIÓN
+// This version sends bus data less frequently to test interpolation in Processing
+// Bus positions are sent every 2-3 seconds instead of every 300ms
 
-const int MAX_BUS_CM = 120;
-const unsigned long INFRA_DURATION_MS = 3000; // duración de infracciones simuladas
+// Timing constants
+const unsigned long INTERVAL_MS = 300;          // Main loop interval for updates (ms)
+const unsigned long BUS_UPDATE_INTERVAL = 2500; // Bus data sent every 2.5 seconds
+const int MAX_BUS1_CM = 360;                    // Max distance for Transmetro bus (cm)
+const int MAX_BUS2_CM = 200;                    // Max distance for Transurbano bus (cm)
+const unsigned long INFRA_DURATION_MS = 3000;  // Duration for simulated infractions (ms)
 
-// INTERVALOS INDEPENDIENTES para diferentes tipos de datos
-const unsigned long INTERVAL_SEMAFOROS = 4000;  // semáforos cada 4s
-const unsigned long INTERVAL_BUSES = 200;       // buses cada 200ms (más frecuente)
-const unsigned long INTERVAL_PARTICULAS = 1000; // partículas cada 1s
-const unsigned long INTERVAL_EVENTOS = 500;     // check eventos cada 500ms
+// Global variables for simulation state
+unsigned long lastMillis = 0;           // Timestamp for last update
+unsigned long lastBusUpdate = 0;        // Timestamp for last bus position update
 
-// Timestamps para controlar envíos independientes
-unsigned long lastSemaforosMillis = 0;
-unsigned long lastBusesMillis = 0;
-unsigned long lastParticulasMillis = 0;
-unsigned long lastEventosMillis = 0;
+// Bus simulation variables
+int distBus1 = 0;                       // Current distance for Bus 1 (Transmetro)
+int distBus2 = 40;                      // Current distance for Bus 2 (Transurbano)
+const int step = 20;                    // Increment step for bus distances (cm)
 
-// BUSES - estado persistente
-int distBus1 = 0;
-int distBus2 = 40;
-const int stepBus1 = 2;
-const int stepBus2 = 1;
-bool bus1_cambio = false;
-bool bus2_cambio = false;
+// Particle levels (ppm) for air quality sensors
+float pm1 = 150.0;                      // PM level for sensor 1
+float pm2 = 150.0;                      // PM level for sensor 2
 
-// PARTICULAS - estado persistente
-float pm1 = 150.0;
-float pm2 = 150.0;
-bool pm1_cambio = false;
-bool pm2_cambio = false;
+// Traffic light simulation
+static unsigned long lastSemChange = 0;  // Timestamp for last traffic light change
+static int semPhase = 0;                 // Current phase for traffic lights (0-2)
 
-// SEMAFOROS - estado persistente
-int semPhase = 0;
-unsigned long lastSemChange = 0;
-bool sem_cambio = false;
-
-// INFRACCIONES - estado persistente
-bool infraA_active = false;
-unsigned long infraA_since = 0;
-bool infraB_active = false;
-unsigned long infraB_since = 0;
-bool infraC_active = false;
-unsigned long infraC_since = 0;
-bool infraD_active = false;
-unsigned long infraD_since = 0;
-
-// FLAGS para eventos puntuales
-bool enviar_panico = false;
-int panico_id = -1;
-bool enviar_sismo = false;
-bool enviar_infra = false;
-int infra_mask = 0; // bits para A,B,C,D
+// Infraction simulation for intersections A-D
+bool infraA_active = false;             // Active state for infraction A
+unsigned long infraA_since = 0;         // Start time for infraction A
+bool infraB_active = false;             // Active state for infraction B
+unsigned long infraB_since = 0;         // Start time for infraction B
+bool infraC_active = false;             // Active state for infraction C
+unsigned long infraC_since = 0;         // Start time for infraction C
+bool infraD_active = false;             // Active state for infraction D
+unsigned long infraD_since = 0;         // Start time for infraction D
 
 void setup() {
-  Serial.begin(9600);
-  randomSeed(analogRead(A0));
-  
-  // Inicializar PM con valores distintos
+  Serial.begin(9600);                   // Initialize serial communication at 9600 baud
+  randomSeed(analogRead(A0));           // Seed random number generator using analog pin
+  // Initialize PM levels with random starting values for variety
   pm1 = random(120, 260);
   pm2 = random(120, 260);
   
-  Serial.println("# Sistema iniciado - Envio flexible activado");
+  // Print startup message
+  Serial.println("# Arduino Simulator con Interpolación Iniciado");
+  Serial.println("# Datos de buses enviados cada 2.5 segundos para probar interpolación");
 }
 
 void loop() {
-  unsigned long currentMillis = millis();
-  
-  // ACTUALIZAR SEMAFOROS (independiente)
-  if (currentMillis - lastSemaforosMillis >= INTERVAL_SEMAFOROS) {
-    lastSemaforosMillis = currentMillis;
-    actualizarSemaforos();
-  }
-  
-  // ACTUALIZAR BUSES (independiente, más frecuente)
-  if (currentMillis - lastBusesMillis >= INTERVAL_BUSES) {
-    lastBusesMillis = currentMillis;
-    actualizarBuses();
-  }
-  
-  // ACTUALIZAR PARTICULAS (independiente)
-  if (currentMillis - lastParticulasMillis >= INTERVAL_PARTICULAS) {
-    lastParticulasMillis = currentMillis;
-    actualizarParticulas();
-  }
-  
-  // CHEQUEAR EVENTOS (pánico, sismo, infracciones)
-  if (currentMillis - lastEventosMillis >= INTERVAL_EVENTOS) {
-    lastEventosMillis = currentMillis;
-    chequearEventos();
-  }
-  
-  // ENVIAR DATOS QUE HAN CAMBIADO
-  enviarActualizaciones();
-}
+  // Check if it's time for the next update
+  if (millis() - lastMillis < INTERVAL_MS) return;
+  lastMillis = millis();
 
-void actualizarSemaforos() {
+  // --- TRAFFIC LIGHTS SIMULATION ---
+  // Update traffic light phase every 3 seconds
   if (millis() - lastSemChange > 3000) {
     lastSemChange = millis();
     semPhase = (semPhase + 1) % 3;
-    sem_cambio = true;
-    Serial.println("# Cambio de semaforo detectado");
+    // Define states: ROJO, AMARILLO, VERDE
+    const char* estados[3] = {"ROJO", "AMARILLO", "VERDE"};
+    String estadoSem1 = String(estados[semPhase]);
+    String estadoSem2 = String(estados[(semPhase + 2) % 3]);
+    // Send traffic light states on separate lines
+    Serial.println("SEM1=" + estadoSem1);
+    Serial.println("SEM2=" + estadoSem2);
   }
-}
 
-void actualizarBuses() {
-  // Bus 1
-  int prevDist1 = distBus1;
-  distBus1 += stepBus1;
-  if (distBus1 >= MAX_BUS_CM) {
-    distBus1 = 0; // reset al completar ciclo
+  // --- BUS DISTANCE SIMULATION - MODIFICADO PARA ENVÍO LENTO ---
+  // Only send bus data every BUS_UPDATE_INTERVAL milliseconds
+  if (millis() - lastBusUpdate > BUS_UPDATE_INTERVAL) {
+    lastBusUpdate = millis();
+    
+    // Increment bus distances and reset at max (cycle simulation)
+    distBus1 += step;
+    if (distBus1 >= MAX_BUS1_CM) {
+      distBus1 = 0;
+    }
+    distBus2 += step;
+    if (distBus2 >= MAX_BUS2_CM) {
+      distBus2 = 0;
+    }
+    
+    // Send bus distances on separate lines with debug info
+    Serial.println("BUS1=" + String(distBus1));
+    Serial.println("BUS2=" + String(distBus2));
+    
+    // Debug message to show when real data is sent
+    Serial.println("# Posiciones reales enviadas - BUS1:" + String(distBus1) + " BUS2:" + String(distBus2));
   }
-  if (distBus1 != prevDist1) {
-    bus1_cambio = true;
-  }
-  
-  // Bus 2
-  int prevDist2 = distBus2;
-  distBus2 += stepBus2;
-  if (distBus2 >= MAX_BUS_CM) {
-    distBus2 = 0; // reset al completar ciclo
-  }
-  if (distBus2 != prevDist2) {
-    bus2_cambio = true;
-  }
-}
 
-void actualizarParticulas() {
-  float prevPM1 = pm1;
-  float prevPM2 = pm2;
-  
-  // Cambio gradual con algo de aleatoriedad
-  pm1 += random(-15, 16);
+  // --- PARTICLE LEVEL (PM) SIMULATION ---
+  // Keep PM updates frequent for responsiveness
+  pm1 += random(-15, 16);  // Change in range [-15, 15]
   pm2 += random(-15, 16);
-  
-  // Mantener en rango realista
+  // Clamp values to realistic range
   if (pm1 < 100) pm1 = 100;
   if (pm1 > 3000) pm1 = 3000;
   if (pm2 < 100) pm2 = 100;
   if (pm2 > 3000) pm2 = 3000;
-  
-  // Detectar cambios significativos (>5 ppm)
-  if (abs(pm1 - prevPM1) > 5) {
-    pm1_cambio = true;
-  }
-  if (abs(pm2 - prevPM2) > 5) {
-    pm2_cambio = true;
-  }
-}
+  // Send PM levels on separate lines
+  Serial.println("PM1=" + String((int)pm1));
+  Serial.println("PM2=" + String((int)pm2));
 
-void chequearEventos() {
-  // PANICO - evento raro y puntual
-  if (random(0, 1000) > 995) {
-    enviar_panico = true;
-    panico_id = random(1, 6); // 1-5
-    Serial.print("# PANICO "); Serial.print(panico_id); Serial.println(" generado");
-  }
-  
-  // SISMO - evento muy raro
-  if (random(0, 2000) > 1998) {
-    enviar_sismo = true;
-    Serial.println("# SISMO generado");
-  }
-  
-  // INFRACCIONES - gestión de estado
-  actualizarInfracciones();
-}
+  // --- INCENDIO (FIRE) DERIVED FROM PM ---
+  // Derive INC1/INC2 for compatibility: 1 if PM > 1000
+  int incendio1 = (pm1 > 1000.0) ? 1 : 0;
+  int incendio2 = (pm2 > 1000.0) ? 1 : 0;
+  // Send INC only if active (=1), to test timeout in Processing
+  if (incendio1) Serial.println("INC1=1");
+  if (incendio2) Serial.println("INC2=1");
 
-void actualizarInfracciones() {
-  bool cambio_infra = false;
-  
-  // Infracción A
+  // --- PANICO (PANIC) BUTTON SIMULATION ---
+  // Rarely activate a random panic button
+  int pan[5] = {0, 0, 0, 0, 0};
+  if (random(0, 1000) > 990) {
+    int idx = random(0, 5);
+    pan[idx] = 1;
+    // Send only when activated (=1)
+    Serial.println("PANICO" + String(idx + 1) + "=1");
+  }
+
+  // --- SISMO (EARTHQUAKE) SIMULATION ---
+  // Very rare activation
+  int sismo_val = (random(0, 2000) > 1995) ? 1 : 0;
+  if (sismo_val) {
+    // Send only when activated (=1)
+    Serial.println("SISMO=1");
+  }
+
+  // --- INFRACTIONS SIMULATION FOR INTERSECTIONS A-D ---
+  // Randomly activate short-duration infractions
   if (!infraA_active && random(0, 2000) > 1995) {
     infraA_active = true;
     infraA_since = millis();
-    cambio_infra = true;
+    // Send activation
+    Serial.println("INFRAA=1");
   }
   if (infraA_active && (millis() - infraA_since > INFRA_DURATION_MS)) {
     infraA_active = false;
-    // No enviamos cuando se desactiva, solo cuando se activa
+    // Do not send =0; let Processing timeout
   }
-  
-  // Infracción B
+
   if (!infraB_active && random(0, 2000) > 1995) {
     infraB_active = true;
     infraB_since = millis();
-    cambio_infra = true;
+    // Send activation
+    Serial.println("INFRAB=1");
   }
   if (infraB_active && (millis() - infraB_since > INFRA_DURATION_MS)) {
     infraB_active = false;
+    // Do not send =0
   }
-  
-  // Infracción C
+
   if (!infraC_active && random(0, 2000) > 1995) {
     infraC_active = true;
     infraC_since = millis();
-    cambio_infra = true;
+    // Send activation
+    Serial.println("INFRAC=1");
   }
   if (infraC_active && (millis() - infraC_since > INFRA_DURATION_MS)) {
     infraC_active = false;
+    // Do not send =0
   }
-  
-  // Infracción D
+
   if (!infraD_active && random(0, 2000) > 1995) {
     infraD_active = true;
     infraD_since = millis();
-    cambio_infra = true;
+    // Send activation
+    Serial.println("INFRAD=1");
   }
   if (infraD_active && (millis() - infraD_since > INFRA_DURATION_MS)) {
     infraD_active = false;
+    // Do not send =0
   }
-  
-  // Solo marcamos para envío si hay activaciones nuevas
-  if (cambio_infra) {
-    enviar_infra = true;
-    infra_mask = 0;
-    if (infraA_active) infra_mask |= 1;
-    if (infraB_active) infra_mask |= 2;
-    if (infraC_active) infra_mask |= 4;
-    if (infraD_active) infra_mask |= 8;
-  }
-}
 
-void enviarActualizaciones() {
-  // SEMAFOROS - solo cuando cambian
-  if (sem_cambio) {
-    sem_cambio = false;
-    const char* estados[3] = {"ROJO", "AMARILLO", "VERDE"};
-    String estadoSem1 = String(estados[semPhase]);
-    String estadoSem2 = String(estados[(semPhase + 2) % 3]);
-    
-    Serial.print("SEM1="); Serial.print(estadoSem1);
-    Serial.print(";SEM2="); Serial.println(estadoSem2);
-  }
-  
-  // BUSES - solo cuando cambian (pueden ir por separado)
-  if (bus1_cambio) {
-    bus1_cambio = false;
-    Serial.print("BUS1="); Serial.println(distBus1);
-  }
-  
-  if (bus2_cambio) {
-    bus2_cambio = false;
-    Serial.print("BUS2="); Serial.println(distBus2);
-  }
-  
-  // PARTICULAS - solo cuando cambian significativamente
-  if (pm1_cambio && pm2_cambio) {
-    // Enviar ambas juntas si cambiaron al mismo tiempo
-    pm1_cambio = false;
-    pm2_cambio = false;
-    Serial.print("PM1="); Serial.print((int)pm1);
-    Serial.print(";PM2="); Serial.println((int)pm2);
-  } else if (pm1_cambio) {
-    pm1_cambio = false;
-    Serial.print("PM1="); Serial.println((int)pm1);
-  } else if (pm2_cambio) {
-    pm2_cambio = false;
-    Serial.print("PM2="); Serial.println((int)pm2);
-  }
-  
-  // EVENTOS PUNTUALES
-  if (enviar_panico) {
-    enviar_panico = false;
-    Serial.print("PANICO"); Serial.print(panico_id); Serial.println("=1");
-  }
-  
-  if (enviar_sismo) {
-    enviar_sismo = false;
-    Serial.println("SISMO=1");
-  }
-  
-  if (enviar_infra) {
-    enviar_infra = false;
-    // Enviar solo las infracciones activas
-    bool primera = true;
-    String mensaje = "";
-    
-    if (infra_mask & 1) {
-      if (!primera) mensaje += ";";
-      mensaje += "INFRAA=1";
-      primera = false;
-    }
-    if (infra_mask & 2) {
-      if (!primera) mensaje += ";";
-      mensaje += "INFRAB=1";
-      primera = false;
-    }
-    if (infra_mask & 4) {
-      if (!primera) mensaje += ";";
-      mensaje += "INFRAC=1";
-      primera = false;
-    }
-    if (infra_mask & 8) {
-      if (!primera) mensaje += ";";
-      mensaje += "INFRAD=1";
-      primera = false;
-    }
-    
-    if (mensaje.length() > 0) {
-      Serial.println(mensaje);
-    }
+  // Show timing info every 10 seconds for debugging interpolation
+  static unsigned long lastDebugTime = 0;
+  if (millis() - lastDebugTime > 10000) {
+    lastDebugTime = millis();
+    Serial.println("# Sistema activo - Próxima actualización de buses en: " + 
+                   String(BUS_UPDATE_INTERVAL - (millis() - lastBusUpdate)) + "ms");
   }
 }
