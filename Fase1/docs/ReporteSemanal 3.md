@@ -1,7 +1,7 @@
 ﻿# 📊 Reporte Semanal de Avances - Proyecto Fase 1
 
 **Semana:** 2  
-**Fecha de entrega:** 23/08/2025  
+**Fecha de entrega:** 22/08/2025  
 **Grupo:** 1 
 
 ---
@@ -74,5 +74,9 @@ Durante esta semana se alcanzaron los siguientes resultados:
 
 ## 📸 Evidencias
 
+![evidencia1](https://github.com/Ennero/ARQUI2B_2S2025_GA1/blob/docs/Fase1/img/evidencia1sem3.jpg)
 
+![evidencia2](https://github.com/Ennero/ARQUI2B_2S2025_GA1/blob/docs/Fase1/img/evidencia2sem3.jpg)
+
+![evidencia3](https://github.com/Ennero/ARQUI2B_2S2025_GA1/blob/docs/Fase1/img/evidencia3sem3.jpg)
 ---
