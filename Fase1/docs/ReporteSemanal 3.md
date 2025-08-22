@@ -58,17 +58,13 @@
 Durante esta semana se alcanzaron los siguientes resultados:  
 - Integración exitosa de los sensores y semáforos en la maqueta.  
 - Avance en la construcción física con edificios decorados y ubicados en su posición final.  
-- Cableado completo de los dispositivos hacia las diferentes protoboards.  
-- Ejecución de pruebas en **Processing**, verificando la correcta visualización de datos en el dashboard.  
-- Avance general tanto en la parte técnica como en la parte estética del proyecto.  
-
+- pruebas finales de processing juntos con los sensores
 ---
 
 ## 📅 Plan de Trabajo para la Próxima Semana
-- Finalizar la **Fase 1** del proyecto con todos los sensores y dispositivos funcionando correctamente.  
-- Asegurar la comunicación estable entre la maqueta y el dashboard de **Processing**.  
-- Mejorar detalles estéticos de la maqueta para su presentación.  
-- Continuar con pruebas de integración y optimización del cableado.  
+- Inicializacion  la **Fase 2** .  
+- Comenzar el codigo para implementarlo con la maqueta  
+ 
 
 ---
 
