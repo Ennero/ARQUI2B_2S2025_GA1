@@ -76,7 +76,7 @@ Durante esta semana se alcanzaron los siguientes resultados:
 
 ![evidencia1](https://github.com/Ennero/ARQUI2B_2S2025_GA1/blob/docs/Fase1/img/evidencia1sem3.jpg)
 
-![evidencia1](https://github.com/Ennero/ARQUI2B_2S2025_GA1/blob/docs/Fase1/img/evidencia2sem3.jpg)
+![evidencia2](https://github.com/Ennero/ARQUI2B_2S2025_GA1/blob/docs/Fase1/img/evidencia2sem3.jpg)
 
-![evidencia1](https://github.com/Ennero/ARQUI2B_2S2025_GA1/blob/docs/Fase1/img/evidencia3sem3.jpg)
+![evidencia3](https://github.com/Ennero/ARQUI2B_2S2025_GA1/blob/docs/Fase1/img/evidencia3sem3.jpg)
 ---
