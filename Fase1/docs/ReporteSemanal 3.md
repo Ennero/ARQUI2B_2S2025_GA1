@@ -1,7 +1,7 @@
 ﻿# 📊 Reporte Semanal de Avances - Proyecto Fase 1
 
 **Semana:** 2  
-**Fecha de entrega:** 23/08/2025  
+**Fecha de entrega:** 22/08/2025  
 **Grupo:** 1 
 
 ---
