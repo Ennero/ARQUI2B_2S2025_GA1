@@ -44,6 +44,12 @@ int halfIndexBus1 = 0;
 // Velocidad de animación (no se usa para cálculo de posición real)
 float velocidadBus = 0.005; 
 
+// ==================== ESTACIONES DEL SISTEMA DE TRANSPORTE ====================
+// Posiciones de estaciones Transmetro (solo 2 estaciones en ciclo de 360cm)
+float[] estacionesTransmetro = {0, 120}; // 2 estaciones en total: E1 y E2
+// Posiciones de estaciones Transurbano (en 0 y 100cm en ciclo de 200cm)
+float[] estacionesTransurbano = {0, 100}; // 2 estaciones en total
+
 // ==================== SISTEMA DE ALERTAS ====================
 // Botones de pánico y sus timestamps
 boolean[] panicoBtns = {false, false, false, false, false};
@@ -115,6 +121,73 @@ void draw() {
 
   // Dibujar barra de estado inferior
   dibujarBarraEstado();
+}
+
+// ==================== FUNCIONES PARA CALCULAR DISTANCIA A ESTACIÓN ====================
+/**
+ * Calcula la distancia que falta para llegar a la siguiente estación del Transmetro
+ */
+float calcularDistanciaRestanteTransmetro(float distanciaActual) {
+  // Normalizar la distancia actual dentro del ciclo
+  float distNormalizada = distanciaActual % MAX_BUS_TRANSMETRO;
+  
+  // Encontrar la siguiente estación
+  for (int i = 0; i < estacionesTransmetro.length; i++) {
+    if (distNormalizada <= estacionesTransmetro[i]) {
+      return estacionesTransmetro[i] - distNormalizada;
+    }
+  }
+  
+  // Si está después de la última estación, la siguiente es la primera del siguiente ciclo
+  return (MAX_BUS_TRANSMETRO + estacionesTransmetro[0]) - distNormalizada;
+}
+
+/**
+ * Calcula la distancia que falta para llegar a la siguiente estación del Transurbano
+ */
+float calcularDistanciaRestanteTransurbano(float distanciaActual) {
+  // Normalizar la distancia actual dentro del ciclo
+  float distNormalizada = distanciaActual % MAX_BUS_TRANSURBANO;
+  
+  // Encontrar la siguiente estación
+  for (int i = 0; i < estacionesTransurbano.length; i++) {
+    if (distNormalizada <= estacionesTransurbano[i]) {
+      return estacionesTransurbano[i] - distNormalizada;
+    }
+  }
+  
+  // Si está después de la última estación, la siguiente es la primera del siguiente ciclo
+  return (MAX_BUS_TRANSURBANO + estacionesTransurbano[0]) - distNormalizada;
+}
+
+/**
+ * Obtiene el nombre de la próxima estación del Transmetro
+ */
+String obtenerProximaEstacionTransmetro(float distanciaActual) {
+  float distNormalizada = distanciaActual % MAX_BUS_TRANSMETRO;
+  
+  for (int i = 0; i < estacionesTransmetro.length; i++) {
+    if (distNormalizada <= estacionesTransmetro[i]) {
+      return "E" + (i + 1);
+    }
+  }
+  
+  return "E1"; // Primera estación del siguiente ciclo
+}
+
+/**
+ * Obtiene el nombre de la próxima estación del Transurbano
+ */
+String obtenerProximaEstacionTransurbano(float distanciaActual) {
+  float distNormalizada = distanciaActual % MAX_BUS_TRANSURBANO;
+  
+  for (int i = 0; i < estacionesTransurbano.length; i++) {
+    if (distNormalizada <= estacionesTransurbano[i]) {
+      return "U" + (i + 1);
+    }
+  }
+  
+  return "U1"; // Primera estación del siguiente ciclo
 }
 
 // ==================== FUNCIONES DE INTERFAZ VISUAL ====================
@@ -459,9 +532,12 @@ void dibujarMapaBuses(float x, float y, float w, float h) {
   textAlign(LEFT, TOP);
   text("RUTA TRANSMETRO", rutaTransmetroX, rutaTransmetroY - 20);
 
+  // MODIFICACIÓN PRINCIPAL: Mostrar distancia restante hasta próxima estación
   fill(200, 220, 255);
   textSize(12);
-  text("Distancia recorrida: " + nf(distanciaParada1, 1, 0) + " cm / 360 cm", rutaTransmetroX, rutaTransmetroY + rutaTransmetroH + 15);
+  float distanciaRestanteTransmetro = calcularDistanciaRestanteTransmetro(distanciaParada1);
+  String proximaEstacionTransmetro = obtenerProximaEstacionTransmetro(distanciaParada1);
+  text("Distancia a estación " + proximaEstacionTransmetro + ": " + nf(distanciaRestanteTransmetro, 1, 0) + " cm", rutaTransmetroX, rutaTransmetroY + rutaTransmetroH + 15);
 
   // ==================== RUTA TRANSURBANO (INTERIOR) ====================
   float rutaTransurbanoW = rutaTransmetroW * 0.40;  
@@ -501,9 +577,12 @@ void dibujarMapaBuses(float x, float y, float w, float h) {
   textAlign(LEFT, TOP);
   text("RUTA TRANSURBANO", rutaTransurbanoX, rutaTransurbanoY - 20);
 
+  // MODIFICACIÓN PRINCIPAL: Mostrar distancia restante hasta próxima estación
   fill(255, 200, 200);
   textSize(12);
-  text("Distancia recorrida: " + nf(distanciaParada2, 1, 0) + " cm / 200 cm", rutaTransurbanoX, rutaTransurbanoY + rutaTransurbanoH + 15);
+  float distanciaRestanteTransurbano = calcularDistanciaRestanteTransurbano(distanciaParada2);
+  String proximaEstacionTransurbano = obtenerProximaEstacionTransurbano(distanciaParada2);
+  text("Distancia a estación " + proximaEstacionTransurbano + ": " + nf(distanciaRestanteTransurbano, 1, 0) + " cm", rutaTransurbanoX, rutaTransurbanoY + rutaTransurbanoH + 15);
 
   // ==================== ESTACIONES MEJORADAS ====================
   // Estaciones Transmetro: Ajustadas para mayor separación visual, con shift
@@ -535,7 +614,7 @@ void dibujarMapaBuses(float x, float y, float w, float h) {
   textSize(11);
   textAlign(CENTER, CENTER);
 
-  // Etiquetas Transmetro mejoradas
+  // Etiquetas Transmetro mejoradas - solo E1 y E2
   text("E1", estacion1Pos.x - 20, estacion1Pos.y - 12);  // Movida hacia la izquierda
   text("E2", estacion2Pos.x + 20, estacion2Pos.y + 12);  // Movida hacia la derecha
 
@@ -670,7 +749,7 @@ void dibujarLeyendaTransporte(float x, float y, float w) {
   text("Bus Transmetro", leyendaX + 40, itemY);
   textSize(11);
   fill(150, 200, 255);
-  text("Ruta: 360cm", leyendaX + 40, itemY + 15);
+  text("Ruta: 360cm (2 estaciones)", leyendaX + 40, itemY + 15);
   itemY += 35;
   
   // Bus Transurbano
@@ -688,7 +767,7 @@ void dibujarLeyendaTransporte(float x, float y, float w) {
   text("Bus Transurbano", leyendaX + 40, itemY);
   textSize(11);
   fill(255, 150, 150);
-  text("Ruta: 200cm", leyendaX + 40, itemY + 15);
+  text("Ruta: 200cm (2 estaciones)", leyendaX + 40, itemY + 15);
   itemY += 35;
   
   // Separador
