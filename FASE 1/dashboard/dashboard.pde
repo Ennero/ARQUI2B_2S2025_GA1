@@ -21,7 +21,7 @@ int[] configCaras = {0, 1, 0, 1};
 float nivelParticulas1 = 150; 
 float nivelParticulas2 = 150;
 // Umbral para detectar incendio automáticamente
-final float UMBRAL_INCENDIO = 1000.0; // ppm
+final float UMBRAL_INCENDIO = 250.0; // ppm
 String alertaExtra = "Sin alertas";
 
 // ==================== SISTEMA DE TRANSPORTE ====================
@@ -83,7 +83,7 @@ void setup() {
 
   // Intentar conexión serial
   if (ports.length > 0) {
-    String portName = "COM4"; // Ajustar según el puerto del Arduino
+    String portName = "COM3"; // Ajustar según el puerto del Arduino
     myPort = new Serial(this, portName, 9600);
     myPort.bufferUntil('\n');
     println("Conectado a: " + portName);
@@ -937,10 +937,6 @@ void serialEvent(Serial myPort) {
         estadoSem1 = parte.substring(5).trim();
       } else if (parte.startsWith("SEM2:")) {
         estadoSem2 = parte.substring(5).trim();
-      } else if (parte.startsWith("DIST1:")) {
-        distanciaParada1 = float(parte.substring(6).trim());
-      } else if (parte.startsWith("DIST2:")) {
-        distanciaParada2 = float(parte.substring(6).trim());
       } else if (parte.startsWith("MQ1:")) {
         nivelParticulas1 = float(parte.substring(4).trim());
       } else if (parte.startsWith("MQ2:")) {
@@ -982,10 +978,10 @@ void procesarDatoArduino(String key, String value) {
       break;
     
     // Posiciones de buses
-    case "BUS1":
+    case "DIST1":
       distanciaParada1 = float(value);
       break;
-    case "BUS2":
+    case "DIST2":
       distanciaParada2 = float(value);
       break;
     
