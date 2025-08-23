@@ -130,6 +130,9 @@ El proyecto se ejecutará siguiendo una metodología iterativa, dividida en las 
 4.  **Fase 4: Integración y Pruebas:** Conexión de todos los subsistemas (hardware y software) y realización de pruebas integrales para verificar que el sistema cumple con todos los objetivos funcionales definidos.
 
 ---
+## Diagramas 
+![diagrama1](img/Diagrama1.png)
+![diagrama2](img/Diagrama2.png)
 ## Link de Github
 ## Link de simulacion      
 https://app.sketchup.com/share/tc/northAmerica/aJ2IbRWgOl0?stoken=XyzgiDlDwOA2tYNCufjUEXr-pC4gbiujco70CVSAYh1IWYxRf9vRuN2l5BS9yo0-&source=web
