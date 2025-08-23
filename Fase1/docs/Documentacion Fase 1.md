@@ -131,8 +131,9 @@ El proyecto se ejecutará siguiendo una metodología iterativa, dividida en las 
 
 ---
 ## Diagramas 
-![diagrama1](img/Diagrama1.png)
-![diagrama2](img/Diagrama2.png)
+![diagrama1](https://github.com/Ennero/ARQUI2B_2S2025_GA1/blob/docs/Fase1/img/Diagrama1.png)
+
+![diagrama2](https://github.com/Ennero/ARQUI2B_2S2025_GA1/blob/docs/Fase1/img/Diagrma2.png)
 ## Link de Github
 ## Link de simulacion      
 https://app.sketchup.com/share/tc/northAmerica/aJ2IbRWgOl0?stoken=XyzgiDlDwOA2tYNCufjUEXr-pC4gbiujco70CVSAYh1IWYxRf9vRuN2l5BS9yo0-&source=web
