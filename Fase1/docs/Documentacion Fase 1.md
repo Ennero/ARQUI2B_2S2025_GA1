@@ -131,7 +131,8 @@ El proyecto se ejecutará siguiendo una metodología iterativa, dividida en las 
 
 ---
 ## Link de Github
-## Link de simulacion       
+## Link de simulacion      
+https://app.sketchup.com/share/tc/northAmerica/aJ2IbRWgOl0?stoken=XyzgiDlDwOA2tYNCufjUEXr-pC4gbiujco70CVSAYh1IWYxRf9vRuN2l5BS9yo0-&source=web
 ## 6. Descripción Detallada del Prototipo Físico
 El prototipo físico es el componente central de la Fase 1 del proyecto, sirviendo como una representación tangible y funcional del sistema de monitoreo propuesto. A continuación, se detallan sus características, funcionamiento y beneficios.
 
