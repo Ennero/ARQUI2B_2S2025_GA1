@@ -1,4 +1,5 @@
-﻿# Documento de Diseño y Arquitectura del Sistema
+
+ # Documento de Diseño y Arquitectura del Sistema
 ## Proyecto: Gestión Inteligente de Tráfico y Seguridad Ciudadana (Fase 1)
 
 **Versión:** 1.0
@@ -130,4 +131,62 @@ El proyecto se ejecutará siguiendo una metodología iterativa, dividida en las 
 
 ---
 ## Link de Github
-## Link de simulacion                             |
+## Link de simulacion       
+## 6. Descripción Detallada del Prototipo Físico
+El prototipo físico es el componente central de la Fase 1 del proyecto, sirviendo como una representación tangible y funcional del sistema de monitoreo propuesto. A continuación, se detallan sus características, funcionamiento y beneficios.
+
+### 6.1. Diseño y Construcción de la Maqueta
+La maqueta ha sido construida a escala para representar un sector del Centro Histórico de la Zona 1 de Guatemala. Se utilizaron materiales de bajo costo como cartón y elementos impresos para modelar los edificios, calles, paradas de autobús y puntos de interés histórico. El diseño busca no solo ser funcional, sino también visualmente representativo del entorno que se pretende monitorear, 
+
+El modelo incluye elementos clave como edificios emblemáticos, rutas de transporte público simuladas y la distribución de banderas que refuerzan el contexto geográfico del proyecto.
+
+### 6.2. Integración Electrónica y Cableado
+El verdadero cerebro del prototipo reside bajo la superficie.  un complejo sistema de cableado interconecta todos los componentes electrónicos. Este "sistema nervioso" es responsable de llevar la energía y los datos entre los microcontroladores Arduino y la red de sensores y actuadores distribuidos por toda la maqueta.
+
+Cada grupo de cables conecta un componente específico:
+
+Sensores ultrasónicos (HC-SR04) para la detección de vehículos.
+
+Sensores de gas (MQ-02) ubicados estratégicamente en los "sitios históricos".
+
+LEDs que fungen como semáforos en las intersecciones.
+
+Pulsadores que actúan como botones de pánico.
+
+Zumbadores para las alarmas sonoras.
+
+La organización de este cableado fue crucial para asegurar el correcto funcionamiento y facilitar la depuración de errores durante las fases de prueba.
+
+### 6.3. Detalles de Funcionamiento
+El prototipo opera como un ecosistema cohesivo donde cada componente tiene un rol definido. Un ejemplo de flujo de trabajo es el siguiente:
+
+Detección de Vehículo: Un carrito simulando una unidad de Transmetro avanza por su ruta. Al pasar por un punto estratégico, un sensor ultrasónico HC-SR04 detecta su presencia.
+
+Procesamiento Local: El Arduino  conectado a ese sensor registra la detección, la interpreta como "Bus en Parada X" y la envía al Arduino Master a través del protocolo I2C.
+
+Centralización y Envío: El Arduino recibe el mensaje, lo formatea en una trama de datos y lo envía por el puerto serie (USB) a la computadora.
+
+Visualización: El dashboard en Processing recibe la trama, la decodifica y actualiza la interfaz gráfica, mostrando un ícono del bus moviéndose a la "Parada X" en el mapa digital.
+
+Este mismo principio se aplica para las alertas: una pulsación de un botón de pánico o la detección de humo activan un zumbador local de forma instantánea (controlado por el Esclavo) y, simultáneamente, envían una alerta al dashboard para el registro central.
+
+### 6.4. Usos y Beneficios del Prototipo
+Más allá de ser un entregable del proyecto, el prototipo ofrece varios usos y beneficios clave:
+
+Usos:
+
+Prueba de Concepto (PoC): Demuestra de manera práctica y funcional la viabilidad de un sistema de monitoreo urbano basado en IoT con tecnología de bajo costo.
+
+Plataforma de Desarrollo y Pruebas: Permite depurar el código y la lógica de control en un entorno controlado antes de considerar una implementación a mayor escala.
+
+Herramienta de Demostración Visual: Sirve como un excelente recurso educativo para explicar conceptos de "Ciudades Inteligentes" a audiencias no técnicas, mostrando la interacción tangible entre el mundo físico y su representación digital.
+
+Beneficios:
+
+Tangibilidad: Convierte una idea abstracta de software y sensores en un producto físico que se puede ver y con el que se puede interactuar, facilitando la comprensión del sistema.
+
+Detección Temprana de Desafíos: La construcción física del prototipo permite identificar problemas prácticos (ej. interferencia entre sensores, complejidad del cableado, limitaciones de energía) que no son evidentes en la fase de diseño teórico.
+
+Modularidad Validada: La arquitectura Master-Slave implementada en el prototipo demuestra que el sistema es escalable. Se podrían agregar más "cuadras" o tipos de sensores (nuevos Arduinos Esclavos) sin alterar el núcleo del sistema.
+
+Validación del Flujo de Datos: Permite confirmar que el flujo de información, desde el sensor hasta el dashboard, es rápido, confiable y se presenta de manera correcta al usuario final.
