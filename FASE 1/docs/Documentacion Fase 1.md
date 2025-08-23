@@ -1,5 +1,5 @@
 
- # Documento de Diseño y Arquitectura del Sistema
+# Documento de Diseño y Arquitectura del Sistema
 ## Proyecto: Gestión Inteligente de Tráfico y Seguridad Ciudadana (Fase 1)
 
 **Versión:** 1.0
@@ -10,18 +10,33 @@
 
 ## Índice
 
-1.  [Resumen Ejecutivo](#1-resumen-ejecutivo)
-2.  [Introducción](#2-introducción)
-    * [2.1. Justificación y Planteamiento del Problema](#21-justificación-y-planteamiento-del-problema)
-    * [2.2. Objetivos del Proyecto](#22-objetivos-del-proyecto)
-3.  [Alcance y Delimitaciones (Fase 1)](#3-alcance-y-delimitaciones-fase-1)
-    * [3.1. Alcance Funcional](#31-alcance-funcional)
-    * [3.2. Delimitaciones y Exclusiones](#32-delimitaciones-y-exclusiones)
-4.  [Arquitectura del Sistema](#4-arquitectura-del-sistema)
-    * [4.1. Arquitectura de Hardware](#41-arquitectura-de-hardware)
-    * [4.2. Arquitectura de Software](#42-arquitectura-de-software)
-    * [4.3. Flujo de Datos y Comunicación](#43-flujo-de-datos-y-comunicación)
-5.  [Metodología de Desarrollo](#5-metodología-de-desarrollo)
+- [Documento de Diseño y Arquitectura del Sistema](#documento-de-diseño-y-arquitectura-del-sistema)
+  - [Proyecto: Gestión Inteligente de Tráfico y Seguridad Ciudadana (Fase 1)](#proyecto-gestión-inteligente-de-tráfico-y-seguridad-ciudadana-fase-1)
+  - [Índice](#índice)
+    - [1. Resumen Ejecutivo](#1-resumen-ejecutivo)
+    - [2. Introducción](#2-introducción)
+      - [2.1. Justificación y Planteamiento del Problema](#21-justificación-y-planteamiento-del-problema)
+      - [2.2. Objetivos del Proyecto](#22-objetivos-del-proyecto)
+        - [**Objetivo General:**](#objetivo-general)
+        - [**Objetivos Específicos:**](#objetivos-específicos)
+    - [3. Alcance y Delimitaciones (Fase 1)](#3-alcance-y-delimitaciones-fase-1)
+      - [3.1. Alcance Funcional](#31-alcance-funcional)
+      - [3.2. Delimitaciones y Exclusiones](#32-delimitaciones-y-exclusiones)
+    - [4. Arquitectura del Sistema](#4-arquitectura-del-sistema)
+      - [4.1. Arquitectura de Hardware](#41-arquitectura-de-hardware)
+      - [4.2. Arquitectura de Software](#42-arquitectura-de-software)
+      - [4.3. Flujo de Datos y Comunicación](#43-flujo-de-datos-y-comunicación)
+    - [5. Metodología de Desarrollo](#5-metodología-de-desarrollo)
+  - [Diagramas](#diagramas)
+  - [Link de Github](#link-de-github)
+  - [Link de simulacion](#link-de-simulacion)
+  - [6. Descripción Detallada del Prototipo Físico](#6-descripción-detallada-del-prototipo-físico)
+    - [6.1. Diseño y Construcción de la Maqueta](#61-diseño-y-construcción-de-la-maqueta)
+    - [6.2. Integración Electrónica y Cableado](#62-integración-electrónica-y-cableado)
+    - [6.3. Detalles de Funcionamiento](#63-detalles-de-funcionamiento)
+    - [6.4. Usos y Beneficios del Prototipo](#64-usos-y-beneficios-del-prototipo)
+      - [Usos:](#usos)
+      - [Beneficios:](#beneficios)
 
 ---
 
@@ -41,7 +56,7 @@ La información consolidada será enviada a una estación de monitoreo (computad
 
 El Centro Histórico de la Ciudad de Guatemala, como núcleo de gran valor patrimonial y alta densidad poblacional, enfrenta constantes desafíos en materia de movilidad urbana y seguridad ciudadana. La congestión vehicular, la gestión de emergencias y la necesidad de una respuesta rápida a incidentes de seguridad demandan soluciones tecnológicas innovadoras. Los sistemas tradicionales de gestión son a menudo reactivos y carecen de la capacidad de recopilar y analizar datos en tiempo real para una toma de decisiones proactiva.
 
-Este proyecto se justifica por la necesidad de explorar y validar un modelo de "ciudad inteligente" a escala, utilizando tecnología accesible como IoT, que permita sentar las bases para un entorno urbano más seguro, eficiente y resiliente.
+Este proyecto se justifica por la necesidad de explorar y validar un modelo de "Ciudad Inteligente" a escala, utilizando tecnología accesible como IoT, que permita sentar las bases para un entorno urbano más seguro, eficiente y resiliente.
 
 #### 2.2. Objetivos del Proyecto
 
@@ -124,74 +139,81 @@ El proyecto se ejecutará siguiendo una metodología iterativa, dividida en las 
 1.  **Fase 1: Diseño y Planificación:** Definición detallada de los requisitos, selección final de componentes y diseño de los circuitos electrónicos y la maqueta.
 2.  **Fase 2: Montaje del Prototipo:** Ensamblaje físico de la maqueta, instalación de todos los sensores, actuadores y cableado de los microcontroladores.
 3.  **Fase 3: Desarrollo de Software:**
-    * Programación y prueba individual de los módulos Esclavos.
-    * Desarrollo de la comunicación I2C y el programa del Master.
+    * Programación y prueba individual.
     * Desarrollo incremental del dashboard en Processing.
 4.  **Fase 4: Integración y Pruebas:** Conexión de todos los subsistemas (hardware y software) y realización de pruebas integrales para verificar que el sistema cumple con todos los objetivos funcionales definidos.
 
 ---
 ## Diagramas 
-![diagrama1](https://github.com/Ennero/ARQUI2B_2S2025_GA1/blob/docs/Fase1/img/Diagrama1.png)
 
-![diagrama2](https://github.com/Ennero/ARQUI2B_2S2025_GA1/blob/docs/Fase1/img/Diagrma2.png)
+![diagrama1](../img/Diagrama1.png)
+
+![diagrama2](../img/Diagrma2.png)
+
 ## Link de Github
+
+https://github.com/Ennero/ARQUI2B_2S2025_GA1
+
 ## Link de simulacion      
+![midelado](../img/modelado.png)
+
 https://app.sketchup.com/share/tc/northAmerica/aJ2IbRWgOl0?stoken=XyzgiDlDwOA2tYNCufjUEXr-pC4gbiujco70CVSAYh1IWYxRf9vRuN2l5BS9yo0-&source=web
+
 ## 6. Descripción Detallada del Prototipo Físico
+
 El prototipo físico es el componente central de la Fase 1 del proyecto, sirviendo como una representación tangible y funcional del sistema de monitoreo propuesto. A continuación, se detallan sus características, funcionamiento y beneficios.
 
 ### 6.1. Diseño y Construcción de la Maqueta
+
 La maqueta ha sido construida a escala para representar un sector del Centro Histórico de la Zona 1 de Guatemala. Se utilizaron materiales de bajo costo como cartón y elementos impresos para modelar los edificios, calles, paradas de autobús y puntos de interés histórico. El diseño busca no solo ser funcional, sino también visualmente representativo del entorno que se pretende monitorear, 
 
 El modelo incluye elementos clave como edificios emblemáticos, rutas de transporte público simuladas y la distribución de banderas que refuerzan el contexto geográfico del proyecto.
 
 ### 6.2. Integración Electrónica y Cableado
-El verdadero cerebro del prototipo reside bajo la superficie.  un complejo sistema de cableado interconecta todos los componentes electrónicos. Este "sistema nervioso" es responsable de llevar la energía y los datos entre los microcontroladores Arduino y la red de sensores y actuadores distribuidos por toda la maqueta.
 
+El verdadero cerebro del prototipo reside bajo la superficie.  un complejo sistema de cableado interconecta todos los componentes electrónicos. Este "sistema nervioso" es responsable de llevar la energía y los datos entre los microcontroladores Arduino y la red de sensores y actuadores distribuidos por toda la maqueta.
 Cada grupo de cables conecta un componente específico:
 
-Sensores ultrasónicos (HC-SR04) para la detección de vehículos.
+- Sensores ultrasónicos (HC-SR04) para la detección de vehículos.
 
-Sensores de gas (MQ-02) ubicados estratégicamente en los "sitios históricos".
+- Sensores de gas (MQ-02) ubicados estratégicamente en los "sitios históricos".
 
-LEDs que fungen como semáforos en las intersecciones.
+- LEDs que fungen como semáforos en las intersecciones.
 
-Pulsadores que actúan como botones de pánico.
+- Pulsadores que actúan como botones de pánico.
 
-Zumbadores para las alarmas sonoras.
+- Zumbadores para las alarmas sonoras.
 
 La organización de este cableado fue crucial para asegurar el correcto funcionamiento y facilitar la depuración de errores durante las fases de prueba.
 
 ### 6.3. Detalles de Funcionamiento
 El prototipo opera como un ecosistema cohesivo donde cada componente tiene un rol definido. Un ejemplo de flujo de trabajo es el siguiente:
 
-Detección de Vehículo: Un carrito simulando una unidad de Transmetro avanza por su ruta. Al pasar por un punto estratégico, un sensor ultrasónico HC-SR04 detecta su presencia.
+- **Detección de Vehículo:** Un carrito simulando una unidad de Transmetro avanza por su ruta. Al pasar por un punto estratégico, un sensor ultrasónico HC-SR04 detecta su presencia.
 
-Procesamiento Local: El Arduino  conectado a ese sensor registra la detección, la interpreta como "Bus en Parada X" y la envía al Arduino Master a través del protocolo I2C.
+- **Centralización y Envío:** El Arduino recibe el mensaje, lo formatea en una trama de datos y lo envía por el puerto serie (USB) a la computadora.
 
-Centralización y Envío: El Arduino recibe el mensaje, lo formatea en una trama de datos y lo envía por el puerto serie (USB) a la computadora.
+- **Visualización:** El dashboard en Processing recibe la trama, la decodifica y actualiza la interfaz gráfica, mostrando un ícono del bus moviéndose a la "Parada X" en el mapa digital.
 
-Visualización: El dashboard en Processing recibe la trama, la decodifica y actualiza la interfaz gráfica, mostrando un ícono del bus moviéndose a la "Parada X" en el mapa digital.
-
-Este mismo principio se aplica para las alertas: una pulsación de un botón de pánico o la detección de humo activan un zumbador local de forma instantánea (controlado por el Esclavo) y, simultáneamente, envían una alerta al dashboard para el registro central.
+- **Este mismo principio se aplica para las alertas:** una pulsación de un botón de pánico o la detección de humo activan un zumbador local de forma instantánea y, simultáneamente, envían una alerta al dashboard para el registro central.
 
 ### 6.4. Usos y Beneficios del Prototipo
 Más allá de ser un entregable del proyecto, el prototipo ofrece varios usos y beneficios clave:
 
-Usos:
+#### Usos:
 
-Prueba de Concepto (PoC): Demuestra de manera práctica y funcional la viabilidad de un sistema de monitoreo urbano basado en IoT con tecnología de bajo costo.
+- **Prueba de Concepto (PoC):** Demuestra de manera práctica y funcional la viabilidad de un sistema de monitoreo urbano basado en IoT con tecnología de bajo costo.
 
-Plataforma de Desarrollo y Pruebas: Permite depurar el código y la lógica de control en un entorno controlado antes de considerar una implementación a mayor escala.
+- **Plataforma de Desarrollo y Pruebas:** Permite depurar el código y la lógica de control en un entorno controlado antes de considerar una implementación a mayor escala.
 
-Herramienta de Demostración Visual: Sirve como un excelente recurso educativo para explicar conceptos de "Ciudades Inteligentes" a audiencias no técnicas, mostrando la interacción tangible entre el mundo físico y su representación digital.
+- **Herramienta de Demostración Visual:** Sirve como un excelente recurso educativo para explicar conceptos de "Ciudades Inteligentes" a audiencias no técnicas, mostrando la interacción tangible entre el mundo físico y su representación digital.
 
-Beneficios:
+#### Beneficios:
 
-Tangibilidad: Convierte una idea abstracta de software y sensores en un producto físico que se puede ver y con el que se puede interactuar, facilitando la comprensión del sistema.
+- **Tangibilidad:** Convierte una idea abstracta de software y sensores en un producto físico que se puede ver y con el que se puede interactuar, facilitando la comprensión del sistema.
 
-Detección Temprana de Desafíos: La construcción física del prototipo permite identificar problemas prácticos (ej. interferencia entre sensores, complejidad del cableado, limitaciones de energía) que no son evidentes en la fase de diseño teórico.
+- **Detección Temprana de Desafíos:** La construcción física del prototipo permite identificar problemas prácticos (ej. interferencia entre sensores, complejidad del cableado, limitaciones de energía) que no son evidentes en la fase de diseño teórico.
 
-Modularidad Validada: La arquitectura Master-Slave implementada en el prototipo demuestra que el sistema es escalable. Se podrían agregar más "cuadras" o tipos de sensores (nuevos Arduinos Esclavos) sin alterar el núcleo del sistema.
+- **Modularidad Validada:** La arquitectura Master-Slave implementada en el prototipo demuestra que el sistema es escalable. Se podrían agregar más "cuadras" o tipos de sensores (nuevos Arduinos Esclavos) sin alterar el núcleo del sistema.
 
-Validación del Flujo de Datos: Permite confirmar que el flujo de información, desde el sensor hasta el dashboard, es rápido, confiable y se presenta de manera correcta al usuario final.
+- **Validación del Flujo de Datos:** Permite confirmar que el flujo de información, desde el sensor hasta el dashboard, es rápido, confiable y se presenta de manera correcta al usuario final.
