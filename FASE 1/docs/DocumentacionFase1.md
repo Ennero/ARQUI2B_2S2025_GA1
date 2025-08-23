@@ -29,7 +29,7 @@
     - [5. Metodología de Desarrollo](#5-metodología-de-desarrollo)
   - [Diagramas](#diagramas)
   - [Link de Github](#link-de-github)
-  - [Link de simulacion](#link-de-simulacion)
+  - [Link de la simulacion](#link-de-la-simulacion)
   - [6. Descripción Detallada del Prototipo Físico](#6-descripción-detallada-del-prototipo-físico)
     - [6.1. Diseño y Construcción de la Maqueta](#61-diseño-y-construcción-de-la-maqueta)
     - [6.2. Integración Electrónica y Cableado](#62-integración-electrónica-y-cableado)
@@ -154,7 +154,7 @@ El proyecto se ejecutará siguiendo una metodología iterativa, dividida en las 
 
 https://github.com/Ennero/ARQUI2B_2S2025_GA1
 
-## Link de simulacion      
+## Link de la simulacion      
 ![midelado](../img/modelado.png)
 
 https://app.sketchup.com/share/tc/northAmerica/aJ2IbRWgOl0?stoken=XyzgiDlDwOA2tYNCufjUEXr-pC4gbiujco70CVSAYh1IWYxRf9vRuN2l5BS9yo0-&source=web
