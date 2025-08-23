@@ -15,9 +15,9 @@
   - 2 puntos históricos
 
 **Captura del avance:**  
-![Foto de maqueta - ](./Imagenes/Imagen%20de%20WhatsApp%202025-08-05%20a%20las%2020.10.26_b79377be.jpg)
-![Foto de maqueta - ](./Imagenes/Imagen%20de%20WhatsApp%202025-08-05%20a%20las%2020.10.50_32c2b8e3.jpg)
-![Foto de maqueta - ](./Imagenes/Imagen%20de%20WhatsApp%202025-08-05%20a%20las%2020.10.50_af3f7a97.jpg)
+![Foto de maqueta - ](../img/evidencia1.jpg)
+![Foto de maqueta - ](../img/evidencia2.jpg)
+![Foto de maqueta - ](../img/evidencia3.jpg)
 
 
 ---
@@ -29,16 +29,7 @@
 **Vista preliminar del modelo:**  
 https://app.sketchup.com/share/tc/northAmerica/aJ2IbRWgOl0?stoken=XyzgiDlDwOA2tYNCufjUEXr-pC4gbiujco70CVSAYh1IWYxRf9vRuN2l5BS9yo0-&source=web
 
-![Foto de modelo ](./Imagenes/Imagen%20de%20WhatsApp%202025-08-05%20a%20las%2020.10.49_a79d2031.jpg)
-![Foto de modelo ](./Imagenes/Imagen%20de%20WhatsApp%202025-08-05%20a%20las%2020.10.51_596ab6af.jpg)
-
----
-
-### 🛒 3. Componentes Electrónicos
-
-![Foto de componentes](./Imagenes/Imagen%20de%20WhatsApp%202025-08-05%20a%20las%2016.18.30_0e85813b.jpg)
-
-
+![Foto de modelo ](../img/modelado.png)
 
 ---
 
@@ -59,20 +50,6 @@ https://app.sketchup.com/share/tc/northAmerica/aJ2IbRWgOl0?stoken=XyzgiDlDwOA2tY
 
 ---
 
-## 💰 Registro de Gastos (Parcial)
-
-![Foto de gastos](./Imagenes/Imagen%20de%20WhatsApp%202025-08-06%20a%20las%2012.03.47_3a926169.jpg)
-
----
-
-## 📸 Galería (Agregar más fotos según avancen)
-
-
----
-
-## 🗂️ Archivos Adjuntos
-
----
 
 ## 🚧 Próximas Actividades
 - Finalizar base de la maqueta

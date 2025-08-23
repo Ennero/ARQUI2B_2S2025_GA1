@@ -1,7 +1,7 @@
 ﻿# 📊 Reporte Semanal de Avances - Proyecto Fase 1
 
 **Semana:** 2  
-**Fecha de entrega:** 22/08/2025  
+**Fecha de entrega:** 23/08/2025  
 **Grupo:** 1 
 
 ---
@@ -58,21 +58,30 @@
 Durante esta semana se alcanzaron los siguientes resultados:  
 - Integración exitosa de los sensores y semáforos en la maqueta.  
 - Avance en la construcción física con edificios decorados y ubicados en su posición final.  
-- pruebas finales de processing juntos con los sensores
+- Cableado completo de los dispositivos hacia las diferentes protoboards.  
+- Ejecución de pruebas en **Processing**, verificando la correcta visualización de datos en el dashboard.  
+- Avance general tanto en la parte técnica como en la parte estética del proyecto.  
+
 ---
 
 ## 📅 Plan de Trabajo para la Próxima Semana
-- Inicializacion  la **Fase 2** .  
-- Comenzar el codigo para implementarlo con la maqueta  
- 
+- Finalizar la **Fase 1** del proyecto con todos los sensores y dispositivos funcionando correctamente.  
+- Asegurar la comunicación estable entre la maqueta y el dashboard de **Processing**.  
+- Mejorar detalles estéticos de la maqueta para su presentación.  
+- Continuar con pruebas de integración y optimización del cableado.  
 
 ---
 
 ## 📸 Evidencias
 
-![evidencia1](https://github.com/Ennero/ARQUI2B_2S2025_GA1/blob/docs/Fase1/img/evidencia1sem3.jpg)
+![evidencia4](../img/evidencia4.jpg)
+![evidencia5](../img/evidencia5.jpg)
+![evidencia6](../img/evidencia6.jpg)
+![evidencia7](../img/evidencia7.jpg)
+![evidencia8](../img/evidencia8.jpg)
+![evidencia9](../img/evidencia9.jpg)
+![evidencia10](../img/evidencia10.jpg)
+![evidencia11](../img/evidencia11.jpg)
+![evidencia12](../img/evidencia12.jpg)
 
-![evidencia2](https://github.com/Ennero/ARQUI2B_2S2025_GA1/blob/docs/Fase1/img/evidencia2sem3.jpg)
-
-![evidencia3](https://github.com/Ennero/ARQUI2B_2S2025_GA1/blob/docs/Fase1/img/evidencia3sem3.jpg)
 ---
