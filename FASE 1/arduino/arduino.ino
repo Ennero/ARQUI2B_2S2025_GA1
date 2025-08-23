@@ -5,12 +5,13 @@
 #define MAX_DISTANCE 50
 #define PING_INTERVAL 33
 
-// ---- Pines y rutas ----
+// ---- Pines y rutas ----  
 #define RESET1_PIN 4  // reed que resetea (HIGH->LOW)
 const int ROUTE1_PINS[] = { 5, 6, A3, A4, A5, A6, A7, A8 };
 const int ROUTE2_PINS[] = { 17, 16, 15, 14, 2, 13 };
 const uint8_t ROUTE1_COUNT = sizeof(ROUTE1_PINS) / sizeof(ROUTE1_PINS[0]);
 const uint8_t ROUTE2_COUNT = sizeof(ROUTE2_PINS) / sizeof(ROUTE2_PINS[0]);
+const int PIN_PIEZ = A9;
 
 // Parámetros distancia
 #define DIST1_INCREMENT 40  // cm por "paso" (40, 80, 120...)
@@ -106,7 +107,7 @@ const unsigned long duracionBuzzer = 2000;
 // --- MQ2 ---
 #define MQ2_SENSOR_1 A0
 #define MQ2_SENSOR_2 A1
-#define SMOKE_THRESHOLD 500
+#define SMOKE_THRESHOLD 260
 
 unsigned long lastSmokeCheck = 0;
 const unsigned long smokeInterval = 1000;
@@ -126,6 +127,15 @@ int lastStateReset = HIGH;
 
 // --- Para detectar el caso especial en ROUTE2 (índices) ---
 int lastTriggeredIndexRoute2 = -1;  // -1 = ninguno todavía
+
+void leerPiezoelectrico(bool makeItSound = false) {
+  int piezoState = digitalRead(PIEZO_PIN);
+  SISMO = (piezoState == HIGH) ? 1 : 0;
+  if (SISMO == 1 || makeItSound) {
+    unsigned long now = millis();
+    for (int i = 0; i < NUM_BOTONES; i++) sonarBuzzer(i, now);
+  }
+}
 
 void setup() {
   Serial.begin(9600);
@@ -148,6 +158,8 @@ void setup() {
   // RESET reed
   pinMode(RESET1_PIN, INPUT_PULLUP);
   lastStateReset = digitalRead(RESET1_PIN);
+
+  pinMode(PIN_PIEZ, INPUT_PULLUP);
 
   // reeds rutas (solo lectura inicial)
   for (uint8_t i = 0; i < ROUTE1_COUNT; i++) {
@@ -188,7 +200,11 @@ void loop() {
   if (now - lastPiezoCheck >= piezoInterval) {
     leerPiezoelectrico();
     lastPiezoCheck = now;
+  }else if(digitalRead(PIN_PIEZ) == LOW){
+    leerPiezoelectrico(true);
+    lastPiezoCheck = now;
   }
+
 
   // emitir estado periódicamente (único Serial.println)
   if (now - lastEmitTime >= emitInterval) {
@@ -395,15 +411,6 @@ void updateTrafficLights(unsigned long now) {
       SEM1 = (currentCycle == GREEN_A) ? "VERDE" : "AMARILLO";
       SEM2 = "ROJO";
       break;
-  }
-}
-
-void leerPiezoelectrico() {
-  int piezoState = digitalRead(PIEZO_PIN);
-  SISMO = (piezoState == HIGH) ? 1 : 0;
-  if (SISMO == 1) {
-    unsigned long now = millis();
-    for (int i = 0; i < NUM_BOTONES; i++) sonarBuzzer(i, now);
   }
 }
 
