@@ -107,7 +107,7 @@ const unsigned long duracionBuzzer = 2000;
 // --- MQ2 ---
 #define MQ2_SENSOR_1 A0
 #define MQ2_SENSOR_2 A1
-#define SMOKE_THRESHOLD 260
+#define SMOKE_THRESHOLD 5000
 
 unsigned long lastSmokeCheck = 0;
 const unsigned long smokeInterval = 1000;
@@ -125,13 +125,10 @@ int lastStateRoute2[ROUTE2_COUNT];
 // --- Reset reed ---
 int lastStateReset = HIGH;
 
-// --- Para detectar el caso especial en ROUTE2 (índices) ---
-int lastTriggeredIndexRoute2 = -1;  // -1 = ninguno todavía
-
 void leerPiezoelectrico(bool makeItSound = false) {
   int piezoState = digitalRead(PIEZO_PIN);
   SISMO = (piezoState == HIGH) ? 1 : 0;
-  if (SISMO == 1 || makeItSound) {
+  if (makeItSound) {
     unsigned long now = millis();
     for (int i = 0; i < NUM_BOTONES; i++) sonarBuzzer(i, now);
   }
@@ -224,8 +221,6 @@ void manejarReeds() {
       if (newDist != dist1) {
         dist1 = newDist;
       }
-      // No debounce, actualización inmediata del estado interno (emitido periódicamente)
-      lastTriggeredIndexRoute2 = lastTriggeredIndexRoute2; // sin efecto aquí, solo para mantener variable
     }
     lastStateRoute1[i] = lectura;
   }
@@ -235,20 +230,15 @@ void manejarReeds() {
     int pin = ROUTE2_PINS[i];
     int lectura = digitalRead(pin);
     if (lastStateRoute2[i] == HIGH && lectura == LOW) {
-      int normalNewDist = (i + 1) * DIST2_INCREMENT;
-      int newDist = normalNewDist;
+      int newDist = (i + 1) * DIST2_INCREMENT;
 
-      // Caso especial: si el anterior índice activado fue 1 (pin 16) y ahora es 2 (pin 14)
-      if (lastTriggeredIndexRoute2 == 2 && i == 3) {
-        newDist = normalNewDist + 20;  // aplica el salto extra sólo en ese caso
+      if (i > 3) {
+        newDist = newDist + 20;  // aplica el salto extra sólo en ese caso
       }
 
       if (newDist != dist2) {
         dist2 = newDist;
       }
-
-      // actualizar índice último activado en ROUTE2
-      lastTriggeredIndexRoute2 = i;
     }
     lastStateRoute2[i] = lectura;
   }
@@ -261,7 +251,6 @@ void manejarResetReed() {
     // reset manual por reed: resetea distancias
     dist1 = 0;
     dist2 = 0;
-    lastTriggeredIndexRoute2 = -1;  // limpiar historial de ruta2
   }
   lastStateReset = lectura;
 }
@@ -362,7 +351,6 @@ void echoCheck() {
   if (sensors[currentSensor].purpose == SENSOR_ARRIVAL) {
     if (sensors[currentSensor].id == RESET_SENSOR_ID) {
       dist2 = 0;
-      lastTriggeredIndexRoute2 = -1;
     } else if (sensors[currentSensor].id == 13) {
       dist2 = 80;
     }
