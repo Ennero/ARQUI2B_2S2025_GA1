@@ -31,16 +31,16 @@
 
 #### Tecnologías a implementar:
 - Raspberry Pi como nodo central e intercomunicador con Arduino, Flutter, MQTT, etc. 
-![3](./imgs2/3.png)
+![3](/FASE%202/img/fase%202/3.png)
 #
 - Flutter para visualización de datos
-![2](./imgs2/2.jpg)
+![2](/FASE%202/img/fase%202/2.jpg)
 #
 - API, base de datos y MQTT
-![1](./imgs2/1.jpg)
+![1](/FASE%202/img/fase%202/1.jpg)
 #
 - Realización de la documentación
-![4](./imgs2/4.jpg)
+![4](/FASE%202/img/fase%202/4.jpg)
 - Pieza 3D impresa en la maqueta
 
 
