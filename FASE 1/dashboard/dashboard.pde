@@ -17,16 +17,15 @@ String estadoSem2 = "ROJO";  // cara 2
 int[] configCaras = {0, 1, 0, 1}; 
 
 // ==================== SENSORES DE INCENDIO ====================
-// Variables para partículas (ppm) - actualizadas desde Arduino
 float nivelParticulas1 = 150; 
 float nivelParticulas2 = 150;
 // Umbral para detectar incendio automáticamente
-final float UMBRAL_INCENDIO = 250.0; // ppm
+final float UMBRAL_INCENDIO = 260.0;
 String alertaExtra = "Sin alertas";
 
 // ==================== SISTEMA DE TRANSPORTE ====================
 // TRANSURBANO: Nueva configuración - 200cm total con estaciones específicas
-final float MAX_BUS_TRANSURBANO = 200.0; // Distancia máxima para transurbano
+final float MAX_BUS_TRANSURBANO = 160.0; // Distancia máxima para transurbano
 float distanciaParada2 = 0; // Distancia actual del transurbano
 float progresoBus2 = 0; // Progreso 0-1 para transurbano
 // Estados para reconocer ciclos del transurbano
@@ -466,7 +465,7 @@ void dibujarSensorParticulas(float x, float y, float w, float h, String id, floa
   fill(255);
   textSize(18);
   textAlign(LEFT, CENTER);
-  text(nf(nivel, 1, 1) + " ppm", x + 10, iconY);
+  text(nf(nivel, 1, 1), x + 10, iconY);
 }
 
 /**
@@ -906,7 +905,7 @@ void dibujarBarraEstado() {
 }
 
 /**
- * Manejo de datos serie recibidos desde Arduino - MEJORADO PARA COMPATIBILIDAD
+ * Manejo de datos serie recibidos desde Arduino
  */
 void serialEvent(Serial myPort) {
   datosSerial = myPort.readStringUntil('\n');
