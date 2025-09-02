@@ -52,28 +52,26 @@ class MongoDBConnection:
         self.client = MongoClient(
             uri,
             server_api=ServerApi('1')
-            # Los timeouts y el pool size por defecto suelen ser suficientes
-            # para empezar. Se pueden añadir si se necesita un tuning específico.
+            # The default timeouts and pool size are usually sufficient
+            # to start. We can add whether we need specific tuning.
         )
         # The ismaster command is cheap and does not require auth.
         self.client.admin.command('ping')
         print('Successfully connected to MongoDB Atlas!')
     
     def get_database(self, db_name: str):
-        '''Obtiene una instancia de la base de datos.'''
         return self.client[db_name]
 
     def get_collection(self, db_name: str, collection_name: str):
-        '''Método más flexible para obtener una colección directamente.'''
         db = self.get_database(db_name)
         return db[collection_name]
     
     def close(self):
         '''
-        Cierra la conexión con MongoDB.
-        Este método solo debe ser llamado cuando la aplicación está terminando.
+        Closes the connection to MongoDB.
+        This method should only be called when the application is shutting down.
         '''
         if self.client:
             self.client.close()
-            MongoDBConnection._instance = None # Permite reiniciar el singleton si es necesario
+            MongoDBConnection._instance = None # Allows restarting the singleton if necessary
             print('MongoDB connection closed.')
