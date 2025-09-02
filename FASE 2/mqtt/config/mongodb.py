@@ -1,10 +1,10 @@
 '''
 MIT License
 
-Copyright (c) 2024 Marcos Bonifasi
+Copyright (c) 2025 Marcos Bonifasi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
+of this software and associated documentation files (the 'Software'), to deal
 in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
@@ -13,7 +13,7 @@ furnished to do so, subject to the following conditions:
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -33,40 +33,47 @@ class MongoDBConnection:
     
     def __new__(cls):
         if cls._instance is None:
+            print('Creating new MongoDB connection instance.')
             cls._instance = super(MongoDBConnection, cls).__new__(cls)
-            cls._instance._initialize_connection()
+            try:
+                cls._instance._initialize_connection()
+            except Exception as e:
+                # If connection fails, don't keep a failed instance
+                cls._instance = None
+                print(f'Failed to initialize MongoDB connection: {e}')
+                raise  # Re-raise the exception to stop the app
         return cls._instance
     
     def _initialize_connection(self):
-        
-        uri = os.getenv("MONGODB_URI")
+        uri = os.getenv('MONGODB_URI')
+        if not uri:
+            raise ValueError('MONGODB_URI environment variable not set.')
+            
         self.client = MongoClient(
             uri,
-            server_api=ServerApi('1'),
-            connectTimeoutMS=30000,
-            socketTimeoutMS=30000,
-            maxPoolSize=50
+            server_api=ServerApi('1')
+            # Los timeouts y el pool size por defecto suelen ser suficientes
+            # para empezar. Se pueden añadir si se necesita un tuning específico.
         )
-        try:
-            # Test the connection
-            self.client.admin.command('ping')
-            print("Successfully connected to MongoDB Atlas!")
-        except Exception as e:
-            print(f"Failed to connect to MongoDB: {e}")
-            raise
+        # The ismaster command is cheap and does not require auth.
+        self.client.admin.command('ping')
+        print('Successfully connected to MongoDB Atlas!')
     
     def get_database(self, db_name: str):
+        '''Obtiene una instancia de la base de datos.'''
         return self.client[db_name]
-    
-    def get_last_document(self, db_name: str, collection_name: str):
+
+    def get_collection(self, db_name: str, collection_name: str):
+        '''Método más flexible para obtener una colección directamente.'''
         db = self.get_database(db_name)
-        collection = db[collection_name]
-        last_document = collection.find_one(sort=[('_id', -1)])
-        return last_document
+        return db[collection_name]
     
-    def close_connection(self):
+    def close(self):
+        '''
+        Cierra la conexión con MongoDB.
+        Este método solo debe ser llamado cuando la aplicación está terminando.
+        '''
         if self.client:
             self.client.close()
-            self._instance = None
-
-mongodb_connection = MongoDBConnection()
+            MongoDBConnection._instance = None # Permite reiniciar el singleton si es necesario
+            print('MongoDB connection closed.')
