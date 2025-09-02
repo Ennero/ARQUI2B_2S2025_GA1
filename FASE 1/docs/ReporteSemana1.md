@@ -15,10 +15,9 @@
   - 2 puntos históricos
 
 **Captura del avance:**  
-![Foto de maqueta - ](../img/evidencia1.jpg)
-![Foto de maqueta - ](../img/evidencia2.jpg)
-![Foto de maqueta - ](../img/evidencia3.jpg)
-
+![Foto de maqueta - ](../img/1.jpg)
+![Foto de maqueta - ](../img/2.jpg)
+![Foto de maqueta - ](../img/3.jpg)
 
 ---
 
@@ -29,7 +28,16 @@
 **Vista preliminar del modelo:**  
 https://app.sketchup.com/share/tc/northAmerica/aJ2IbRWgOl0?stoken=XyzgiDlDwOA2tYNCufjUEXr-pC4gbiujco70CVSAYh1IWYxRf9vRuN2l5BS9yo0-&source=web
 
-![Foto de modelo ](../img/modelado.png)
+![Foto de modelo ](../img/4.jpg)
+![Foto de modelo ](../img/5.jpg)
+
+---
+
+### 🛒 3. Componentes Electrónicos
+
+![Foto de componentes](../img/6.jpg)
+
+
 
 ---
 
@@ -44,12 +52,10 @@ https://app.sketchup.com/share/tc/northAmerica/aJ2IbRWgOl0?stoken=XyzgiDlDwOA2tY
 
 
 ## 📌 Observaciones
-- Se verificó compatibilidad de sensores con Arduino UNO.
-- El siguiente paso es la interconexión del sistema Master-Slave con I2C.
+- Se verificó compatibilidad de sensores con Arduino.
 - Se están considerando los umbrales de los sensores para programarlos correctamente.
 
 ---
-
 
 ## 🚧 Próximas Actividades
 - Finalizar base de la maqueta
