@@ -27,7 +27,7 @@ from system.enums import EventType
 
 class EventHandler:
     '''
-    Proccess the state of the sensors to detect and handle alert events.
+    Process the state of the sensors to detect and handle alert events.
     Keeps the previous state to detect significant changes (e.g. from 0 to 1).
     '''
     def __init__(self, mqtt_client, alerts_collection):
