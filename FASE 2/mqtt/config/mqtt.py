@@ -51,8 +51,8 @@ class G1MqttClient(object):
         self._topic = os.getenv('MQTT_TOPIC_PREFIX')
 
         self._allowed_topics = [
-            'systemg1/gt/zone1/events',
-            'systemg1/gt/zone1/readings'
+            'gt/zone1/events',
+            'gt/zone1/readings'
         ]
 
     def connect(self):
@@ -112,11 +112,11 @@ class G1MqttClient(object):
             print('MQTT client is not connected. Cannot publish.')
             return
 
+        full_topic = f'{os.getenv('MQTT_TOPIC')}/{topic}'
+        
         if topic not in self._allowed_topics:
             print(f'Topic "{topic}" is not allowed. Allowed topics are: {self._allowed_topics}')
             return
-
-        full_topic = f'{os.getenv('MQTT_TOPIC')}/{topic}'
 
         result = self._client.publish(full_topic, payload=message, qos=qos)
 
