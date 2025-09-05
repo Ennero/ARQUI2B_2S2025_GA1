@@ -70,7 +70,7 @@ class EventHandler:
                 }
                 
                 # Publish to MQTT
-                topic = f'system/zone1/events/{event_type.value.lower()}'
+                topic = f'system/zone1/events'
                 payload = f'Event detected: {event_type.name} from {key}'
                 self.mqtt_client.publish(topic, payload)
                 print(f'Event published to MQTT topic "{topic}": {payload}')
