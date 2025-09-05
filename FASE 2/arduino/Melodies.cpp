@@ -139,7 +139,7 @@ struct BuzzerState
 static BuzzerState buzzerStates[NUM_BUZZERS];
 
 // ---- IMPLEMENTACIÓN DE FUNCIONES ----
-
+// Inicializa los pines y estados de los buzzers
 void setupMelodies()
 {
     for (int i = 0; i < NUM_BUZZERS; i++)
@@ -150,13 +150,15 @@ void setupMelodies()
     }
 }
 
+// Inicia la reproducción de una melodía en un buzzer específico
 void startMelody(int buzzerIndex, MelodyID song)
 {
-
+    // Marca el estado de pánico para el buzzer correspondiente
     if (buzzerIndex < 0 || buzzerIndex >= NUM_BUZZERS)
         return;
     PANICO[buzzerIndex] = 1;
-    // Si ya está sonando, no la reinicies. Si quieres que se reinicie, quita esta línea.
+
+    // Si ya está sonando no la reinicia
     if (buzzerStates[buzzerIndex].isPlaying && buzzerStates[buzzerIndex].currentSong == song)
         return;
 
@@ -214,7 +216,7 @@ void loopMelodies()
             {
                 buzzerStates[i].isPlaying = false;
                 buzzerStates[i].currentSong = NO_MELODY;
-                PANICO[i] = 0; // <-- AÑADIR ESTA LÍNEA AQUÍ
+                PANICO[i] = 0; 
             }
             else
             {
