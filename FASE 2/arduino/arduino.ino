@@ -142,6 +142,12 @@ void leerPiezoelectrico(bool makeItSound = false) {
 void setup() {
   Serial.begin(9600);
   setupMelodies();
+
+  // TAKEEEEEE OOOOOOON MEEEEEEEEE
+  for (int i = 0; i < NUM_BOTONES; i++) {
+    startMelody(i, SONG_TAKEONME);
+  }
+
   trafficA.begin();
   trafficB.begin();
   trafficA.setState(TrafficLight::GREEN);
