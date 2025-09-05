@@ -1,5 +1,6 @@
 #include <NewPing.h>
 #include "TrafficLight.h"
+#include "Melodies.h"
 
 // -------------------- CONFIGURACIÓN SENSORES ULTRASÓNICOS --------------------
 #define MAX_DISTANCE 50
@@ -97,12 +98,11 @@ const unsigned long yellowTime = 3000;
 // --- Botones / buzzers (sin cambios) ---
 const uint8_t NUM_BOTONES = 5;
 const int PINES_BOTONES[NUM_BOTONES] = { 48, 52, A15, A13, A11 };
-const int PINES_BUZZER[NUM_BOTONES] = { 49, 53, A14, A12, A10 };
+
 bool estadoAnteriorBotones[NUM_BOTONES] = { false };
 unsigned long ultimaLecturaBoton[NUM_BOTONES] = { 0 };
+
 const unsigned long debounceTime = 50;
-unsigned long tiempoInicioBuzzer[NUM_BOTONES] = { 0 };
-const unsigned long duracionBuzzer = 2000;
 
 // --- MQ2 ---
 #define MQ2_SENSOR_1 A0
@@ -133,12 +133,15 @@ void leerPiezoelectrico(bool makeItSound = false) {
   SISMO = (piezoState == HIGH) ? 1 : 0;
   if (SISMO == 1 || makeItSound) {
     unsigned long now = millis();
-    for (int i = 0; i < NUM_BOTONES; i++) sonarBuzzer(i, now);
+    for (int i = 0; i < 5; i++) { // 5 es el NUM_BOTONES original
+    startMelody(i, SONG_MARIO);
+}
   }
 }
 
 void setup() {
   Serial.begin(9600);
+  setupMelodies();
   trafficA.begin();
   trafficB.begin();
   trafficA.setState(TrafficLight::GREEN);
@@ -174,6 +177,8 @@ void setup() {
 
 void loop() {
   unsigned long now = millis();
+  
+  loopMelodies();
 
   updateTrafficLights(now);
 
@@ -191,7 +196,6 @@ void loop() {
   manejarReeds();
   manejarResetReed();
   manejarBotones();
-  controlarBuzzer();
 
   if (now - lastSmokeCheck >= smokeInterval) {
     leerSensoresHumo();
@@ -268,32 +272,12 @@ void manejarResetReed() {
 
 // ---------- resto de funciones (mantengo tu base; NO imprimen salvo emitirEstado) ----------
 void inicializarPerifericos() {
-  for (int i = 0; i < NUM_BOTONES; i++) {
-    pinMode(PINES_BOTONES[i], INPUT_PULLUP);
-    pinMode(PINES_BUZZER[i], OUTPUT);
-    digitalWrite(PINES_BUZZER[i], LOW);
-  }
+
+
   pinMode(MQ2_SENSOR_1, INPUT);
   pinMode(MQ2_SENSOR_2, INPUT);
 }
 
-void sonarBuzzer(int buzzerIndex, unsigned long now) {
-  if (buzzerIndex >= 0 && buzzerIndex < NUM_BOTONES) {
-    digitalWrite(PINES_BUZZER[buzzerIndex], HIGH);
-    tiempoInicioBuzzer[buzzerIndex] = now;
-    PANICO[buzzerIndex] = 1;
-  }
-}
-
-void controlarBuzzer() {
-  unsigned long now = millis();
-  for (int i = 0; i < NUM_BOTONES; i++) {
-    if (PANICO[i] && (now - tiempoInicioBuzzer[i] >= duracionBuzzer)) {
-      digitalWrite(PINES_BUZZER[i], LOW);
-      PANICO[i] = 0;
-    }
-  }
-}
 
 void manejarBotones() {
   unsigned long now = millis();
@@ -301,7 +285,7 @@ void manejarBotones() {
     bool estadoActual = digitalRead(PINES_BOTONES[i]) == LOW;
     if (estadoActual != estadoAnteriorBotones[i] && (now - ultimaLecturaBoton[i] >= debounceTime)) {
       if (estadoActual) {
-        sonarBuzzer(i, now);
+        startMelody(i, (MelodyID)(SONG_NOKIA + i)); // canción distinta por botón
       } else {
         PANICO[i] = 0;
       }
@@ -319,8 +303,8 @@ void leerSensoresHumo() {
 
   unsigned long now = millis();
   // activar buzzer correspondiente si hay humo
-  if (INC1) sonarBuzzer(2, now); // buzzer más cercano al sensor 1
-  if (INC2) sonarBuzzer(3, now); // buzzer más cercano al sensor 2
+  if (INC1) startMelody(2, SONG_TETRIS); // buzzer más cercano al sensor 1
+  if (INC2) startMelody(3, SONG_TAKEONME); // buzzer más cercano al sensor 2
 }
 
 // echoCheck: recibe resultado del sonar; aquí reaccionamos sin imprimir
@@ -355,7 +339,7 @@ void echoCheck() {
       case 6: case 7: INFRAC = 1; buzzerIdx = 3; break;
       case 8: case 9: INFRAD = 1; buzzerIdx = 2; break;
     }
-    if (buzzerIdx >= 0) sonarBuzzer(buzzerIdx, millis());
+    if (buzzerIdx >= 0) startMelody(buzzerIdx, SONG_NOKIA);
   }
 
   // Si el sensor es el RESET_SENSOR_ID y lee cerca (<=3 cm) -> resetea dist2 inmediatamente
