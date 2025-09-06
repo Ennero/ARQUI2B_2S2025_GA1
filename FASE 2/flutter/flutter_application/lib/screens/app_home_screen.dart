@@ -23,8 +23,18 @@ class _AppHomeScreenState extends State<AppHomeScreen> {
             'Acerca del Proyecto',
             textAlign: TextAlign.center,
             style: TextStyles.displayLarge.copyWith(
-              color: AppColors.primaryText
-            )
+              color: AppColors.primaryText,
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
+              shadows: [
+                Shadow(
+                  color: Colors.black.withValues(alpha: .35),
+                  offset: Offset(0, 3),
+                  blurRadius: 8,
+                ),
+              ],
+            ),
           ),
         ),
         
