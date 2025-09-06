@@ -3,16 +3,21 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_application/core/app_colors.dart';
 import 'package:flutter_application/core/text_style.dart';
 
-class Linechartcard extends StatelessWidget {
-  final Map<String, dynamic> chartData;
-  const Linechartcard({super.key, required this.chartData});
+class LineChartCard extends StatelessWidget {
+  final List<Map<String, dynamic>> timeSeries;
+  final String label;
+  const LineChartCard({super.key, required this.timeSeries, required this.label});
 
   @override
   Widget build(BuildContext context) {
     // Se convierten los datos del JSON a una lista de puntos (FlSpot) que el gráfico entiende.
-    final List<FlSpot> spots = (chartData['dataPoints'] as List).map((point) {
-      return FlSpot(point['hour'].toDouble(), point['value'].toDouble());
+    final spots = timeSeries.asMap().entries.map((entry) {
+      return FlSpot(
+        entry.key.toDouble(),
+        (entry.value['value'] as num).toDouble(),
+      );
     }).toList();
+
     return Container(
       height: 250,
       margin: EdgeInsets.only(bottom: 15),
@@ -25,7 +30,7 @@ class Linechartcard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            chartData['label'],
+            label,
             style: TextStyles.headline.copyWith(color: AppColors.primaryText),
           ),
           const SizedBox(height: 24),
@@ -64,16 +69,23 @@ class Linechartcard extends StatelessWidget {
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 30,
+                      reservedSize: 25,
                       getTitlesWidget: (value, meta) {
-                        // Muestra solo algunas horas para no saturar el eje
-                        if (value.toInt() % 2 == 0) {
+                        // Solo mostrar si el valor es entero y está en el rango
+                        int idx = value.round();
+                        if (idx >= 0 &&
+                            idx < timeSeries.length &&
+                            value == idx.toDouble()) {
+                          final item = timeSeries[idx];
                           return Padding(
                             padding: const EdgeInsets.only(top: 8.0),
-                            child: Text(
-                              '${value.toInt()}h',
-                              style: TextStyles.caption.copyWith(
-                                color: AppColors.secondaryText,
+                            child: SizedBox(
+                              width: 100, // Tamaño de los títulos
+                              child: Text(
+                                item['label'].toString(),
+                                style: TextStyles.caption.copyWith(
+                                  color: AppColors.secondaryText,
+                                ),
                               ),
                             ),
                           );
