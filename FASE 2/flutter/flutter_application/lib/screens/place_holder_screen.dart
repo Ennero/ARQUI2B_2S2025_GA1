@@ -15,24 +15,41 @@ class PlaceHolderScreen extends StatefulWidget {
 class _PlaceHolderScreenState extends State<PlaceHolderScreen> {
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+    return Scaffold(
+      body: Stack(
         children: [
-          Icon(
-            widget.icon,
-            size: 80,
-            color: AppColors.secondaryText,
+          // Imagen de fondo del mapa
+          Positioned.fill(
+            child: Image.asset(
+              'assets/mapa.jpg', // ruta de la imagen en assets
+              fit: BoxFit.cover,
+            ),
           ),
-          SizedBox(height: 20,),
-          Text(
-            widget.title,
-            style: TextStyles.headline.copyWith(color: AppColors.secondaryText)
+
+          // Contenido encima de la imagen (actual placeholder)
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  widget.icon,
+                  size: 80,
+                  color: AppColors.secondaryText,
+                ),
+                SizedBox(height: 20),
+                Text(
+                  widget.title,
+                  style: TextStyles.headline.copyWith(
+                      color: AppColors.secondaryText),
+                ),
+                Text(
+                  "(En construcción el mejor mapa)",
+                  style: TextStyles.body.copyWith(
+                      color: AppColors.secondaryText),
+                ),
+              ],
+            ),
           ),
-          Text(
-            "(En construcción)",
-            style: TextStyles.body.copyWith(color: AppColors.secondaryText)
-          )
         ],
       ),
     );
