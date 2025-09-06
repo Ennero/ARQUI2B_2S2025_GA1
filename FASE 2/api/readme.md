@@ -15,6 +15,20 @@
     python3 ./main.py
 ```
 
+
+### Setup
+This is just a guide on how I started this project.
+
+```bash
+python3 -m venv .venv
+pip3 install "fastapi[standard]"
+pip3 install motor
+pip3 install python-dotenv
+pip3 install pydantic_settings
+```
+
+
+
 ### Troubleshooting
 
 ```shell
@@ -104,3 +118,5 @@ Any change in that file requires deamon and service reload
 ```bash
 i2cdetect -y 1
 ```
+
+
