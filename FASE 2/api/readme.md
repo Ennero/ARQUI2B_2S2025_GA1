@@ -4,7 +4,7 @@
 ### Init virtual env
 ```shell
     python -m venv .venv
-    source ./env/bin/activate
+    source .venv/bin/activate
     deactivate # deactivate env
     pip3 freeze > requirements.txt # Generate requirements.txt
     pip3 install -r requirements.txt # Install packages from the requirements.txt
