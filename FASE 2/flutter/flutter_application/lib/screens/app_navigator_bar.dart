@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application/core/app_colors.dart';
 import 'package:flutter_application/screens/app_home_screen.dart';
+import 'package:flutter_application/screens/panel_control_screen.dart';
 import 'package:flutter_application/screens/place_holder_screen.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 
@@ -17,7 +18,7 @@ class _AppNavigatorBarState extends State<AppNavigatorBar> {
   // Widgets que mostraremos
   List<Widget> pages = [
     AppHomeScreen(),
-    PlaceHolderScreen(title: "Panel de control", icon: Icons.bar_chart), 
+    PanelControlScreen(),
     PlaceHolderScreen(title: "Notificaciones", icon: Icons.bar_chart), 
     PlaceHolderScreen(title: "Mapa", icon: Icons.bar_chart)
     ];
