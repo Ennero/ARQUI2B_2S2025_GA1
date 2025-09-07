@@ -82,6 +82,8 @@ El integrante brindo apoyo para la realización y optimización en el código de
 #
 ![6 - Commits](/FASE%202/img/fase%202/S2-6.jpg)
 #
+![11 - Commits](/FASE%202/img/fase%202/S2-11.jpg)
+#
 ![7 - Flutter](/FASE%202/img/fase%202/S2-7.jpg)
 #
 ![8 - Flutter](/FASE%202/img/fase%202/S2-8.jpg)
@@ -89,3 +91,5 @@ El integrante brindo apoyo para la realización y optimización en el código de
 ![9 - Flutter](/FASE%202/img/fase%202/S2-9.jpg)
 #
 ![10 - Flutter](/FASE%202/img/fase%202/S2-10.jpg)
+#
+![12 - encapsulado](/FASE%202/img/fase%202/S2-12.jpg)
