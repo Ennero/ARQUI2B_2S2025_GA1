@@ -14,6 +14,7 @@ class MarkerPalacio extends StatelessWidget {
     this.iconSize = 48,
   });
 
+
   void _showInfo(BuildContext context) {
     showDialog(
       context: context,
@@ -46,7 +47,8 @@ class MarkerPalacio extends StatelessWidget {
       top: top - iconSize,
       child: GestureDetector(
         onTap: () => _showInfo(context),
-        child: Icon(Icons.account_balance, color: Colors.purple, size: iconSize),
+        child: Icon(Icons.account_balance, 
+        color: Colors.purple, size: iconSize),
       ),
     );
   }

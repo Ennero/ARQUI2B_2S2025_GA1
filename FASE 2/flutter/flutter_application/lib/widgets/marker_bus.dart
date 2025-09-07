@@ -57,7 +57,7 @@ class MarkerBus extends StatelessWidget {
         onTap: () => _showInfo(context),
         child: const Icon(
           Icons.directions_bus,
-          color: Colors.orange,
+          color: Color.fromARGB(255, 8, 5, 0),
           size: 30,
         ),
       ),

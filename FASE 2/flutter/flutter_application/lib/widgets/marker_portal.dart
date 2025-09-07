@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class MarkerHotel extends StatelessWidget {
-  final Offset relativePos; // posición relativa (0.0 a 1.0 en ancho/alto)
-  final Size imageSize;     // tamaño del mapa mostrado
-  final Offset imageOffset; // offset del mapa en pantalla (centrado)
+class MarkerMuseum extends StatelessWidget {
+  final Offset relativePos;      // posición relativa (0.0 a 1.0 en ancho/alto)
+  final Size imageSize;          // tamaño del mapa mostrado
+  final Offset imageOffset;      // offset del mapa en pantalla (centrado)
 
-  const MarkerHotel({
+  const MarkerMuseum({
     super.key,
     required this.relativePos,
     required this.imageSize,
@@ -17,18 +17,18 @@ class MarkerHotel extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Hotel Central"),
+        title: const Text("Museo Nacional"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Image.asset(
-              "assets/palomar.jpg", // 📌 coloca la imagen en assets
+              "assets/portal.jpg", // 📌 guarda la imagen en assets
               height: 150,
               fit: BoxFit.cover,
             ),
             const SizedBox(height: 10),
             const Text(
-              "Un hotel céntrico con excelentes servicios y comodidades.",
+              "Un espacio cultural que alberga la historia y el arte del país.",
             ),
           ],
         ),
@@ -56,8 +56,8 @@ class MarkerHotel extends StatelessWidget {
       child: GestureDetector(
         onTap: () => _showInfo(context),
         child: const Icon(
-          Icons.hotel,
-          color: Colors.blueGrey,
+          Icons.store_mall_directory,
+          color: Colors.orange,
           size: 40,
         ),
       ),

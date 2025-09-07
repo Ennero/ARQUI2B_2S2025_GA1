@@ -57,7 +57,7 @@ class MarkerRestaurante extends StatelessWidget {
         onTap: () => _showInfo(context),
         child: const Icon(
           Icons.restaurant,
-          color: Colors.brown,
+          color: Color.fromARGB(255, 35, 25, 21),
           size: 40,
         ),
       ),

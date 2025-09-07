@@ -1,14 +1,16 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_application/widgets/marker_biblio.dart';
 import 'package:flutter_application/widgets/marker_palacio.dart';
 import 'package:flutter_application/widgets/marker_parqueo.dart';
-import 'package:flutter_application/widgets/marker_museum.dart';
+import 'package:flutter_application/widgets/marker_portal.dart';
 import 'package:flutter_application/widgets/marker_pollo.dart';
-import 'package:flutter_application/widgets/marker_hotel.dart';
+import 'package:flutter_application/widgets/marker_palomar.dart';
 import 'package:flutter_application/widgets/marker_bus.dart';
 import 'package:flutter_application/widgets/marker_park.dart';
-
+import 'package:flutter_application/widgets/marker_tren.dart';
+// transurbano y transmetro
+import 'package:flutter_application/widgets/marker_bus_moving.dart';
+import 'package:flutter_application/widgets/marker_train_moving.dart';
 
 import 'package:flutter_application/core/app_colors.dart';
 import 'package:flutter_application/core/text_style.dart';
@@ -24,40 +26,31 @@ class PlaceHolderScreen extends StatefulWidget {
 }
 
 class _PlaceHolderScreenState extends State<PlaceHolderScreen> {
-  final Random random = Random();
-
-  // Posiciones relativas (0..1) para carro y moto
-  late List<Offset> carroRelPositions;
-  late List<Offset> motoRelPositions;
-
   // parte superior   posiciones relativas fijas para marcadores
   final Offset palacioRel = const Offset(0.50, 0.13); // palacio nacional 
   // parte medio
   final Offset bibliotecaRel = const Offset(0.25, 0.38); // biblioteca nacional
   final Offset museoRel = const Offset(0.75, 0.35); // portal del comercio
   final Offset parkRel = const Offset(0.50, 0.35); // portal del comercio  // parte baja
+  final Offset tren1Rel = const Offset(0.27, 0.50); // transMetro 
+  final Offset tren2Rel = const Offset(0.77, 0.50); // transMetro 
   // parte baja
-  final Offset parqueoRel = const Offset(0.25, 0.65); // parqueo
-  final Offset hotelRel = const Offset(0.50, 0.65); // portal del comercio
-  final Offset polloRel = const Offset(0.75, 0.65); // portal del comercio
-  final Offset bus1Rel = const Offset(0.50, 0.75); // portal del comercio
+  final Offset parqueoRel = const Offset(0.25, 0.67); // parqueo
+  final Offset hotelRel = const Offset(0.50, 0.67); // portal del comercio
+  final Offset polloRel = const Offset(0.75, 0.67); // pollo campero 
+  final Offset bus1Rel = const Offset(0.53, 0.24); // transMetro 
+  final Offset bus2Rel = const Offset(0.53, 0.58); // transMetro
   
-
   // Información de la imagen (tamaño intrínseco)
   final AssetImage _mapProvider = const AssetImage('assets/mapa.jpg');
   Size? _mapIntrinsicSize;
-
   ImageStream? _imageStream;
   ImageStreamListener? _imageStreamListener;
+
 
   @override
   void initState() {
     super.initState();
-
-    carroRelPositions =
-        List.generate(3, (_) => Offset(random.nextDouble(), random.nextDouble()));
-    motoRelPositions =
-        List.generate(3, (_) => Offset(random.nextDouble(), random.nextDouble()));
 
     // Resolver la imagen para obtener tamaño intrínseco
     _imageStream = _mapProvider.resolve(const ImageConfiguration());
@@ -100,14 +93,6 @@ class _PlaceHolderScreenState extends State<PlaceHolderScreen> {
       (container.height - displayedSize.height) / 2,
     );
 
-    // Helper para convertir posición relativa (0..1) a coordenada absoluta
-    Offset relToAbs(Offset rel) {
-      return Offset(
-        imageOffset.dx + rel.dx * displayedSize.width,
-        imageOffset.dy + rel.dy * displayedSize.height,
-      );
-    }
-
     return Scaffold(
       body: Stack(
         children: [
@@ -119,71 +104,42 @@ class _PlaceHolderScreenState extends State<PlaceHolderScreen> {
             ),
           ),
 
-/*
-          // Carros
-          ...carroRelPositions.map((rel) {
-            final abs = relToAbs(rel);
-            return Positioned(
-              left: abs.dx - 20,
-              top: abs.dy - 20,
-              child: const Icon(Icons.directions_car, color: Colors.red, size: 40),
-            );
-          }),
-
-          // Motos
-          ...motoRelPositions.map((rel) {
-            final abs = relToAbs(rel);
-            return Positioned(
-              left: abs.dx - 18,
-              top: abs.dy - 18,
-              child: const Icon(Icons.two_wheeler, color: Colors.blue, size: 35),
-            );
-          }),
-          */
 
           // Marcadores modulares
-          MarkerPalacio(
-            relativePos: palacioRel,
+          MarkerPalacio(relativePos: palacioRel,imageSize: displayedSize,imageOffset: imageOffset,),
+          MarkerBiblioteca(relativePos: bibliotecaRel,imageSize: displayedSize,imageOffset: imageOffset,),
+          MarkerParqueo(relativePos: parqueoRel,imageSize: displayedSize,imageOffset: imageOffset,),
+          MarkerMuseum(relativePos: museoRel,imageSize: displayedSize,imageOffset: imageOffset,),
+          MarkerRestaurante(relativePos: polloRel,imageSize: displayedSize,imageOffset: imageOffset,),
+          MarkerHotel(relativePos: hotelRel,imageSize: displayedSize,imageOffset: imageOffset,),
+          MarkerBus(relativePos: bus1Rel,imageSize: displayedSize,imageOffset: imageOffset,),
+           MarkerBus(relativePos: bus2Rel,imageSize: displayedSize,imageOffset: imageOffset,),
+          MarkerPark(relativePos: parkRel,imageSize: displayedSize,imageOffset: imageOffset,),
+          MarkerTrain(relativePos: tren1Rel,imageSize: displayedSize,imageOffset: imageOffset,),
+          MarkerTrain(relativePos: tren2Rel,imageSize: displayedSize,imageOffset: imageOffset,          ),
+          TrainMarkerMoving(
+            route: const [ //x1=12 x2=88
+              Offset(0.12, 0.03), // punto 1
+              Offset(0.12, 0.78), // punto 2
+              Offset(0.88, 0.03), // punto 3              
+              Offset(0.88, 0.78), // punto 4
+            ],
             imageSize: displayedSize,
             imageOffset: imageOffset,
+            stepDuration: Duration(seconds: 3), // velocidad del tren
           ),
-          MarkerBiblioteca(
-            relativePos: bibliotecaRel,
+          BusMarkerMoving(
+            route: const [ //x1=12 x2=88
+              Offset(0.38, 0.19), // punto 1
+              Offset(0.63, 0.19), // punto 2       
+              Offset(0.63, 0.78), // punto 3
+              Offset(0.38, 0.78), // punto 4
+            ],
             imageSize: displayedSize,
             imageOffset: imageOffset,
+            stepDuration: Duration(seconds: 2), // velocidad del tren
           ),
-          MarkerParqueo(
-            relativePos: parqueoRel,
-            imageSize: displayedSize,
-            imageOffset: imageOffset,
-          ),
-          MarkerMuseum(
-            relativePos: museoRel,
-            imageSize: displayedSize,
-            imageOffset: imageOffset,
-          ),
-          MarkerRestaurante(
-            relativePos: polloRel,
-            imageSize: displayedSize,
-            imageOffset: imageOffset,
-          ),
-          MarkerHotel(
-            relativePos: hotelRel,
-            imageSize: displayedSize,
-            imageOffset: imageOffset,
-          ),
-          MarkerBus(
-            relativePos: bus1Rel,
-            imageSize: displayedSize,
-            imageOffset: imageOffset,
-          ),
-          MarkerPark(
-            relativePos: parkRel,
-            imageSize: displayedSize,
-            imageOffset: imageOffset,
-          ),
-
-
+         
           // Header
           Positioned(
             top: 30,
