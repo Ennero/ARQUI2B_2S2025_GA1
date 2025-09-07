@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application/components/summaryCard.dart';
 import 'package:flutter_application/components/buildDataTable.dart';
 import 'package:flutter_application/components/lineChartCard.dart';
+import 'package:flutter_application/core/api_service.dart';
 import 'package:flutter_application/core/app_colors.dart';
-import 'package:flutter_application/core/moch_api_service.dart';
 import 'package:flutter_application/core/text_style.dart';
 
 class PanelControlScreen extends StatefulWidget {
@@ -24,7 +24,11 @@ class _PanelControlScreenState extends State<PanelControlScreen> {
 
   void _loadData() {
     setState(() {
-      _dashboardDataFuture = MockApiService.fetchDashboardData(
+      // _dashboardDataFuture = MockApiService.fetchDashboardData(
+      //   filter: _selectedFilter,
+      // );
+      // Cuando tengamos el backend
+      _dashboardDataFuture = ApiService.fetchDashboardData(
         filter: _selectedFilter,
       );
     });
@@ -288,7 +292,7 @@ class _PanelControlScreenState extends State<PanelControlScreen> {
           ...TimeFilter.values.map(
             (filter) => ButtonSegment<TimeFilter>(
               value: filter,
-              label: Text(MockApiService.getFilterLabel(filter)),
+              label: Text(ApiService.getFilterLabel(filter)),
             ),
           ),
         ],
