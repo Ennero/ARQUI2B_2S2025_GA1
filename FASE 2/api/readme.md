@@ -12,7 +12,7 @@
 
 ### Run App
 ```bash
-    fastapi dev main.py
+    fastapi dev main.**py**
 ```
 
 
