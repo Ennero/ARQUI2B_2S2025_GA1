@@ -56,7 +56,7 @@ class MarkerInfoTren extends StatelessWidget {
       child: GestureDetector(
         onTap: () => _showInfo(context),
         child: const Icon(
-          Icons.train,
+          Icons.tram,
           color: Color.fromARGB(250, 250, 250, 250),
           size: 30,
         ),
