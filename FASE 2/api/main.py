@@ -28,9 +28,9 @@ from fastapi.responses import ORJSONResponse
 from config.settings import settings
 from config.database import connect_to_mongo, close_mongo
 from mqtt.client import run_mqtt
-from routers import readings, events
+from routers import readings, events, analytics
 
-mqtt_task: asyncio.Task | None = None
+mqtt_task: asyncio.Task = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -58,6 +58,11 @@ application = FastAPI(
     default_response_class=ORJSONResponse # Faster data serialization to JSON
 )
 
+@application.get("/health")
+async def root():
+    return {"ok": True}
+
 # Routers
 application.include_router(readings.router)
 application.include_router(events.router)
+application.include_router(analytics.router)
