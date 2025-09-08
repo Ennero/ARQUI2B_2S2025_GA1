@@ -21,3 +21,31 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
+import asyncio
+from fastapi import FastAPI
+from contextlib import asynccontextmanager
+from fastapi.responses import ORJSONResponse
+from config.settings import settings
+from config.database import connect_to_mongo, close_mongo
+from mqtt.client import MQTTClient, run_mqtt
+from routers import readings, events
+
+application = FastAPI(
+    title=settings.app_name, 
+    default_response_class=ORJSONResponse # Faster data serialization to JSON
+)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # On startup
+    await connect_to_mongo()
+    asyncio.run(run_mqtt())
+
+    yield
+    # On shutdown
+    await close_mongo()
+
+
+# Routers
+application.include_router(readings.router)
+application.include_router(events.router)
