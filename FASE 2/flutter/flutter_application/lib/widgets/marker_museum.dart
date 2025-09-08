@@ -56,7 +56,7 @@ class MarkerMuseum extends StatelessWidget {
       child: GestureDetector(
         onTap: () => _showInfo(context),
         child: const Icon(
-          Icons.museum,
+           Icons.store_mall_directory,
           color: Colors.orange,
           size: 40,
         ),
