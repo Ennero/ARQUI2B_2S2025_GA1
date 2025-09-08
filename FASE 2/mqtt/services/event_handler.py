@@ -30,9 +30,8 @@ class EventHandler:
     Process the state of the sensors to detect and handle alert events.
     Keeps the previous state to detect significant changes (e.g. from 0 to 1).
     '''
-    def __init__(self, mqtt_client, alerts_collection):
+    def __init__(self, mqtt_client):
         self.mqtt_client = mqtt_client
-        self.alerts_collection = alerts_collection
         self._previous_state = {}
         
         # Maps sensor prefixes to event types
@@ -74,10 +73,6 @@ class EventHandler:
                 payload = f'Event detected: {event_type.name} from {key}'
                 self.mqtt_client.publish(topic, payload)
                 print(f'Event published to MQTT topic "{topic}": {payload}')
-
-                # Insert data to MongoDB
-                self.alerts_collection.insert_one(event_document)
-                print(f'Event stored in MongoDB: {event_document}')
 
         # Update the previous state for the next comparison
         self._previous_state = current_state
