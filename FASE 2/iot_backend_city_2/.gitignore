@@ -1,0 +1,83 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.egg
+*.egg-info/
+.eggs/
+*.manifest
+*.spec
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Distribution / build
+build/
+dist/
+wheels/
+*.egg-info/
+
+# Byte-compiled / cache
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.pkl
+*.log
+
+# ---- Flask / API ----
+instance/
+*.db
+*.sqlite
+*.sqlite3
+
+# ---- Configuración sensible ----
+.env
+.env.*
+!env.example   # puedes dejar un env de ejemplo limpio
+
+# ---- Logs ----
+*.log
+logs/
+*.out
+*.err
+
+# ---- MQTT ----
+# Si generas dumps de mensajes
+mqtt_logs/
+mqtt_cache/
+
+# ---- OS ----
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ---- IDE / Editor ----
+# VSCode
+.vscode/
+.history/
+*.code-workspace
+
+# PyCharm
+.idea/
+
+# Jupyter / Colab
+.ipynb_checkpoints/
+
+# ---- Otros ----
+*.bak
+*.tmp
+*.swp
+*.swo
+*~
