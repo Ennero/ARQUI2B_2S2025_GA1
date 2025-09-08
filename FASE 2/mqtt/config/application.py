@@ -28,7 +28,6 @@ from dotenv import load_dotenv
 from datetime import datetime, timezone
 
 # Importar nuestros módulos
-from config.mongodb import MongoDBConnection
 from config.mqtt import G1MqttClient
 from services.event_handler import EventHandler
 from utils.parser import parse_serial_data
@@ -42,16 +41,10 @@ class ApplicationG1:
         self._serial_port = None
 
         # Connections to third-party services
-        self.db_connection = MongoDBConnection()
         self.mqtt_client = G1MqttClient()
 
-        # Database collections
-        db_name = os.getenv('DATABASE_NAME')
-        self.alerts_collection = self.db_connection.get_collection(db_name, 'events')
-        self.readings_collection = self.db_connection.get_collection(db_name, 'readings')
-
         # Business logic components
-        self.event_handler = EventHandler(self.mqtt_client, self.alerts_collection)
+        self.event_handler = EventHandler(self.mqtt_client)
 
     def _process_reading(self, state: dict):
         '''Processes and saves the complete system reading.'''
@@ -62,10 +55,6 @@ class ApplicationG1:
         }
         # Publish the complete reading to a general topic
         self.mqtt_client.publish("system/zone1/readings", str(state))
-
-        # Save to the readings collection
-        self.readings_collection.insert_one(reading_document)
-        print("Reading stored and published.")
 
     def perform(self):
         '''
@@ -111,4 +100,3 @@ class ApplicationG1:
                 self._serial_port.close()
                 print("Serial port closed.")
             self.mqtt_client.disconnect()
-            self.db_connection.close()
