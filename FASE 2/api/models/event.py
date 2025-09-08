@@ -22,20 +22,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
 
-import datetime
+from typing import Dict, Literal, Optional, Any
+from datetime import datetime, timezone
 from pydantic import BaseModel, Field
-from typing import Dict, Literal
 
+def utcnow() -> datetime:
+    return datetime.now(timezone.utc)
+
+# Para crear/validar entradas (API/MQTT)
 class EventIn(BaseModel):
-    id: str
-    source: str # e.g., 'sensor_01', 'camera_02', etc. (Sources should be specified in the settings file)
-    type: Literal["panic","fire","earthquake","infraction","bus_arrival"] # Types should be specified in the settings file
-    severity: Literal['low', 'medium', 'high', 'critical']
-    data: Dict[str, any] = {} 
-    created_at: datetime.datetime
-    updated_at: datetime.datetime
-    deleted_at: datetime.datetime
+    source: str  # e.g. 'arduino-mega-01'
+    type: Literal["panic","fire","earthquake","infraction","bus_arrival"]
+    severity: Literal['low','medium','high','critical'] = "low"
+    data: Dict[str, Any] = {}
+    created_at: datetime = Field(default_factory=utcnow)
+    updated_at: datetime = Field(default_factory=utcnow)
+    deleted_at: Optional[datetime] = None
 
+# Para devolver desde Mongo (incluye _id)
+class EventOut(EventIn):
+    id: str = Field(alias="_id")
 
 
 # Example of an event data dictionary
