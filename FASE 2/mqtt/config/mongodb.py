@@ -45,9 +45,9 @@ class MongoDBConnection:
         return cls._instance
     
     def _initialize_connection(self):
-        uri = os.getenv('MONGODB_URI')
+        uri = os.getenv('MONGO_URI')
         if not uri:
-            raise ValueError('MONGODB_URI environment variable not set.')
+            raise ValueError('MONGO_URI environment variable not set.')
             
         self.client = MongoClient(
             uri,

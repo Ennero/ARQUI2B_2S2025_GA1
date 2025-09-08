@@ -22,8 +22,8 @@ SEM1=VERDE;SEM2=AMARILLO;BUS1=90;BUS2=25;PM1=261;PM2=136;INC1=0;INC2=0;PANICO1=0
 
 ### Init virtual env
 ```shell
-    python3 -m venv env
-    source ./env/bin/activate
+    python -m venv .venv
+    source .venv/bin/activate
     deactivate # deactivate env
     pip3 freeze > requirements.txt # Generate requirements.txt
     pip3 install -r requirements.txt # Install packages from the requirements.txt
