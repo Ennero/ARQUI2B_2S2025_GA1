@@ -16,7 +16,7 @@ class MarkerParqueo extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Parqueo Central"),
+        title: const Text("Torre de Parqueo"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
