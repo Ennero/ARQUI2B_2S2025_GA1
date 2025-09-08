@@ -56,7 +56,7 @@ class MarkerInfoBus extends StatelessWidget {
       child: GestureDetector(
         onTap: () => _showInfo(context),
         child: const Icon(
-          Icons.directions_bus,
+          Icons.directions_railway,
           color: Color.fromARGB(250, 250, 250, 250),
           size: 30,
         ),
