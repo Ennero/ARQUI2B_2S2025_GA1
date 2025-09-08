@@ -27,24 +27,26 @@ from contextlib import asynccontextmanager
 from fastapi.responses import ORJSONResponse
 from config.settings import settings
 from config.database import connect_to_mongo, close_mongo
-from mqtt.client import MQTTClient, run_mqtt
+from mqtt.client import run_mqtt
 from routers import readings, events
-
-application = FastAPI(
-    title=settings.app_name, 
-    default_response_class=ORJSONResponse # Faster data serialization to JSON
-)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # On startup
     await connect_to_mongo()
-    asyncio.run(run_mqtt())
+    # await asyncio.run(run_mqtt())
+    await asyncio.create_task(run_mqtt())
 
     yield
+
     # On shutdown
     await close_mongo()
 
+application = FastAPI(
+    title=settings.app_name, 
+    lifespan=lifespan,
+    default_response_class=ORJSONResponse # Faster data serialization to JSON
+)
 
 # Routers
 application.include_router(readings.router)
