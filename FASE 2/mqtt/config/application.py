@@ -54,7 +54,7 @@ class ApplicationG1:
         self.event_handler = EventHandler(self.mqtt_client, self.alerts_collection)
 
     def _process_reading(self, state: dict):
-        """Processes and saves the complete system reading."""
+        '''Processes and saves the complete system reading.'''
         reading_document = {
             "timestamp": datetime.now(timezone.utc),
             "deviceId": "ARDUINO_MEGA_ZONA1",
@@ -68,10 +68,10 @@ class ApplicationG1:
         print("Reading stored and published.")
 
     def perform(self):
-        """
+        '''
         Main method that starts the application, connects services,
         and enters the reading loop.
-        """
+        '''
         try:
             # Connect to MQTT
             self.mqtt_client.connect()
