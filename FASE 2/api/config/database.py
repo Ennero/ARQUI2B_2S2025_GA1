@@ -24,7 +24,7 @@ SOFTWARE.
 
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from typing import Optional
-from . import settings
+from .settings import settings
 
 _client: Optional[AsyncIOMotorClient] = None
 _db: Optional[AsyncIOMotorDatabase] = None
@@ -32,6 +32,8 @@ _db: Optional[AsyncIOMotorDatabase] = None
 
 async def connect_to_mongo() -> AsyncIOMotorDatabase:
     global _client, _db
+
+    print("Connecting to MongoDB...")
 
     # If the client is not established yet, do it (SINGLETON)
     if _client is None:
