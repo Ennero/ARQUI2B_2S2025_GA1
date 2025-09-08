@@ -10,9 +10,9 @@
     pip3 install -r requirements.txt # Install packages from the requirements.txt
 ```
 
-### Run the app manually
+### Run App
 ```bash
-    python3 ./main.py
+    fastapi dev main.py
 ```
 
 
@@ -120,3 +120,36 @@ i2cdetect -y 1
 ```
 
 
+
+
+```
+{
+  "summary": {
+    "recorridoTransmetro": 57,
+    "recorridoTransurbano": 13,
+    "calidadAirePromedio": 158.5,
+    "alertasCriticas": 2
+  },
+  "airQualityChart": {
+    "label": "Calidad del Aire (Hoy)",
+    "dataPoints": [
+      { "hour": 0, "value": 178.4 },
+      { "hour": 2, "value": 205.1 },
+      { "hour": 4, "value": 129.9 },
+      { "hour": 6, "value": 155.6 },
+      { "hour": 8, "value": 188.2 },
+      { "hour": 10, "value": 215.7 },
+      { "hour": 12, "value": 140.3 },
+      { "hour": 14, "value": 199.0 },
+      { "hour": 16, "value": 162.8 },
+      { "hour": 18, "value": 145.4 },
+      { "hour": 20, "value": 218.1 },
+      { "hour": 22, "value": 133.7 }
+    ]
+  }
+}
+
+
+
+SEM1=VERDE;SEM2=ROJO;BUS1=120;BUS2=80;PM1=155;PM2=162;INC1=0;INC2=0;PANICO1=0;PANICO2=0;PANICO3=1;PANICO4=0;PANICO5=0;SISMO=0;INFRAA=0;INFRAB=1;INFRAC=0;INFRAD=0;DIST1=0;DIST2=0
+```
