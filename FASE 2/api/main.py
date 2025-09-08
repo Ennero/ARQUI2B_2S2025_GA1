@@ -30,17 +30,27 @@ from config.database import connect_to_mongo, close_mongo
 from mqtt.client import run_mqtt
 from routers import readings, events
 
+mqtt_task: asyncio.Task | None = None
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # On startup
+    global mqtt_task
+    
     await connect_to_mongo()
-    # await asyncio.run(run_mqtt())
-    await asyncio.create_task(run_mqtt())
-
-    yield
-
-    # On shutdown
-    await close_mongo()
+    mqtt_task = asyncio.create_task(run_mqtt()) 
+    
+    try:
+        yield
+    finally:
+        if mqtt_task:
+            mqtt_task.cancel()
+            try:
+                await asyncio.wait_for(mqtt_task, timeout=3)
+            except asyncio.TimeoutError:
+                pass
+            except asyncio.CancelledError:
+                pass
+        await close_mongo()
 
 application = FastAPI(
     title=settings.app_name, 
