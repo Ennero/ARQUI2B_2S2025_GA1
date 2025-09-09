@@ -64,7 +64,7 @@ async def run_mqtt():
                         "source": data.get("source"),
                         "type": data.get("type"),
                         "severity": data.get("severity", "low"),
-                        "data": data.get("data", {}),
+                        "frame": data.get("frame", {}),
                         "created_at": utcnow_iso(),
                         "updated_at": utcnow_iso(),
                         "deleted_at": None
@@ -89,7 +89,7 @@ async def run_mqtt():
 
                     reading_document = {
                         "source": data.get("source"),
-                        "data": data.get("data", []),
+                        "frame": data.get("frame", []),
                         "deleted_at": None,
                         "created_at": utcnow_iso(),
                         "updated_at": utcnow_iso()
