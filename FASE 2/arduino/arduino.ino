@@ -107,7 +107,7 @@ const unsigned long duracionBuzzer = 2000;
 // --- MQ2 ---
 #define MQ2_SENSOR_1 A0
 #define MQ2_SENSOR_2 A1
-#define SMOKE_THRESHOLD 260
+#define SMOKE_THRESHOLD 1000
 
 unsigned long lastSmokeCheck = 0;
 const unsigned long smokeInterval = 1000;
