@@ -151,18 +151,45 @@ void setupMelodies()
 }
 
 // Inicia la reproducción de una melodía en un buzzer específico
-void startMelody(int buzzerIndex, MelodyID song)
+void startMelody(int buzzerIndex, AlarmType type)
 {
-    // Marca el estado de pánico para el buzzer correspondiente
     if (buzzerIndex < 0 || buzzerIndex >= NUM_BUZZERS)
         return;
+
+    // Seleccionar la canción según el tipo de alarma
+    MelodyID songToPlay;
+    switch (type)
+    {
+    case ALARM_INFRACTION:
+        songToPlay = SONG_NOKIA;
+        PANICO[buzzerIndex] = 1; 
+        break;
+    case ALARM_PANIC:
+        songToPlay = SONG_PACMAN;
+        PANICO[buzzerIndex] = 1;
+        break;
+    case ALARM_SISMO:
+        songToPlay = SONG_MARIO; 
+        PANICO[buzzerIndex] = 1;
+        break;
+    case ALARM_GAS:
+        songToPlay = SONG_TETRIS;
+        PANICO[buzzerIndex] = 1;
+        break;
+    case ALARM_STARTUP: 
+        songToPlay = SONG_TAKEONME;
+        break;
+    default:
+        return; 
+    }
+
+    // Marca el estado de pánico para el buzzer correspondiente
     PANICO[buzzerIndex] = 1;
 
-    // Si ya está sonando no la reinicia
-    if (buzzerStates[buzzerIndex].isPlaying && buzzerStates[buzzerIndex].currentSong == song)
-        return;
+    if (buzzerStates[buzzerIndex].isPlaying && buzzerStates[buzzerIndex].currentSong == songToPlay)
+        return; // Si ya está sonando la misma canción, no la reinicia
 
-    buzzerStates[buzzerIndex].currentSong = song;
+    buzzerStates[buzzerIndex].currentSong = songToPlay;
     buzzerStates[buzzerIndex].currentNoteIndex = 0;
     buzzerStates[buzzerIndex].noteStartTime = millis();
     buzzerStates[buzzerIndex].isPlaying = true;
