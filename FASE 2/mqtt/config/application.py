@@ -25,6 +25,7 @@ import os
 import time
 import json
 import serial
+from threading import Thread
 from dotenv import load_dotenv
 from config.mqtt import G1MqttClient
 from utils.parser import parse_serial_data
@@ -43,11 +44,15 @@ class ApplicationG1:
         self.readings_topic = f"{os.getenv('MQTT_BASE_TOPIC')}/gt/zone1/readings"
 
     def perform(self):
-
         try:
             # Connect to MQTT
             self.mqtt_client.connect()
-            self.mqtt_client.run() # Start the MQTT loop in a separate thread
+            # self.mqtt_client.run() # Start the MQTT loop in a separate thread
+
+            self.mqtt_thread = Thread(target=self.mqtt_client.run, daemon=True)
+            self.mqtt_thread.start()
+
+            print("holaaa")
 
             # Connect to the serial port
             self._serial_port = serial.Serial(self._serial_port_name, 9600, timeout=1)
@@ -107,7 +112,7 @@ class ApplicationG1:
                     for event in events:
                         self.mqtt_client.publish(self.events_topic, json.dumps(event))
                         print(f"Published event: {event}")
-
+                
                 time.sleep(0.1)
 
         except serial.SerialException as e:
