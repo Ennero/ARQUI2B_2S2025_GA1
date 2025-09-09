@@ -44,7 +44,7 @@ class G1MqttClient(object):
     def __init__(self):
         self._broker = os.getenv('MQTT_BROKER')
         self._port = int(os.getenv('MQTT_PORT'))
-        self._client_id = f'{os.getenv('MQTT_CLIENT_ID')}-{int(time.time())}-{random.randint(0, 1000)}'
+        self._client_id = f"{os.getenv('MQTT_CLIENT_ID')}-{int(time.time())}-{random.randint(0, 1000)}"
         self._client = None
         self._connected = False
         self._topic = os.getenv('MQTT_TOPIC_PREFIX')
@@ -111,10 +111,10 @@ class G1MqttClient(object):
             print('MQTT client is not connected. Cannot publish.')
             return
 
-        full_topic = f'{os.getenv('MQTT_TOPIC')}/{topic}'
+        full_topic = f"{os.getenv('MQTT_TOPIC')}/{topic}"
         
         if topic not in self._allowed_topics:
-            print(f'Topic "{topic}" is not allowed. Allowed topics are: {self._allowed_topics}')
+            print(f"Topic '{topic}' is not allowed. Allowed topics are: {self._allowed_topics}")
             return
 
         result = self._client.publish(full_topic, payload=message, qos=qos)
@@ -123,11 +123,11 @@ class G1MqttClient(object):
             # print(f'Published to {full_topic}: {message}')
             pass
         else:
-            print(f'Failed to publish to {full_topic}. Error code: {result.rc}')
+            print(f"Failed to publish to {full_topic}. Error code: {result.rc}")
 
     def disconnect(self):
         if self._client:
-            print('Disconnecting MQTT client...')
+            print("Disconnecting MQTT client...")
             self._client.disconnect()
             self._connected = False
         else:
