@@ -11,6 +11,7 @@ import os
 
 load_dotenv()
 
+
 class G1MqttClient(object):
     # Singleton
     def __new__(cls):
@@ -40,6 +41,10 @@ class G1MqttClient(object):
         self._ingest_path = os.getenv("INGEST_PATH", "/api/ingest")
         self._ingest_token = os.getenv("INGEST_TOKEN")
 
+        # (Opcional) auth MQTT
+        self._username = os.getenv("MQTT_USERNAME")
+        self._password = os.getenv("MQTT_PASSWORD")
+
     # ---------- helpers ----------
     def _post_to_api(self, line: str):
         """
@@ -53,7 +58,10 @@ class G1MqttClient(object):
 
         r = requests.post(url, json={"line": line}, headers=headers, timeout=10)
         r.raise_for_status()
-        print("[API] OK:", r.json())
+        try:
+            print("[API] OK:", r.json())
+        except Exception:
+            print("[API] OK (no JSON en respuesta)")
 
     # ---------- MQTT callbacks ----------
     def _on_connect(self, client, user_data, flags, rc):
@@ -61,10 +69,14 @@ class G1MqttClient(object):
             print(f"[MQTT] Connected to {self._broker}:{self._port} (client_id {self._client_id})")
             self._connected = True
             res = client.subscribe(self._topic, qos=1)
-            if res[0] == mqtt_client.MQTT_ERR_SUCCESS:
+            if isinstance(res, tuple):
+                rc_sub = res[0]
+            else:
+                rc_sub = getattr(res, "rc", res)
+            if rc_sub == mqtt_client.MQTT_ERR_SUCCESS:
                 print(f"[MQTT] Subscribed to: {self._topic}")
             else:
-                print(f"[MQTT] Subscribe failed (rc={res[0]})")
+                print(f"[MQTT] Subscribe failed (rc={rc_sub})")
         else:
             print(f"[MQTT] Connection failed (rc={rc})")
 
@@ -73,8 +85,7 @@ class G1MqttClient(object):
         payload_str = msg.payload.decode("utf-8", errors="ignore").strip()
         print(f"[MQTT] {topic} :: {payload_str}")
 
-        # Tus mensajes NO vienen en JSON, así que NO intentamos json.loads.
-        # Solo reenviamos la cadena cruda a la API si pertenece a nuestros tópicos funcionales:
+        # Tus mensajes NO vienen en JSON; solo reenviamos si es tópico funcional
         if topic.endswith("/events") or topic.endswith("/readings"):
             try:
                 self._post_to_api(payload_str)
@@ -86,10 +97,28 @@ class G1MqttClient(object):
 
     # ---------- API pública ----------
     def connect(self):
-        self._client = mqtt_client.Client(client_id=self._client_id, clean_session=True)
+        # Compatibilidad Paho 1.x y 2.x
+        client_kwargs = dict(client_id=self._client_id, clean_session=True)
+        if hasattr(mqtt_client, "CallbackAPIVersion"):
+            # Solo existe en Paho 2.x
+            client_kwargs["callback_api_version"] = mqtt_client.CallbackAPIVersion.VERSION1
+
+        self._client = mqtt_client.Client(**client_kwargs)
+
+        # (Opcional) credenciales
+        if self._username:
+            self._client.username_pw_set(self._username, self._password)
+
+        # Callbacks
         self._client.on_connect = self._on_connect
         self._client.on_message = self._on_message
-        # self._client.on_subscribe = self._on_subscribe  # habilita si quieres más logs
+        # self._client.on_subscribe = self._on_subscribe  # habilítalo si quieres más logs
+
+        # Logs internos de Paho en consola
+        try:
+            self._client.enable_logger()
+        except Exception:
+            pass
 
         # Last will (opcional)
         self._client.will_set(
@@ -111,21 +140,22 @@ class G1MqttClient(object):
             print("[MQTT] Not connected. Cannot publish.")
             return
 
-        # Importante: topic debe ser uno de los permitidos (sin el prefijo)
-        # Si te pasan 'gt/zone1/events', asegúrate que concuerde con los reales.
         if topic not in self._allowed_topics:
             print(f'[MQTT] Topic "{topic}" not allowed. Allowed: {self._allowed_topics}')
             return
 
         result = self._client.publish(topic, payload=message, qos=qos)
-        if result.rc != mqtt_client.MQTT_ERR_SUCCESS:
-            print(f"[MQTT] Publish failed (rc={result.rc})")
+        rc_pub = getattr(result, "rc", result)
+        if rc_pub != mqtt_client.MQTT_ERR_SUCCESS:
+            print(f"[MQTT] Publish failed (rc={rc_pub})")
 
     def disconnect(self):
         if self._client:
             print("[MQTT] Disconnecting...")
-            self._client.disconnect()
-            self._connected = False
+            try:
+                self._client.disconnect()
+            finally:
+                self._connected = False
         else:
             print("[MQTT] Client not initialized.")
 
@@ -136,7 +166,18 @@ class G1MqttClient(object):
 
         print("[MQTT] Loop started. Ctrl+C to stop.")
         try:
-            self._client.loop_forever(retry_first_connection=True)
+            # retry_first_connection existe en 1.6+ y 2.x; si no, ignora el arg.
+            try:
+                self._client.loop_forever(retry_first_connection=True)
+            except TypeError:
+                self._client.loop_forever()
         except KeyboardInterrupt:
             print("[MQTT] Stopping...")
             self._client.disconnect()
+
+
+# --------- Entry point para ejecutar directo ---------
+if __name__ == "__main__":
+    client = G1MqttClient()
+    client.connect()
+    client.run()
