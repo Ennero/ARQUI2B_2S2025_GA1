@@ -29,9 +29,8 @@ from pydantic import BaseModel, Field
 def utcnow() -> datetime:
     return datetime.now(timezone.utc)
 
-# Para crear/validar entradas (API/MQTT)
 class EventIn(BaseModel):
-    source: str  # e.g. 'arduino-mega-01'
+    source: str  # 'arduino-mega-01'
     type: Literal["panic","fire","earthquake","infraction","bus_arrival"]
     severity: Literal['low','medium','high','critical'] = "low"
     data: Dict[str, Any] = {}
@@ -39,7 +38,6 @@ class EventIn(BaseModel):
     updated_at: datetime = Field(default_factory=utcnow)
     deleted_at: Optional[datetime] = None
 
-# Para devolver desde Mongo (incluye _id)
 class EventOut(EventIn):
     id: str = Field(alias="_id")
 
