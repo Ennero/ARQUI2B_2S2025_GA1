@@ -13,7 +13,8 @@ enum MelodyID
     SONG_TETRIS,
     SONG_PACMAN,
     SONG_TAKEONME,
-    SONG_MARIO
+    SONG_MARIO,
+    SONG_SIREN // <-- AÑADE ESTA LÍNEA
 };
 
 // Enum para los tipos de alarma
