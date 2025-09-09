@@ -60,6 +60,9 @@ class ApplicationG1:
 
                     # Parse the raw data into a dictionary
                     current_state = parse_serial_data(line)
+
+                    print(f"Received from Arduino: {current_state}")
+                    print(current_state)
                     
                     if not current_state:
                         continue # If the line is malformed, we ignore it
@@ -104,8 +107,6 @@ class ApplicationG1:
                     for event in events:
                         self.mqtt_client.publish(self.events_topic, json.dumps(event))
                         print(f"Published event: {event}")
-
-                    print(f"Received from Arduino: {current_state}")
 
                 time.sleep(0.1)
 
