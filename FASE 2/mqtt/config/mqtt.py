@@ -29,7 +29,6 @@ from paho.mqtt import client as mqtt_client
 from datetime import datetime
 from dotenv import load_dotenv
 import os
-# from config.mongodb import mongodb_connection
 
 load_dotenv()
 
