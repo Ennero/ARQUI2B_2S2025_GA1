@@ -129,13 +129,22 @@ int lastStateReset = HIGH;
 int lastTriggeredIndexRoute2 = -1;  // -1 = ninguno todavía
 
 void leerPiezoelectrico(bool makeItSound = false) {
+  // Lee el estado del sensor piezoeléctrico
   int piezoState = digitalRead(PIEZO_PIN);
+
+  // Actualiza la variable SISMO (usando el nombre correcto 'piezoState')
   SISMO = (piezoState == HIGH) ? 1 : 0;
-  if (SISMO == 1 || makeItSound) {
-    unsigned long now = millis();
-    for (int i = 0; i < 5; i++) {
-      startMelody(i, ALARM_SISMO);
-    }
+
+  // Si la función fue llamada con 'true' (desde el botón de prueba),
+  // también fuerza la variable SISMO a 1.
+  if (makeItSound) {
+    SISMO = 1;
+  }
+
+  // Si la bandera de SISMO está activa, hacemos sonar la alarma en un solo buzzer.
+  if (SISMO == 1) {
+    // Usamos el primer buzzer (índice 0).
+    startMelody(0, ALARM_SISMO); 
   }
 }
 
