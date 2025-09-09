@@ -29,7 +29,6 @@ from config.database import get_db
 
 router = APIRouter(prefix="/analytics", tags=["analytics"])
 
-# --- helpers de tiempo ---
 GT_TZ = timezone(timedelta(hours=-6))  # America/Guatemala (sin DST; ajusta si usas pytz/zoneinfo)
 
 def parse_iso_dt(v: Any) -> Optional[datetime]:
