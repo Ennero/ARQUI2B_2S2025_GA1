@@ -44,7 +44,7 @@ SEM1=VERDE;SEM2=ROJO;BUS1=120;BUS2=80;PM1=155;PM2=162;INC1=0;INC2=0;PANICO1=0;PA
 
 In order to get access to your cluster, your `.env` file must have the following structure:
 ```env
-MONGODB_URI=mongodb+srv://<username>:<password>@arqui1g11siepacluster.r2uoqj2.mongodb.net/?retryWrites=true&w=majority&appName=Arqui1G11SiepaCluster
+MONGODB_URI=mongodb+srv://<username>:<password>@ARQUI2B_2S2025_GA1.r2uoqj2.mongodb.net/?retryWrites=true&w=majority&appName=ARQUI2B_2S2025_GA1
 ```
 
 
@@ -53,7 +53,7 @@ MONGODB_URI=mongodb+srv://<username>:<password>@arqui1g11siepacluster.r2uoqj2.mo
 The service file is located at
 
 ```
-/etc/systemd/system/siepa.service
+/etc/systemd/system/mqtt_app.service
 ```
 
 Any change in that file requires deamon and service reload
@@ -67,38 +67,38 @@ Any change in that file requires deamon and service reload
 #### Check Siepa services status
 
 ```bash
-    sudo systemctl status siepa.service
+    sudo systemctl status mqtt_app.service
 ```
 
 #### Stop the service
 
 ```bash
-    sudo systemctl stop siepa.service
+    sudo systemctl stop mqtt_app.service
 ```
 
 #### Enable/Disable the service
 
 ```bash
-    sudo systemctl disable siepa.service
-    sudo systemctl enable siepa.service
+    sudo systemctl disable mqtt_app.service
+    sudo systemctl enable mqtt_app.service
 ```
 
 #### Start the service
 
 ```bash
-    sudo systemctl start siepa.service
+    sudo systemctl start mqtt_app.service
 ```
 
 #### Restart the service
 
 ```bash
-    sudo systemctl restart siepa.service
+    sudo systemctl restart mqtt_app.service
 ```
 
 #### Track logs on live
 
 ```bash
-    journalctl -u siepa.service -f
+    journalctl -u mqtt_app.service -f
 ```
 
 ### Turn the Raspberry PI off
