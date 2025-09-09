@@ -133,9 +133,9 @@ void leerPiezoelectrico(bool makeItSound = false) {
   SISMO = (piezoState == HIGH) ? 1 : 0;
   if (SISMO == 1 || makeItSound) {
     unsigned long now = millis();
-    for (int i = 0; i < 5; i++) { // 5 es el NUM_BOTONES original
-    startMelody(i, SONG_MARIO);
-}
+    for (int i = 0; i < 5; i++) {
+      startMelody(i, ALARM_SISMO);
+    }
   }
 }
 
@@ -145,7 +145,7 @@ void setup() {
 
   // TAKEEEEEE OOOOOOON MEEEEEEEEE
   for (int i = 0; i < NUM_BOTONES; i++) {
-    startMelody(i, SONG_TAKEONME);
+    startMelody(i, ALARM_STARTUP); // AHORA
   }
 
   trafficA.begin();
@@ -291,7 +291,7 @@ void manejarBotones() {
     bool estadoActual = digitalRead(PINES_BOTONES[i]) == LOW;
     if (estadoActual != estadoAnteriorBotones[i] && (now - ultimaLecturaBoton[i] >= debounceTime)) {
       if (estadoActual) {
-        startMelody(i, (MelodyID)(SONG_NOKIA + i)); // canción distinta por botón
+        startMelody(i, ALARM_PANIC); // AHORA
       } else {
         PANICO[i] = 0;
       }
@@ -307,10 +307,12 @@ void leerSensoresHumo() {
   INC1 = (PM1 > SMOKE_THRESHOLD) ? 1 : 0;
   INC2 = (PM2 > SMOKE_THRESHOLD) ? 1 : 0;
 
-  unsigned long now = millis();
-  // activar buzzer correspondiente si hay humo
-  if (INC1) startMelody(2, SONG_TETRIS); // buzzer más cercano al sensor 1
-  if (INC2) startMelody(3, SONG_TAKEONME); // buzzer más cercano al sensor 2
+  if (INC1) {
+      startMelody(2, ALARM_GAS); 
+  }
+  if (INC2) {
+      startMelody(3, ALARM_GAS);
+  }
 }
 
 // echoCheck: recibe resultado del sonar; aquí reaccionamos sin imprimir
@@ -344,8 +346,10 @@ void echoCheck() {
       case 4: case 5: INFRAB = 1; buzzerIdx = 0; break;
       case 6: case 7: INFRAC = 1; buzzerIdx = 3; break;
       case 8: case 9: INFRAD = 1; buzzerIdx = 2; break;
-    }
-    if (buzzerIdx >= 0) startMelody(buzzerIdx, SONG_NOKIA);
+  }
+  if (buzzerIdx >= 0) {
+      startMelody(buzzerIdx, ALARM_INFRACTION); 
+  }
   }
 
   // Si el sensor es el RESET_SENSOR_ID y lee cerca (<=3 cm) -> resetea dist2 inmediatamente

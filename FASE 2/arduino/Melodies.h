@@ -16,18 +16,24 @@ enum MelodyID
     SONG_MARIO
 };
 
-// --- FUNCIONES PÚBLICAS ---
-// Llama a esta función UNA VEZ en tu setup() principal.
-void setupMelodies();
+// Enum para los tipos de alarma
+enum AlarmType
+{
+    ALARM_INFRACTION, // Nokia
+    ALARM_PANIC,      // Pacman
+    ALARM_SISMO,      // Mario
+    ALARM_GAS,        // Tetris    
+    ALARM_STARTUP     // Take On Me
+};
 
-// Llama a esta función en CADA ciclo de tu loop() principal.
+
+// --- FUNCIONES PÚBLICAS ---
+void setupMelodies();
 void loopMelodies();
 
-// Llama a esta función para empezar a reproducir una canción en un buzzer específico.
-// Ejemplo: startMelody(0, SONG_PACMAN);
-void startMelody(int buzzerIndex, MelodyID song);
+// Acepta un tipo de alarma en lugar de una canción.
+void startMelody(int buzzerIndex, AlarmType type);
 
-// Llama a esta función para detener el sonido en un buzzer específico.
 void stopMelody(int buzzerIndex);
 
 #endif // MELODIES_H
