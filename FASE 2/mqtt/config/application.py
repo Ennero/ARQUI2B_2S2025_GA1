@@ -40,8 +40,8 @@ class ApplicationG1:
 
         # Connections to third-party services
         self.mqtt_client = G1MqttClient()
-        self.events_topic = f"{os.getenv('MQTT_BASE_TOPIC')}/gt/zone1/events"
-        self.readings_topic = f"{os.getenv('MQTT_BASE_TOPIC')}/gt/zone1/readings"
+        self.events_topic = f"{os.getenv('MQTT_TOPIC_PREFIX')}/gt/zone1/events"
+        self.readings_topic = f"{os.getenv('MQTT_TOPIC_PREFIX')}/gt/zone1/readings"
 
     def perform(self):
         try:
@@ -51,8 +51,6 @@ class ApplicationG1:
 
             self.mqtt_thread = Thread(target=self.mqtt_client.run, daemon=True)
             self.mqtt_thread.start()
-
-            print("holaaa")
 
             # Connect to the serial port
             self._serial_port = serial.Serial(self._serial_port_name, 9600, timeout=1)
@@ -73,7 +71,7 @@ class ApplicationG1:
                         continue # If the line is malformed, we ignore it
 
                     reading_payload = {
-                        "source": self.source,
+                        "source": "arduino-mega-01",
                         "frame": current_state
                     }
                     self.mqtt_client.publish(self.readings_topic, json.dumps(reading_payload))
@@ -84,7 +82,7 @@ class ApplicationG1:
                     for i in range(1, 6):
                         if str(current_state.get(f"PANICO{i}", "0")) == "1":
                             events.append({
-                                "source": self.source,
+                                "source": "arduino-mega-01",
                                 "type": "panic",
                                 "severity": "critical",
                                 "data": {"button": f"PANICO{i}"},
@@ -93,7 +91,7 @@ class ApplicationG1:
                     # Earthquake
                     if str(current_state.get("SISMO", "0")) == "1":
                         events.append({
-                            "source": self.source,
+                            "source": "arduino-mega-01",
                             "type": "earthquake",
                             "severity": "critical",
                             "data": {"sensor": "SISMO"},
@@ -102,7 +100,7 @@ class ApplicationG1:
                     for code in ["INFRAA", "INFRAB", "INFRAC", "INFRAD"]:
                         if str(current_state.get(code, "0")) == "1":
                             events.append({
-                                "source": self.source,
+                                "source": "arduino-mega-01",
                                 "type": "infraction",
                                 "severity": "medium",
                                 "data": {"code": code},
