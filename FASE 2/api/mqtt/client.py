@@ -64,7 +64,7 @@ async def run_mqtt():
                         "source": data.get("source"),
                         "type": data.get("type"),
                         "severity": data.get("severity", "low"),
-                        "frame": data.get("frame", {}),
+                        "data": data.get("frame", {}),
                         "created_at": utcnow_iso(),
                         "updated_at": utcnow_iso(),
                         "deleted_at": None
