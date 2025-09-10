@@ -31,8 +31,6 @@ const unsigned long piezoInterval = 500;
 // Estados globales
 String SEM1 = "ROJO";
 String SEM2 = "ROJO";
-int BUS1 = 0;
-int BUS2 = 0;
 int PM1 = 0;
 int PM2 = 0;
 int INC1 = 0;
@@ -299,9 +297,8 @@ void manejarBotones() {
     bool estadoActual = digitalRead(PINES_BOTONES[i]) == LOW;
     if (estadoActual != estadoAnteriorBotones[i] && (now - ultimaLecturaBoton[i] >= debounceTime)) {
       if (estadoActual) {
-        startMelody(i, ALARM_PANIC); // AHORA
-      } else {
-        PANICO[i] = 0;
+        startMelody(i, ALARM_PANIC);
+        PANICO[i] = 1;   // marcar evento de pánico SOLO en el flanco de presionado
       }
       estadoAnteriorBotones[i] = estadoActual;
       ultimaLecturaBoton[i] = now;
@@ -419,13 +416,27 @@ void updateTrafficLights(unsigned long now) {
 // ÚNICO Serial.println: emitir todo el estado
 void emitirEstado() {
   snprintf(salidaBuffer, sizeof(salidaBuffer),
-           "SEM1=%s;SEM2=%s;BUS1=%d;BUS2=%d;PM1=%d;PM2=%d;INC1=%d;INC2=%d;"
+           "SEM1=%s;SEM2=%s;PM1=%d;PM2=%d;INC1=%d;INC2=%d;"
            "PANICO1=%d;PANICO2=%d;PANICO3=%d;PANICO4=%d;PANICO5=%d;"
            "SISMO=%d;INFRAA=%d;INFRAB=%d;INFRAC=%d;INFRAD=%d;DIST1=%d;DIST2=%d",
            SEM1.c_str(), SEM2.c_str(),
-           BUS1, BUS2, PM1, PM2, INC1, INC2,
+           PM1, PM2, INC1, INC2,
            PANICO[0], PANICO[1], PANICO[2], PANICO[3], PANICO[4],
            SISMO, INFRAA, INFRAB, INFRAC, INFRAD,
            dist1, dist2);
+
   Serial.println(salidaBuffer);
+  
+  for (int i = 0; i < NUM_BOTONES; i++) {
+    PANICO[i] = 0;
+  }
+
+  INFRAA = 0;
+  INFRAB = 0;
+  INFRAC = 0;
+  INFRAD = 0;
+  INC1 = 0;
+  INC2 = 0;
+  SISMO = 0;
 }
+
