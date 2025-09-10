@@ -24,35 +24,31 @@ SOFTWARE.
 
 import time
 import random
-import json
 from paho.mqtt import client as mqtt_client
 from datetime import datetime
 from dotenv import load_dotenv
 import os
-# from config.mongodb import mongodb_connection
 
 load_dotenv()
 
 class G1MqttClient(object):
 
-    # Singleton pattern
     def __new__(cls):
         if not hasattr(cls, 'instance'):
             cls.instance = super(G1MqttClient, cls).__new__(cls)
         return cls.instance
 
-
     def __init__(self):
         self._broker = os.getenv('MQTT_BROKER')
         self._port = int(os.getenv('MQTT_PORT'))
-        self._client_id = f'{os.getenv('MQTT_CLIENT_ID')}-{int(time.time())}-{random.randint(0, 1000)}'
+        self._client_id = f"{os.getenv('MQTT_CLIENT_ID')}-{int(time.time())}-{random.randint(0, 1000)}"
         self._client = None
         self._connected = False
         self._topic = os.getenv('MQTT_TOPIC_PREFIX')
 
         self._allowed_topics = [
-            'gt/zone1/events',
-            'gt/zone1/readings'
+            f"{self._topic}/gt/zone1/events",
+            f"{self._topic}/gt/zone1/readings"
         ]
 
     def connect(self):
@@ -72,28 +68,8 @@ class G1MqttClient(object):
             else:
                 print(f'Failed to connect, return code {rc}\n')
 
-        def on_message(client, user_data, msg):
-            topic = msg.topic
-            payload_str = msg.payload.decode()
-            # print(f'Received message on [{topic}]')
-            # print(f'Payload: {payload_str}')
-
-            # Tries to parse to JSON
-            try:
-                payload = json.loads(payload_str)
-            except json.JSONDecodeError:
-                print('Invalid JSON format')
-                return
-
-
-        def on_subscribe(client, user_data, mid, granted_qos):
-            print(f'Subscription acknowledged for MID: {mid}')
-            print(f'Granted QoS levels: {granted_qos}')
-
         self._client = mqtt_client.Client(client_id=self._client_id)
         self._client.on_connect = on_connect
-        self._client.on_message = on_message
-        # self._client.on_subscribe = on_subscribe
         
         # Enable additional logging
         self._client.enable_logger()
@@ -112,23 +88,21 @@ class G1MqttClient(object):
             print('MQTT client is not connected. Cannot publish.')
             return
 
-        full_topic = f'{os.getenv('MQTT_TOPIC')}/{topic}'
-        
         if topic not in self._allowed_topics:
-            print(f'Topic "{topic}" is not allowed. Allowed topics are: {self._allowed_topics}')
+            print(f"Topic '{topic}' is not allowed. Allowed topics are: {self._allowed_topics}")
             return
 
-        result = self._client.publish(full_topic, payload=message, qos=qos)
+        result = self._client.publish(topic, payload=message, qos=qos)
 
         if result.rc == mqtt_client.MQTT_ERR_SUCCESS:
-            # print(f'Published to {full_topic}: {message}')
+            # print(f'Published to {topic}: {message}')
             pass
         else:
-            print(f'Failed to publish to {full_topic}. Error code: {result.rc}')
+            print(f"Failed to publish to {topic}. Error code: {result.rc}")
 
     def disconnect(self):
         if self._client:
-            print('Disconnecting MQTT client...')
+            print("Disconnecting MQTT client...")
             self._client.disconnect()
             self._connected = False
         else:
