@@ -21,16 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
-import serial
-import time
 import os
+import time
+import json
+import serial
+from threading import Thread
 from dotenv import load_dotenv
-from datetime import datetime, timezone
-
-# Importar nuestros módulos
-from config.mongodb import MongoDBConnection
 from config.mqtt import G1MqttClient
-from services.event_handler import EventHandler
 from utils.parser import parse_serial_data
 
 load_dotenv()
@@ -42,40 +39,18 @@ class ApplicationG1:
         self._serial_port = None
 
         # Connections to third-party services
-        self.db_connection = MongoDBConnection()
         self.mqtt_client = G1MqttClient()
-
-        # Database collections
-        db_name = os.getenv('DATABASE_NAME')
-        self.alerts_collection = self.db_connection.get_collection(db_name, 'events')
-        self.readings_collection = self.db_connection.get_collection(db_name, 'readings')
-
-        # Business logic components
-        self.event_handler = EventHandler(self.mqtt_client, self.alerts_collection)
-
-    def _process_reading(self, state: dict):
-        """Processes and saves the complete system reading."""
-        reading_document = {
-            "timestamp": datetime.now(timezone.utc),
-            "deviceId": "ARDUINO_MEGA_ZONA1",
-            "data": state
-        }
-        # Publish the complete reading to a general topic
-        self.mqtt_client.publish("system/zone1/readings", str(state))
-
-        # Save to the readings collection
-        self.readings_collection.insert_one(reading_document)
-        print("Reading stored and published.")
+        self.events_topic = f"{os.getenv('MQTT_TOPIC_PREFIX')}/gt/zone1/events"
+        self.readings_topic = f"{os.getenv('MQTT_TOPIC_PREFIX')}/gt/zone1/readings"
 
     def perform(self):
-        """
-        Main method that starts the application, connects services,
-        and enters the reading loop.
-        """
         try:
             # Connect to MQTT
             self.mqtt_client.connect()
-            self.mqtt_client.run() # Start the MQTT loop in a separate thread
+            # self.mqtt_client.run() # Start the MQTT loop in a separate thread
+
+            self.mqtt_thread = Thread(target=self.mqtt_client.run, daemon=True)
+            self.mqtt_thread.start()
 
             # Connect to the serial port
             self._serial_port = serial.Serial(self._serial_port_name, 9600, timeout=1)
@@ -88,17 +63,53 @@ class ApplicationG1:
 
                     # Parse the raw data into a dictionary
                     current_state = parse_serial_data(line)
+
+                    print(f"Received from Arduino: {current_state}")
+                    print(current_state)
                     
                     if not current_state:
                         continue # If the line is malformed, we ignore it
 
-                    print(f"Received from Arduino: {current_state}")
+                    reading_payload = {
+                        "source": "arduino-mega-01",
+                        "frame": current_state
+                    }
+                    self.mqtt_client.publish(self.readings_topic, json.dumps(reading_payload))
 
-                    # Delegate event handling
-                    self.event_handler.process_state(current_state)
+                    events = []
 
-                    # Process and save the complete reading
-                    self._process_reading(current_state)
+                    # Panic buttons
+                    for i in range(1, 6):
+                        if str(current_state.get(f"PANICO{i}", "0")) == "1":
+                            events.append({
+                                "source": "arduino-mega-01",
+                                "type": "panic",
+                                "severity": "critical",
+                                "data": {"button": f"PANICO{i}"},
+                            })
+                            break
+                    # Earthquake
+                    if str(current_state.get("SISMO", "0")) == "1":
+                        events.append({
+                            "source": "arduino-mega-01",
+                            "type": "earthquake",
+                            "severity": "critical",
+                            "data": {"sensor": "SISMO"},
+                        })
+                    # Infractions
+                    for code in ["INFRAA", "INFRAB", "INFRAC", "INFRAD"]:
+                        if str(current_state.get(code, "0")) == "1":
+                            events.append({
+                                "source": "arduino-mega-01",
+                                "type": "infraction",
+                                "severity": "medium",
+                                "data": {"code": code},
+                            })
+
+                    # Publish events if any
+                    for event in events:
+                        self.mqtt_client.publish(self.events_topic, json.dumps(event))
+                        print(f"Published event: {event}")
                 
                 time.sleep(0.1)
 
@@ -111,4 +122,3 @@ class ApplicationG1:
                 self._serial_port.close()
                 print("Serial port closed.")
             self.mqtt_client.disconnect()
-            self.db_connection.close()
