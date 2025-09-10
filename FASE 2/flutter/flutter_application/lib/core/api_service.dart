@@ -13,6 +13,9 @@ class ApiService {
     // Convierte el enum a un string de la API
     final String filterQuery;
     switch (filter) {
+      case TimeFilter.map:
+        filterQuery = "map";
+        break;
       case TimeFilter.today:
         filterQuery = "today";
         break;
@@ -47,6 +50,8 @@ class ApiService {
   // Obtenemos el texto del label
   static String getFilterLabel(TimeFilter filter) {
     switch (filter) {
+      case TimeFilter.map:
+        return "Mapa";
       case TimeFilter.today:
         return "Hoy";
       case TimeFilter.week:
