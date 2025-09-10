@@ -10,6 +10,25 @@ class MockApiService {
       throw Exception('Error de conexión simulado.');
     }
 
+    if (filter == TimeFilter.map) {
+      final random = Random();
+      
+      // Para bus1: un valor aleatorio entre 0 y 320, en pasos de 40.
+      final bus1Distance = random.nextInt(9) * 40;
+
+      // Para bus2: un valor aleatorio entre 0 y 140, en pasos de 20.
+      final bus2Distance = random.nextInt(8) * 20;
+
+      return {
+        "bus1": {
+          "distance": bus1Distance,
+        },
+        "bus2": {
+          "distance": bus2Distance,
+        }
+      };
+    }
+
     if (filter == TimeFilter.today) {
       // PARA "HOY", LA ESTRUCTURA ES MÁS SIMPLE
       return {
@@ -74,7 +93,6 @@ class MockApiService {
       ];
 
       return {
-        // El resumen ahora se calcula a partir de los datos detallados
         "summary": {
           "recorridoTransmetro": (metrics[0]['timeSeries'] as List)
               .map((d) => d['value'] as double)
@@ -99,6 +117,8 @@ class MockApiService {
 
   static String getFilterLabel(TimeFilter filter) {
     switch (filter) {
+      case TimeFilter.map:
+        return "Mapa";
       case TimeFilter.today:
         return "Hoy";
       case TimeFilter.week:
