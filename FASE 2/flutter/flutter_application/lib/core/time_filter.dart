@@ -1,2 +1,2 @@
 // enum compartido
-enum TimeFilter { today, week, month }
+enum TimeFilter { map, today, week, month }

@@ -4,6 +4,7 @@ import 'package:flutter_application/screens/app_home_screen.dart';
 import 'package:flutter_application/screens/panel_control_screen.dart';
 import 'package:flutter_application/screens/place_holder_screen.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:flutter_application/screens/app_map_screen.dart'; 
 
 class AppNavigatorBar extends StatefulWidget {
   const AppNavigatorBar({super.key});
@@ -20,10 +21,10 @@ class _AppNavigatorBarState extends State<AppNavigatorBar> {
     AppHomeScreen(),
     PanelControlScreen(),
     PlaceHolderScreen(title: "Notificaciones", icon: Icons.bar_chart), 
-    PlaceHolderScreen(title: "Mapa", icon: Icons.bar_chart)
+    MapaScreen(),
     ];
 
-  void onItemTopped(int index){
+  void onItemTopped(int index) {
     setState(() {
       selectedIndex = index;
     });
