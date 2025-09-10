@@ -4,7 +4,7 @@
 
 ### Installation guide
 
-First, ensure you the respective `.env` file with the correct credentials according to your execution environment placed a the root of this location.
+First, ensure you the respective `.env` file with the correct credentials according to your execution environment placed at the root of this location.
 
 #### Create Virtual Environment
 ```bash
