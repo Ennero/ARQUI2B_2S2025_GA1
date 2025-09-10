@@ -28,7 +28,7 @@ from fastapi.responses import ORJSONResponse
 from config.settings import settings
 from config.database import connect_to_mongo, close_mongo
 from mqtt.client import run_mqtt
-from routers import readings, events, analytics
+from routers import readings, events, analytics, live
 
 mqtt_task: asyncio.Task = None
 
@@ -66,3 +66,4 @@ async def root():
 application.include_router(readings.router)
 application.include_router(events.router)
 application.include_router(analytics.router)
+application.include_router(live.router)
