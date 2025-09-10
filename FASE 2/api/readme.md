@@ -59,8 +59,11 @@ GET /analytics/monthly?year=2025&month=9
 GET /live/bus/distances
 ```
 
-### Push notifications
+### Notifications
 
 ```
-
+GET /notifications
+GET /notifications?severity=critical
+GET /notifications?types=panic,infraction
+GET /notifications?since=2025-09-05T16:00:00Z
 ```
