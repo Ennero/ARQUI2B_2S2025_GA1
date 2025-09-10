@@ -1,5 +1,6 @@
 #include <NewPing.h>
 #include "TrafficLight.h"
+#include "Melodies.h"
 
 // -------------------- CONFIGURACIÓN SENSORES ULTRASÓNICOS --------------------
 #define MAX_DISTANCE 50
@@ -30,8 +31,6 @@ const unsigned long piezoInterval = 500;
 // Estados globales
 String SEM1 = "ROJO";
 String SEM2 = "ROJO";
-int BUS1 = 0;
-int BUS2 = 0;
 int PM1 = 0;
 int PM2 = 0;
 int INC1 = 0;
@@ -97,12 +96,11 @@ const unsigned long yellowTime = 3000;
 // --- Botones / buzzers (sin cambios) ---
 const uint8_t NUM_BOTONES = 5;
 const int PINES_BOTONES[NUM_BOTONES] = { 48, 52, A15, A13, A11 };
-const int PINES_BUZZER[NUM_BOTONES] = { 49, 53, A14, A12, A10 };
+
 bool estadoAnteriorBotones[NUM_BOTONES] = { false };
 unsigned long ultimaLecturaBoton[NUM_BOTONES] = { 0 };
+
 const unsigned long debounceTime = 50;
-unsigned long tiempoInicioBuzzer[NUM_BOTONES] = { 0 };
-const unsigned long duracionBuzzer = 2000;
 
 // --- MQ2 ---
 #define MQ2_SENSOR_1 A0
@@ -129,16 +127,33 @@ int lastStateReset = HIGH;
 int lastTriggeredIndexRoute2 = -1;  // -1 = ninguno todavía
 
 void leerPiezoelectrico(bool makeItSound = false) {
+  // Lee el estado del sensor piezoeléctrico
   int piezoState = digitalRead(PIEZO_PIN);
+
+  // Actualiza la variable SISMO (usando el nombre correcto 'piezoState')
   SISMO = (piezoState == HIGH) ? 1 : 0;
-  if (SISMO == 1 || makeItSound) {
-    unsigned long now = millis();
-    for (int i = 0; i < NUM_BOTONES; i++) sonarBuzzer(i, now);
+
+  // Si la función fue llamada con 'true' (desde el botón de prueba),
+  // también fuerza la variable SISMO a 1.
+  if (makeItSound) {
+    SISMO = 1;
+  }
+
+  // Si la bandera de SISMO está activa, hacemos sonar la alarma en un solo buzzer.
+  if (SISMO == 1) {
+    // Usamos el primer buzzer (índice 0).
+    startMelody(0, ALARM_SISMO); 
   }
 }
 
 void setup() {
   Serial.begin(9600);
+  setupMelodies();
+
+  // TAKEEEEEE OOOOOOON MEEEEEEEEE
+  //startMelody(2, ALARM_STARTUP); // Activa solo el primer buzzer
+
+
   trafficA.begin();
   trafficB.begin();
   trafficA.setState(TrafficLight::GREEN);
@@ -174,6 +189,8 @@ void setup() {
 
 void loop() {
   unsigned long now = millis();
+  
+  loopMelodies();
 
   updateTrafficLights(now);
 
@@ -191,7 +208,6 @@ void loop() {
   manejarReeds();
   manejarResetReed();
   manejarBotones();
-  controlarBuzzer();
 
   if (now - lastSmokeCheck >= smokeInterval) {
     leerSensoresHumo();
@@ -268,32 +284,12 @@ void manejarResetReed() {
 
 // ---------- resto de funciones (mantengo tu base; NO imprimen salvo emitirEstado) ----------
 void inicializarPerifericos() {
-  for (int i = 0; i < NUM_BOTONES; i++) {
-    pinMode(PINES_BOTONES[i], INPUT_PULLUP);
-    pinMode(PINES_BUZZER[i], OUTPUT);
-    digitalWrite(PINES_BUZZER[i], LOW);
-  }
+
+
   pinMode(MQ2_SENSOR_1, INPUT);
   pinMode(MQ2_SENSOR_2, INPUT);
 }
 
-void sonarBuzzer(int buzzerIndex, unsigned long now) {
-  if (buzzerIndex >= 0 && buzzerIndex < NUM_BOTONES) {
-    digitalWrite(PINES_BUZZER[buzzerIndex], HIGH);
-    tiempoInicioBuzzer[buzzerIndex] = now;
-    PANICO[buzzerIndex] = 1;
-  }
-}
-
-void controlarBuzzer() {
-  unsigned long now = millis();
-  for (int i = 0; i < NUM_BOTONES; i++) {
-    if (PANICO[i] && (now - tiempoInicioBuzzer[i] >= duracionBuzzer)) {
-      digitalWrite(PINES_BUZZER[i], LOW);
-      PANICO[i] = 0;
-    }
-  }
-}
 
 void manejarBotones() {
   unsigned long now = millis();
@@ -301,9 +297,8 @@ void manejarBotones() {
     bool estadoActual = digitalRead(PINES_BOTONES[i]) == LOW;
     if (estadoActual != estadoAnteriorBotones[i] && (now - ultimaLecturaBoton[i] >= debounceTime)) {
       if (estadoActual) {
-        sonarBuzzer(i, now);
-      } else {
-        PANICO[i] = 0;
+        startMelody(i, ALARM_PANIC);
+        PANICO[i] = 1;   // marcar evento de pánico SOLO en el flanco de presionado
       }
       estadoAnteriorBotones[i] = estadoActual;
       ultimaLecturaBoton[i] = now;
@@ -317,10 +312,12 @@ void leerSensoresHumo() {
   INC1 = (PM1 > SMOKE_THRESHOLD) ? 1 : 0;
   INC2 = (PM2 > SMOKE_THRESHOLD) ? 1 : 0;
 
-  unsigned long now = millis();
-  // activar buzzer correspondiente si hay humo
-  if (INC1) sonarBuzzer(2, now); // buzzer más cercano al sensor 1
-  if (INC2) sonarBuzzer(3, now); // buzzer más cercano al sensor 2
+  if (INC1) {
+      startMelody(2, ALARM_GAS); 
+  }
+  if (INC2) {
+      startMelody(3, ALARM_GAS);
+  }
 }
 
 // echoCheck: recibe resultado del sonar; aquí reaccionamos sin imprimir
@@ -354,8 +351,10 @@ void echoCheck() {
       case 4: case 5: INFRAB = 1; buzzerIdx = 0; break;
       case 6: case 7: INFRAC = 1; buzzerIdx = 3; break;
       case 8: case 9: INFRAD = 1; buzzerIdx = 2; break;
-    }
-    if (buzzerIdx >= 0) sonarBuzzer(buzzerIdx, millis());
+  }
+  if (buzzerIdx >= 0) {
+      startMelody(buzzerIdx, ALARM_INFRACTION); 
+  }
   }
 
   // Si el sensor es el RESET_SENSOR_ID y lee cerca (<=3 cm) -> resetea dist2 inmediatamente
@@ -417,13 +416,27 @@ void updateTrafficLights(unsigned long now) {
 // ÚNICO Serial.println: emitir todo el estado
 void emitirEstado() {
   snprintf(salidaBuffer, sizeof(salidaBuffer),
-           "SEM1=%s;SEM2=%s;BUS1=%d;BUS2=%d;PM1=%d;PM2=%d;INC1=%d;INC2=%d;"
+           "SEM1=%s;SEM2=%s;PM1=%d;PM2=%d;INC1=%d;INC2=%d;"
            "PANICO1=%d;PANICO2=%d;PANICO3=%d;PANICO4=%d;PANICO5=%d;"
            "SISMO=%d;INFRAA=%d;INFRAB=%d;INFRAC=%d;INFRAD=%d;DIST1=%d;DIST2=%d",
            SEM1.c_str(), SEM2.c_str(),
-           BUS1, BUS2, PM1, PM2, INC1, INC2,
+           PM1, PM2, INC1, INC2,
            PANICO[0], PANICO[1], PANICO[2], PANICO[3], PANICO[4],
            SISMO, INFRAA, INFRAB, INFRAC, INFRAD,
            dist1, dist2);
+
   Serial.println(salidaBuffer);
+  
+  for (int i = 0; i < NUM_BOTONES; i++) {
+    PANICO[i] = 0;
+  }
+
+  INFRAA = 0;
+  INFRAB = 0;
+  INFRAC = 0;
+  INFRAD = 0;
+  INC1 = 0;
+  INC2 = 0;
+  SISMO = 0;
 }
+
