@@ -3,6 +3,7 @@ import 'package:flutter_application/core/app_colors.dart';
 import 'package:flutter_application/screens/app_home_screen.dart';
 import 'package:flutter_application/screens/panel_control_screen.dart';
 import 'package:flutter_application/screens/place_holder_screen.dart';
+import 'package:flutter_application/screens/notifications_screen.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 
 class AppNavigatorBar extends StatefulWidget {
@@ -19,11 +20,11 @@ class _AppNavigatorBarState extends State<AppNavigatorBar> {
   List<Widget> pages = [
     AppHomeScreen(),
     PanelControlScreen(),
-    PlaceHolderScreen(title: "Notificaciones", icon: Icons.bar_chart), 
-    PlaceHolderScreen(title: "Mapa", icon: Icons.bar_chart)
-    ];
+    NotificationsScreen(),
+    PlaceHolderScreen(title: "Mapa", icon: Icons.bar_chart),
+  ];
 
-  void onItemTopped(int index){
+  void onItemTopped(int index) {
     setState(() {
       selectedIndex = index;
     });
@@ -55,31 +56,27 @@ class _AppNavigatorBarState extends State<AppNavigatorBar> {
           child: GNav(
             // Estilos de la barra de navegación
             backgroundColor: AppColors.cardBackground,
-            color: AppColors.secondaryText,      // Color de íconos y texto inactivos
-            activeColor: AppColors.primaryText,       // Color de íconos y texto activos
-            tabBackgroundColor: AppColors.primaryAccent.withValues(alpha: 0.3), // Color de fondo de la pestaña activa
-            gap: 8,                               // Espacio entre el ícono y el texto
-            padding: const EdgeInsets.all(16),    // Padding interno de cada pestaña     
+            color: AppColors.secondaryText, // Color de íconos y texto inactivos
+            activeColor:
+                AppColors.primaryText, // Color de íconos y texto activos
+            tabBackgroundColor: AppColors.primaryAccent.withValues(
+              alpha: 0.3,
+            ), // Color de fondo de la pestaña activa
+            gap: 8, // Espacio entre el ícono y el texto
+            padding: const EdgeInsets.all(
+              16,
+            ), // Padding interno de cada pestaña
             // Pestañas
             tabs: const [
-              GButton(
-                icon: Icons.home,
-                text: 'Principal',
-              ),
-              GButton(
-                icon: Icons.devices,
-                text: 'Control',
-              ),
+              GButton(icon: Icons.home, text: 'Principal'),
+              GButton(icon: Icons.devices, text: 'Control'),
               GButton(
                 icon: Icons.notifications_active_outlined,
                 text: 'Notificaciones',
               ),
-              GButton(
-                icon: Icons.map_sharp,
-                text: 'Mapa',
-              ),
+              GButton(icon: Icons.map_sharp, text: 'Mapa'),
             ],
-            
+
             // Funcionalidad
             selectedIndex: selectedIndex,
             onTabChange: (index) {
