@@ -22,13 +22,13 @@ class MarkerMuseum extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Image.asset(
-              "assets/portal.jpg", // 📌 guarda la imagen en assets
+              "assets/portal.jpg", 
               height: 150,
               fit: BoxFit.cover,
             ),
             const SizedBox(height: 10),
             const Text(
-              "Un espacio cultural que alberga la historia y el arte del país.",
+              "Testigo del alma nacional, un viaje a través del arte y la historia que han forjado Guatemala.",
             ),
           ],
         ),
