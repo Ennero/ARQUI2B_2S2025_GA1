@@ -12,7 +12,7 @@ import 'package:flutter_application/widgets/marker_palacio.dart';
 import 'package:flutter_application/widgets/marker_park.dart';
 import 'package:flutter_application/widgets/marker_parqueo.dart';
 import 'package:flutter_application/widgets/marker_pollo.dart';
-
+import 'package:flutter_application/widgets/market_bus2.dart';
 
 class MapaScreen extends StatefulWidget {
   const MapaScreen({super.key});
@@ -25,6 +25,9 @@ class _MapaScreenState extends State<MapaScreen> {
   // Constante para el padding del panel, ahora más pequeño para subirlo
   static const _panelPadding = 5.0;
 
+  // Timer para actualizar las posiciones cada cierto tiempo
+  Timer? _timer;
+
   // Variables de estado para los datos de la API
   // Se eliminó la variable del Timer
   bool _isLoading = true;
@@ -35,12 +38,26 @@ class _MapaScreenState extends State<MapaScreen> {
   // Posiciones relativas fijas para marcadores
   final Offset palacioRel = const Offset(0.50, 0.155);
   final Offset bibliotecaRel = const Offset(0.192, 0.48);
-  final Offset museoRel = const Offset(1-0.183, 0.460);
+  final Offset museoRel = const Offset(1 - 0.183, 0.460);
   final Offset parkRel = const Offset(0.51, 0.457);
   final Offset parqueoRel = const Offset(0.21, 0.827);
   final Offset hotelRel = const Offset(0.51, 0.827);
-  final Offset polloRel = const Offset(1-0.183, 0.827);
-  final Offset bus1Rel = const Offset(0.50, 0.75);
+  final Offset polloRel = const Offset(1 - 0.183, 0.827);
+
+  // Posiciones relativas para transmetro
+  static const Offset pp1 = Offset(0.067, 0.037);
+  static const Offset pp2 = Offset(0.982, 0.037);
+  static const Offset pp3 = Offset(0.982, 0.9972);
+  static const Offset pp4 = Offset(0.067, 0.9972);
+
+  // Posiciones relativas para transurbano
+  static const Offset p1 = Offset(0.3605, 0.245);
+  static const Offset p2 = Offset(0.6785, 0.245);
+  static const Offset p3 = Offset(0.6785, 0.9972);
+  static const Offset p4 = Offset(0.3605, 0.9972);
+
+  Offset _bus1Position = pp1;
+  Offset _bus2Position = p1;
 
   // Variables para la imagen del mapa
   final AssetImage _mapProvider = const AssetImage('assets/mapa.jpg');
@@ -53,29 +70,44 @@ class _MapaScreenState extends State<MapaScreen> {
     super.initState();
     _resolveMapImage();
 
+    //Calcula la posición inicial del transurbano y transmetro
+    _bus1Position = _calculateTransPosition(_dist1);
+    _bus2Position = _calculateBusPosition(_dist2);
+
     // Se mantiene la primera llamada para cargar los datos al entrar
     _fetchBusData();
-    // Se eliminó la inicialización del Timer
+
+    _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      _fetchBusData();
+    });
   }
 
   Future<void> _fetchBusData() async {
-    // Si no es la carga inicial, no mostramos el spinner,
-    // el RefreshIndicator ya tiene el suyo.
-    if (!_isLoading) {
-      setState(() {});
-    }
-
     try {
-      final data =
-          await DataRepository.fetchDashboardData(filter: TimeFilter.map);
+      final data = await DataRepository.fetchDashboardData(
+        filter: TimeFilter.map,
+      );
 
       final newDist1 = data['dist1']?['distance'] ?? 0;
       final newDist2 = data['dist2']?['distance'] ?? 0;
+
+      // Calcula la nueva posición del transmetro basado en la nueva distancia
+      final newBus1Position = _calculateTransPosition(newDist1);
+
+      // Calcula la nueva posición del transurbano basado en la nueva distancia
+      final newBusPosition = _calculateBusPosition(newDist2);
 
       if (mounted) {
         setState(() {
           _dist1 = newDist1;
           _dist2 = newDist2;
+
+          // Actualiza la posición del transmetro
+          _bus1Position = newBus1Position;
+
+          // Actualiza la posición del transurbano
+          _bus2Position = newBusPosition;
+
           _isLoading = false;
           _error = null;
         });
@@ -95,8 +127,10 @@ class _MapaScreenState extends State<MapaScreen> {
     _imageStreamListener = ImageStreamListener((ImageInfo info, bool _) {
       if (mounted) {
         setState(() {
-          _mapIntrinsicSize =
-              Size(info.image.width.toDouble(), info.image.height.toDouble());
+          _mapIntrinsicSize = Size(
+            info.image.width.toDouble(),
+            info.image.height.toDouble(),
+          );
         });
       }
     });
@@ -105,6 +139,8 @@ class _MapaScreenState extends State<MapaScreen> {
 
   @override
   void dispose() {
+    // Cancelar el timer si está activo
+    _timer?.cancel();
     if (_imageStreamListener != null) {
       _imageStream?.removeListener(_imageStreamListener!);
     }
@@ -119,24 +155,20 @@ class _MapaScreenState extends State<MapaScreen> {
   }
 
   @override
-Widget build(BuildContext context) {
-  // El widget RefreshIndicator envuelve todo para la funcionalidad de deslizar
-  return RefreshIndicator(
-    onRefresh: _fetchBusData, // Llama a tu función de carga de datos
-    backgroundColor: AppColors.cardBackground,
-    color: AppColors.primaryText,
-    child: Column( // 1. ESTRUCTURA PRINCIPAL: Cambiamos Stack por Column
+  Widget build(BuildContext context) {
+    return Column(
+      // ESTRUCTURA PRINCIPAL
       children: [
-        // 2. PANEL DE DATOS: Ahora es el primer hijo del Column
+        // PANEL DE DATOS
         SafeArea(
           // SafeArea aquí para que solo afecte al panel y no al mapa
           bottom: false, // No aplicar a la parte inferior
           child: Padding(
             padding: const EdgeInsets.all(
-                _panelPadding + 5.0), // Padding para separarlo de los bordes
+              _panelPadding + 5.0,
+            ), // Padding para separarlo de los bordes
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
                 color: Colors.black.withOpacity(0.6),
                 borderRadius: BorderRadius.circular(12),
@@ -153,80 +185,93 @@ Widget build(BuildContext context) {
           ),
         ),
 
-        // 3. MAPA Y MARCADORES: Ocupan el resto del espacio
+        // MAPA Y MARCADORES
         Expanded(
-          // Expanded hace que este widget llene el espacio vertical restante
           child: LayoutBuilder(
-            // 4. LayoutBuilder para obtener el tamaño real del contenedor del mapa
+            // LayoutBuilder para obtener el tamaño real del contenedor del mapa
             builder: (context, constraints) {
-              // Calculamos el tamaño y offset del mapa basados en el espacio disponible
-              // dado por el LayoutBuilder (constraints) en lugar del tamaño de la pantalla.
-              final container = Size(constraints.maxWidth, constraints.maxHeight);
-              final Size displayedSize = _mapIntrinsicSize == null
-                  ? container
-                  : _fittedSize(_mapIntrinsicSize!, container);
+              // Calculo el tamaño y offset del mapa basados en el espacio disponible
+              final container = Size(
+                constraints.maxWidth,
+                constraints.maxHeight,
+              );
+
+              // Si no se sabe el tamaño del mapa, no dibujamos los marcadores.
+              if (_mapIntrinsicSize == null) {
+                return Image(image: _mapProvider, fit: BoxFit.contain);
+              }
+
+              final Size displayedSize = _fittedSize(_mapIntrinsicSize!, container);
+
               final Offset imageOffset = Offset(
                 (container.width - displayedSize.width) / 2,
                 (container.height - displayedSize.height) / 2,
               );
 
-              // El Stack ahora solo contiene el mapa y los marcadores
               return Stack(
                 children: [
                   // Mapa
                   Positioned.fill(
-                    child: Image(
-                      image: _mapProvider,
-                      fit: BoxFit.contain,
-                    ),
+                    child: Image(image: _mapProvider, fit: BoxFit.contain),
                   ),
 
-                  // Marcadores modulares (sin cambios aquí)
+                  // Marcadores modulares
                   MarkerPalacio(
-                      relativePos: palacioRel,
-                      imageSize: displayedSize,
-                      imageOffset: imageOffset),
+                    relativePos: palacioRel,
+                    imageSize: displayedSize,
+                    imageOffset: imageOffset,
+                  ),
                   MarkerBiblioteca(
-                      relativePos: bibliotecaRel,
-                      imageSize: displayedSize,
-                      imageOffset: imageOffset),
+                    relativePos: bibliotecaRel,
+                    imageSize: displayedSize,
+                    imageOffset: imageOffset,
+                  ),
                   MarkerMuseum(
-                      relativePos: museoRel,
-                      imageSize: displayedSize,
-                      imageOffset: imageOffset),
+                    relativePos: museoRel,
+                    imageSize: displayedSize,
+                    imageOffset: imageOffset,
+                  ),
                   MarkerParqueo(
-                      relativePos: parqueoRel,
-                      imageSize: displayedSize,
-                      imageOffset: imageOffset),
+                    relativePos: parqueoRel,
+                    imageSize: displayedSize,
+                    imageOffset: imageOffset,
+                  ),
                   MarkerRestaurante(
-                      relativePos: polloRel,
-                      imageSize: displayedSize,
-                      imageOffset: imageOffset),
+                    relativePos: polloRel,
+                    imageSize: displayedSize,
+                    imageOffset: imageOffset,
+                  ),
                   MarkerHotel(
-                      relativePos: hotelRel,
-                      imageSize: displayedSize,
-                      imageOffset: imageOffset),
+                    relativePos: hotelRel,
+                    imageSize: displayedSize,
+                    imageOffset: imageOffset,
+                  ),
                   MarkerBus(
-                      relativePos: bus1Rel,
-                      imageSize: displayedSize,
-                      imageOffset: imageOffset),
+                    relativePos: _bus2Position,
+                    imageSize: displayedSize,
+                    imageOffset: imageOffset,
+                  ),
+                  MarkerBus2(
+                    relativePos: _bus1Position,
+                    imageSize: displayedSize,
+                    imageOffset: imageOffset,
+                  ),
                   MarkerPark(
-                      relativePos: parkRel,
-                      imageSize: displayedSize,
-                      imageOffset: imageOffset),
+                    relativePos: parkRel,
+                    imageSize: displayedSize,
+                    imageOffset: imageOffset,
+                  ),
                 ],
               );
             },
           ),
         ),
       ],
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildPanelContent() {
     // Durante la carga inicial, muestra el spinner.
-    // Para las actualizaciones por deslizamiento, el RefreshIndicator tiene su propio spinner.
     if (_isLoading) {
       return const Center(
         child: SizedBox(
@@ -250,16 +295,98 @@ Widget build(BuildContext context) {
       children: [
         Text(
           'Recorrido del transmetro: $_dist1 km',
-          style: TextStyles.body
-              .copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyles.body.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(height: 4),
         Text(
           'Recorrido del transurbano: $_dist2 km',
-          style: TextStyles.body
-              .copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyles.body.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ],
     );
+  }
+
+  // Función para calcular la posición del bus basado en la distancia recorrida
+  Offset _calculateBusPosition(int distance) {
+    // Si _dist2 llega a 160, habrá completado un ciclo.
+    const double maxDistanceForLoop = 160.0;
+
+    // Longitudes de cada lado del rectángulo en unidades relativas.
+    final double side1 = p2.dx - p1.dx; // Derecha
+    final double side2 = p3.dy - p2.dy; // Abajo
+    final double side3 = p3.dx - p4.dx; // Izquierda
+    final double side4 = p4.dy - p1.dy; // Arriba
+
+    final double perimeter = side1 + side2 + side3 + side4;
+
+    // Normalizamos la distancia para que siempre esté dentro de un ciclo de 0 a maxDistanceForLoop
+    final double distanceInLoop = distance % maxDistanceForLoop;
+
+    // Calculamos qué tan lejos ha viajado en el perímetro (de 0 a 'perimeter')
+    double distanceTravelled =
+        (distanceInLoop / maxDistanceForLoop) * perimeter;
+
+    // Determinamos en qué lado del rectángulo se encuentra el bus
+    if (distanceTravelled <= side1) {
+      // Moviéndose de p1 a p2 (horizontalmente)
+      return Offset(p1.dx + distanceTravelled, p1.dy);
+    } else if (distanceTravelled <= side1 + side2) {
+      // Moviéndose de p2 a p3 (verticalmente)
+      distanceTravelled -= side1;
+      return Offset(p2.dx, p2.dy + distanceTravelled);
+    } else if (distanceTravelled <= side1 + side2 + side3) {
+      // Moviéndose de p3 a p4 (horizontalmente, en reversa)
+      distanceTravelled -= (side1 + side2);
+      return Offset(p3.dx - distanceTravelled, p3.dy);
+    } else {
+      // Moviéndose de p4 a p1 (verticalmente, en reversa)
+      distanceTravelled -= (side1 + side2 + side3);
+      return Offset(p4.dx, p4.dy - distanceTravelled);
+    }
+  }
+
+  // Función para calcular la posición del transmetro basado en la distancia recorrida
+  Offset _calculateTransPosition(int distance) {
+    // Si _dist2 llega a 360, habrá completado un ciclo.
+    const double maxDistanceForLoop = 360.0;
+
+    // Longitudes de cada lado del rectángulo en unidades relativas.
+    final double side1 = pp2.dx - pp1.dx; // Derecha
+    final double side2 = pp3.dy - pp2.dy; // Abajo
+    final double side3 = pp3.dx - pp4.dx; // Izquierda
+    final double side4 = pp4.dy - pp1.dy; // Arriba
+
+    final double perimeter = side1 + side2 + side3 + side4;
+
+    // Normalizando la distancia para que siempre esté dentro de un ciclo de 0 a maxDistanceForLoop
+    final double distanceInLoop = distance % maxDistanceForLoop;
+
+    // Calculo qué tan lejos ha viajado en el perímetro
+    double distanceTravelled =
+        (distanceInLoop / maxDistanceForLoop) * perimeter;
+
+    // Determinamos en qué lado del rectángulo se encuentra el bus
+    if (distanceTravelled <= side1) {
+      // Moviéndose de pp1 a pp2 (horizontalmente)
+      return Offset(pp1.dx + distanceTravelled, pp1.dy);
+    } else if (distanceTravelled <= side1 + side2) {
+      // Moviéndose de pp2 a pp3 (verticalmente)
+      distanceTravelled -= side1;
+      return Offset(pp2.dx, pp2.dy + distanceTravelled);
+    } else if (distanceTravelled <= side1 + side2 + side3) {
+      // Moviéndose de pp3 a pp4 (horizontalmente, en reversa)
+      distanceTravelled -= (side1 + side2);
+      return Offset(pp3.dx - distanceTravelled, pp3.dy);
+    } else {
+      // Moviéndose de pp4 a pp1 (verticalmente, en reversa)
+      distanceTravelled -= (side1 + side2 + side3);
+      return Offset(pp4.dx, pp4.dy - distanceTravelled);
+    }
   }
 }
