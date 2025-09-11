@@ -17,7 +17,6 @@ class NotificationModel {
     this.isRead = false,
   });
 
-  // Método para crear una instancia desde JSON
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
     return NotificationModel(
       id: json['id'] ?? '',
@@ -26,20 +25,13 @@ class NotificationModel {
       descripcion: json['descripcion'] ?? '',
       fuente: json['fuente'] ?? '',
       timestamp: DateTime.parse(json['timestamp'] ?? DateTime.now().toIso8601String()),
-      isRead: false, // Por defecto no leída
+      isRead: false,
     );
   }
 
-  // Método para convertir a JSON (útil si necesitas enviar datos)
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'tipo': tipo,
-      'titulo': titulo,
-      'descripcion': descripcion,
-      'fuente': fuente,
-      'timestamp': timestamp.toIso8601String(),
-      'isRead': isRead,
-    };
+  // Método para debugging
+  @override
+  String toString() {
+    return 'NotificationModel{id: $id, tipo: $tipo, titulo: $titulo}';
   }
 }
