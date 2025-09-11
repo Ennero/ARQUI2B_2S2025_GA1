@@ -24,7 +24,7 @@ class MarkerBiblioteca extends StatelessWidget {
           children: [
             Image.asset("assets/biblio.jpg", height: 150, fit: BoxFit.cover),
             const SizedBox(height: 10),
-            const Text("Espacio cultural y educativo con un gran acervo bibliográfico."),
+            const Text("Refugio de letras e ideas en el Centro Histórico, con un invaluable acervo bibliográfico a tu alcance."),
           ],
         ),
         actions: [

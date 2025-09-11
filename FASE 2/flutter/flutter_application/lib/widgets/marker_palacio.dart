@@ -25,7 +25,7 @@ class MarkerPalacio extends StatelessWidget {
             Image.asset("assets/palacio.jpg", height: 150, fit: BoxFit.cover),
             const SizedBox(height: 10),
             const Text(
-              "El Palacio Nacional es uno de los edificios más emblemáticos de la ciudad, símbolo de la historia y cultura.",
+              "Joya arquitectónica y epicentro de la historia guatemalteca; un ícono imponente frente a la Plaza de la Constitución.",
             ),
           ],
         ),

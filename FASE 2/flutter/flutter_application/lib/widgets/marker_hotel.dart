@@ -17,18 +17,18 @@ class MarkerHotel extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Hotel Central"),
+        title: const Text("Edificio en Construcción"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Image.asset(
-              "assets/palomar.jpg", // 📌 coloca la imagen en assets
+              "assets/construccion.jpg", 
               height: 150,
               fit: BoxFit.cover,
             ),
             const SizedBox(height: 10),
             const Text(
-              "Un hotel céntrico con excelentes servicios y comodidades.",
+              "El futuro de la Zona 1 tomando forma; cimientos de un nuevo capítulo en el paisaje histórico de la ciudad",
             ),
           ],
         ),
