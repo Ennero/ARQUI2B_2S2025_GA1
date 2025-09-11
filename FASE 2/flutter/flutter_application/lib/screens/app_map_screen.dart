@@ -22,7 +22,13 @@ class MapaScreen extends StatefulWidget {
 }
 
 class _MapaScreenState extends State<MapaScreen> {
-  // Constante para el padding del panel, ahora más pequeño para subirlo
+  // Desplazamiento para el Transmetro.
+  static const int transmetroOffset = 140;
+
+  // Desplazamiento para el Transurbano.
+  static const int transurbanoOffset = 165;
+
+  // Constante para el padding del panel
   static const _panelPadding = 5.0;
 
   // Timer para actualizar las posiciones cada cierto tiempo
@@ -88,26 +94,26 @@ class _MapaScreenState extends State<MapaScreen> {
         filter: TimeFilter.map,
       );
 
-      final newDist1 = data['dist1']?['distance'] ?? 0;
-      final newDist2 = data['dist2']?['distance'] ?? 0;
+      // Recibimos la distancia "real" de la API.
+      final int rawDist1 = data['dist1']?['distance'] ?? 0;
+      final int rawDist2 = data['dist2']?['distance'] ?? 0;
 
-      // Calcula la nueva posición del transmetro basado en la nueva distancia
+      // Le sumamos nuestro desplazamiento para obtener la distancia "visual".
+      final int newDist1 = rawDist1 + transmetroOffset;
+      final int newDist2 = rawDist2 + transurbanoOffset;
+
+      // El resto de la función usa los nuevos valores y funciona igual que antes.
       final newBus1Position = _calculateTransPosition(newDist1);
-
-      // Calcula la nueva posición del transurbano basado en la nueva distancia
       final newBusPosition = _calculateBusPosition(newDist2);
 
       if (mounted) {
         setState(() {
-          _dist1 = newDist1;
-          _dist2 = newDist2;
+          // Guardamos la distancia real, no la visual, para evitar acumular offsets.
+          _dist1 = rawDist1;
+          _dist2 = rawDist2;
 
-          // Actualiza la posición del transmetro
           _bus1Position = newBus1Position;
-
-          // Actualiza la posición del transurbano
           _bus2Position = newBusPosition;
-
           _isLoading = false;
           _error = null;
         });
@@ -201,7 +207,10 @@ class _MapaScreenState extends State<MapaScreen> {
                 return Image(image: _mapProvider, fit: BoxFit.contain);
               }
 
-              final Size displayedSize = _fittedSize(_mapIntrinsicSize!, container);
+              final Size displayedSize = _fittedSize(
+                _mapIntrinsicSize!,
+                container,
+              );
 
               final Offset imageOffset = Offset(
                 (container.width - displayedSize.width) / 2,
@@ -294,7 +303,7 @@ class _MapaScreenState extends State<MapaScreen> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          'Recorrido del transmetro: $_dist1 km',
+          'Recorrido del transmetro: $_dist1 cm',
           style: TextStyles.body.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -302,7 +311,7 @@ class _MapaScreenState extends State<MapaScreen> {
         ),
         const SizedBox(height: 4),
         Text(
-          'Recorrido del transurbano: $_dist2 km',
+          'Recorrido del transurbano: $_dist2 cm',
           style: TextStyles.body.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.bold,
