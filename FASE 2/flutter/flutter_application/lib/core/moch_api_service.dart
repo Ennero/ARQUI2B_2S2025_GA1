@@ -2,6 +2,9 @@ import 'dart:math';
 import 'package:flutter_application/core/time_filter.dart';
 
 class MockApiService {
+  static int _currentBus1Distance = 0;
+  static int _currentBus2Distance = 0;
+
   static Future<Map<String, dynamic>> fetchDashboardData({
     TimeFilter filter = TimeFilter.today,
   }) async {
@@ -11,21 +14,26 @@ class MockApiService {
     }
 
     if (filter == TimeFilter.map) {
-      final random = Random();
-      
-      // Para bus1: un valor aleatorio entre 0 y 320, en pasos de 40.
-      final bus1Distance = random.nextInt(9) * 40;
+      // Obtenemos el valor actual para enviarlo en la respuesta.
+      final bus1Distance = _currentBus1Distance;
+      final bus2Distance = _currentBus2Distance;
 
-      // Para bus2: un valor aleatorio entre 0 y 140, en pasos de 20.
-      final bus2Distance = random.nextInt(8) * 20;
+      // Calculamos el siguiente valor para la próxima llamada.
+      _currentBus1Distance += 40;
+      _currentBus2Distance += 20;
+
+      // Si el bus completó su ruta, lo reiniciamos a 0.
+      // Los valores máximos (360 y 160) se basan en la lógica de tu mapa.
+      if (_currentBus1Distance >= 360) {
+        _currentBus1Distance = 0;
+      }
+      if (_currentBus2Distance >= 160) {
+        _currentBus2Distance = 0;
+      }
 
       return {
-        "dist1": {
-          "distance": bus1Distance,
-        },
-        "dist2": {
-          "distance": bus2Distance,
-        }
+        "dist1": {"distance": bus1Distance},
+        "dist2": {"distance": bus2Distance},
       };
     }
 
