@@ -22,13 +22,13 @@ class MarkerRestaurante extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Image.asset(
-              "assets/pollo.jpg", // 📌 coloca la imagen en assets
+              "assets/pollo.jpg",
               height: 150,
               fit: BoxFit.cover,
             ),
             const SizedBox(height: 10),
             const Text(
-              "Un restaurante destacado de la ciudad, con especialidades locales.",
+              "El sabor tradicional que une a los guatemaltecos, una parada obligatoria para disfrutar del mejor pollo frito.",
             ),
           ],
         ),

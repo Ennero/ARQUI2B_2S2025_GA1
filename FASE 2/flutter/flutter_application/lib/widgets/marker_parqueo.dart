@@ -26,7 +26,7 @@ class MarkerParqueo extends StatelessWidget {
               fit: BoxFit.cover,
             ),
             const SizedBox(height: 10),
-            const Text("Zona de estacionamiento central para vehículos."),
+            const Text("Solución práctica y segura para tu vehículo en el núcleo comercial e histórico de la ciudad."),
           ],
         ),
         actions: [
