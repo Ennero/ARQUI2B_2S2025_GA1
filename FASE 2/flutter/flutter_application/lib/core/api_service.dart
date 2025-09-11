@@ -4,7 +4,9 @@ import 'package:flutter_application/core/time_filter.dart';
 
 class ApiService {
   // URL del backend
-  static const String baseUrl = "URL del backend";
+  static const String apiIp = '10.0.2.2'; 
+  static const String apiPort = '8000';
+  static const String baseUrl = 'http://$apiIp:$apiPort';
 
   // Obtiene los datos del dashboard desde el backend
   static Future<Map<String, dynamic>> fetchDashboardData({
@@ -39,23 +41,23 @@ class ApiService {
 
 
     // Convierte el enum a un string de la API
-    final String filterQuery;
+    final String endpoint;
     switch (filter) {
       case TimeFilter.map:
         filterQuery = "map";
         break;
       case TimeFilter.today:
-        filterQuery = "today";
+        endpoint = "/analytics/daily";
         break;
       case TimeFilter.week:
-        filterQuery = "week";
+        endpoint = "/analytics/weekly";
         break;
       case TimeFilter.month:
-        filterQuery = "month";
+        endpoint = "/analytics/monthly";
         break;
     }
 
-    final Uri url = Uri.parse("$baseUrl/dashboard?filter=$filterQuery");
+    final Uri url = Uri.parse("$baseUrl$endpoint");
 
     try {
       // realizamos la petición GET a la URL
@@ -64,7 +66,9 @@ class ApiService {
       // Comprobamos si la respuesta es exitosa
       if (response.statusCode == 200) {
         // decodificamos el json y lo devolvemos
-        return json.decode(response.body);
+        final String responseBody = utf8.decode(response.bodyBytes);
+        print(responseBody);
+        return json.decode(responseBody);
       } else {
         // Si el servidor responde con un error
         throw Exception("Error del servidor: ${response.statusCode}");
