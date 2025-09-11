@@ -22,7 +22,7 @@ class MarkerBus2 extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Image.asset(
-              "assets/transurbano.jpg",
+              "assets/transmetro.jpg",
               height: 150,
               fit: BoxFit.cover,
             ),
