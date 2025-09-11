@@ -10,6 +10,34 @@ class ApiService {
   static Future<Map<String, dynamic>> fetchDashboardData({
     TimeFilter filter = TimeFilter.today,
   }) async {
+
+
+    if (filter == TimeFilter.map) {
+      final Uri url = Uri.parse("$baseUrl/live/bus/distances");
+      try {
+        final response = await http.get(url).timeout(const Duration(seconds: 10));
+
+        if (response.statusCode == 200) {
+          // Decodifico la respuesta directa del endpoint de distancias.
+          final rawData = json.decode(response.body);
+
+          // El valor pasa de double a int.
+          final int dist1 = (rawData['dist1'] ?? 0.0).toInt();
+          final int dist2 = (rawData['dist2'] ?? 0.0).toInt();
+
+          return {
+            "dist1": {"distance": dist1},
+            "dist2": {"distance": dist2}
+          };
+        } else {
+          throw Exception("Error del servidor: ${response.statusCode}");
+        }
+      } catch (e) {
+        throw Exception("Fallo al conectar el servidor. $e");
+      }
+    }
+
+
     // Convierte el enum a un string de la API
     final String filterQuery;
     switch (filter) {
