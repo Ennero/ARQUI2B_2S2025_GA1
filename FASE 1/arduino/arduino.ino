@@ -259,6 +259,8 @@ void manejarResetReed() {
 void inicializarPerifericos() {
   for (int i = 0; i < NUM_BOTONES; i++) {
     pinMode(PINES_BOTONES[i], INPUT_PULLUP);
+    pinMode(PINES_BUZZER[i], OUTPUT);
+    digitalWrite(PINES_BUZZER[i], LOW);
   }
   pinMode(MQ2_SENSOR_1, INPUT);
   pinMode(MQ2_SENSOR_2, INPUT);
