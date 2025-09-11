@@ -22,13 +22,13 @@ class MarkerPark extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Image.asset(
-              "assets/park.jpg", // 📌 coloca la imagen en assets
+              "assets/park.jpg", 
               height: 150,
               fit: BoxFit.cover,
             ),
             const SizedBox(height: 10),
             const Text(
-              "Espacio verde con áreas de recreación y descanso para los ciudadanos.",
+              "Oasis urbano para el encuentro y el descanso, donde la naturaleza y la vida citadina de la Zona 1 convergen.",
             ),
           ],
         ),

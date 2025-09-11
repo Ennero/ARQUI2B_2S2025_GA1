@@ -17,18 +17,18 @@ class MarkerBus extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Estación de Bus"),
+        title: const Text("Transurbano"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Image.asset(
-              "assets/transurbano.jpg", // 📌 coloca la imagen en assets
+              "assets/transurbano.jpg",
               height: 150,
               fit: BoxFit.cover,
             ),
             const SizedBox(height: 10),
             const Text(
-              "Punto de parada de buses urbanos, con acceso a múltiples rutas.",
+              "Movilidad urbana para el día a día; la ruta azul que te acerca a los puntos clave del Centro Histórico y más allá.",
             ),
           ],
         ),
@@ -57,7 +57,7 @@ class MarkerBus extends StatelessWidget {
         onTap: () => _showInfo(context),
         child: const Icon(
           Icons.directions_bus,
-          color: Colors.orange,
+          color: Color.fromARGB(255, 125, 202, 253),
           size: 30,
         ),
       ),
