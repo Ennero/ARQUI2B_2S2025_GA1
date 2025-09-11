@@ -23,6 +23,7 @@ SOFTWARE.
 '''
 import asyncio
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware  # ← IMPORTANTE: Agregar esto
 from contextlib import asynccontextmanager
 from fastapi.responses import ORJSONResponse
 from config.settings import settings
@@ -55,7 +56,16 @@ async def lifespan(app: FastAPI):
 application = FastAPI(
     title=settings.app_name, 
     lifespan=lifespan,
-    default_response_class=ORJSONResponse # Faster data serialization to JSON
+    default_response_class=ORJSONResponse
+)
+
+# ⭐⭐ SOLUCIÓN CORS - AGREGAR ESTAS 6 LÍNEAS ⭐⭐
+application.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # En producción, cambia a dominios específicos
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 @application.get("/health")

@@ -1,0 +1,58 @@
+{
+  "summary": {
+    "recorridoTransmetro": 395.3,
+    "recorridoTransurbano": 145.1,
+    "calidadAirePromedio": 170.8,
+    "alertasCriticas": 25.4
+  },
+  "detailedMetrics": [
+    {
+      "title": "Recorrido Transmetro (km)",
+      "timeSeries": [
+        { "label": "Día 1", "value": 55.8 },
+        { "label": "Día 2", "value": 68.2 },
+        { "label": "Día 3", "value": 51.5 },
+        { "label": "Día 4", "value": 65.1 },
+        { "label": "Día 5", "value": 49.9 },
+        { "label": "Día 6", "value": 52.7 },
+        { "label": "Día 7", "value": 52.1 }
+      ]
+    },
+    {
+      "title": "Recorrido Transurbano (km)",
+      "timeSeries": [
+        { "label": "Día 1", "value": 22.4 },
+        { "label": "Día 2", "value": 16.9 },
+        { "label": "Día 3", "value": 24.8 },
+        { "label": "Día 4", "value": 19.3 },
+        { "label": "Día 5", "value": 20.1 },
+        { "label": "Día 6", "value": 15.5 },
+        { "label": "Día 7", "value": 26.1 }
+      ]
+    },
+    {
+      "title": "Calidad del Aire (PM)",
+      "timeSeries": [
+        { "label": "Día 1", "value": 165.7 },
+        { "label": "Día 2", "value": 188.1 },
+        { "label": "Día 3", "value": 153.2 },
+        { "label": "Día 4", "value": 175.9 },
+        { "label": "Día 5", "value": 180.4 },
+        { "label": "Día 6", "value": 152.6 },
+        { "label": "Día 7", "value": 179.5 }
+      ]
+    },
+    {
+      "title": "Alertas Críticas",
+      "timeSeries": [
+        { "label": "Día 1", "value": 3.1 },
+        { "label": "Día 2", "value": 4.5 },
+        { "label": "Día 3", "value": 2.2 },
+        { "label": "Día 4", "value": 3.9 },
+        { "label": "Día 5", "value": 5.0 },
+        { "label": "Día 6", "value": 2.8 },
+        { "label": "Día 7", "value": 3.9 }
+      ]
+    }
+  ]
+}
