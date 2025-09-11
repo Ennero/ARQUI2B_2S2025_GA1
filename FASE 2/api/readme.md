@@ -32,6 +32,8 @@ First, ensure you the respective `.env` file with the correct credentials accord
 ```bash
     # Run App
     fastapi dev main.py
+    # New way with CORS
+    uvicorn main:application --reload --port 8000
 ```
 
 *You should get an output like this:*
