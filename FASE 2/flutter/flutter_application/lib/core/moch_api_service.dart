@@ -20,10 +20,10 @@ class MockApiService {
       final bus2Distance = random.nextInt(8) * 20;
 
       return {
-        "bus1": {
+        "dist1": {
           "distance": bus1Distance,
         },
-        "bus2": {
+        "dist2": {
           "distance": bus2Distance,
         }
       };
