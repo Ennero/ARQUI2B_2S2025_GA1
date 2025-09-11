@@ -20,3 +20,15 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/mapa.jpg
+    - assets/palacio.jpg
+    - assets/biblio.jpg
+    - assets/portal.jpg
+    - assets/parqueo.jpg
+    - assets/construccion.jpg
+    - assets/pollo.jpg
+    - assets/park.jpg
+    - assets/transurbano.jpg
+    - assets/transmetro.jpg
+ 
