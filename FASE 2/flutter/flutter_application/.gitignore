@@ -65,4 +65,4 @@ windows/flutter/generated_plugin_registrant.h
 windows/flutter/generated_plugins.cmake
 
 # Pantallas borradas que no deben versionarse
-#lib/screens/place_holder_screen.dart
+lib/screens/place_holder_screen.dart
