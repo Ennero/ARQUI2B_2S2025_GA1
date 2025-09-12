@@ -1,230 +1,224 @@
-
-# Documento de Diseño y Arquitectura del Sistema
+# Documento de Desarrollo y Resultados del Proyecto
 ## Proyecto: Gestión Inteligente de Tráfico y Seguridad Ciudadana (Fase 2)
 
-**Fecha:** 21 de agosto de 2025
-**Autores:**
+**Ingeniero**: JURGEN ANDONI RAMIREZ RAMÍREZ
 
+**Tutor:** AXEL ELÍ CALDERÓN BARRIENTOS
+
+**Fecha:** 06 de Septiembre de 2025  
+
+**Clase:** (779) Arquitectura de Computadoras y Ensambladores 2. Seccion B.
+
+**Fase:** Actualización de avances en lo planificado de la semana anterior
+
+**Fecha:** 12 de Septiembre de 2025
+## Grupo A,1 - Tutor 1
+
+#
+**Miembros del equipo:**
+#
 
 | Nombre del integrante                       | Carnet                           |
 |---------------------------------------------|----------------------------------|
-| MARCOS DANIEL BONIFASI DE LEÓN              | Backend/API                              | 
-| ALFREDO EMMANUEL DOMINGUEZ RODRIGUEZ        | Maqueta y documentación          | 
-| ALVARO HUMBERTO GARCIA OLIVAREZ             | App Flutter                      | 
-| ESTEBAN SANCHEZ TUCHEZ                      | Maqueta                          | 
-| JUAN JOSE SANDOVAL RUIZ                     | App Flutter                      | 
-| DAVID ESTUARDO BARRIOS RAMIREZ              | App Flutter                      | 
-| ENNER ESAÍ MENDIZABAL CASTRO                | Maqueta y documentación          | 
-| CARLOS JEZEH GEDEONI TOSCANO PALACIOS       | Backend/API y base de datos      |
+| MARCOS DANIEL BONIFASI DE LEÓN              | 202202410 | 
+| ALFREDO EMMANUEL DOMINGUEZ RODRIGUEZ        | 202300535 | 
+| ALVARO HUMBERTO GARCIA OLIVAREZ             | 199817948 | 
+| ESTEBAN SANCHEZ TUCHEZ                      | 202300710 | 
+| JUAN JOSE SANDOVAL RUIZ                     | 202300769 | 
+| DAVID ESTUARDO BARRIOS RAMIREZ              | 202300670 | 
+| ENNER ESAÍ MENDIZABAL CASTRO                | 202302220 | 
+| CARLOS JEZEH GEDEONI TOSCANO PALACIOS       | 201532643 |
 
 ---
 
 ## Índice
 
-- [Documento de Diseño y Arquitectura del Sistema](#documento-de-diseño-y-arquitectura-del-sistema)
-  - [Proyecto: Gestión Inteligente de Tráfico y Seguridad Ciudadana (Fase 1)](#proyecto-gestión-inteligente-de-tráfico-y-seguridad-ciudadana-fase-1)
-  - [Índice](#índice)
-    - [1. Resumen Ejecutivo](#1-resumen-ejecutivo)
-    - [2. Introducción](#2-introducción)
-      - [2.1. Justificación y Planteamiento del Problema](#21-justificación-y-planteamiento-del-problema)
-      - [2.2. Objetivos del Proyecto](#22-objetivos-del-proyecto)
-        - [**Objetivo General:**](#objetivo-general)
-        - [**Objetivos Específicos:**](#objetivos-específicos)
-    - [3. Alcance y Delimitaciones (Fase 1)](#3-alcance-y-delimitaciones-fase-1)
-      - [3.1. Alcance Funcional](#31-alcance-funcional)
-      - [3.2. Delimitaciones y Exclusiones](#32-delimitaciones-y-exclusiones)
-    - [4. Arquitectura del Sistema](#4-arquitectura-del-sistema)
-      - [4.1. Arquitectura de Hardware](#41-arquitectura-de-hardware)
-      - [4.2. Arquitectura de Software](#42-arquitectura-de-software)
-      - [4.3. Flujo de Datos y Comunicación](#43-flujo-de-datos-y-comunicación)
-    - [5. Metodología de Desarrollo](#5-metodología-de-desarrollo)
-  - [Diagramas](#diagramas)
-  - [Link de Github](#link-de-github)
-  - [Link de la simulacion](#link-de-la-simulacion)
-  - [6. Descripción Detallada del Prototipo Físico](#6-descripción-detallada-del-prototipo-físico)
-    - [6.1. Diseño y Construcción de la Maqueta](#61-diseño-y-construcción-de-la-maqueta)
-    - [6.2. Integración Electrónica y Cableado](#62-integración-electrónica-y-cableado)
-    - [6.3. Detalles de Funcionamiento](#63-detalles-de-funcionamiento)
-    - [6.4. Usos y Beneficios del Prototipo](#64-usos-y-beneficios-del-prototipo)
-      - [Usos:](#usos)
-      - [Beneficios:](#beneficios)
+- [1. Resumen](#1-resumen)
+- [2. Introducción](#2-introducción)
+  - [2.1. Justificación y Planteamiento del Problema](#21-justificación-y-planteamiento-del-problema)
+  - [2.2. Objetivos del Proyecto](#22-objetivos-del-proyecto)
+- [3. Alcance y Delimitaciones (Fase 2)](#3-alcance-y-delimitaciones-fase-2)
+  - [3.1. Alcance Funcional](#31-alcance-funcional)
+  - [3.2. Delimitaciones y Exclusiones](#32-delimitaciones-y-exclusiones)
+- [4. Arquitectura del Sistema](#4-arquitectura-del-sistema)
+  - [4.1. Arquitectura de Hardware](#41-arquitectura-de-hardware)
+  - [4.2. Arquitectura de Software](#42-arquitectura-de-software)
+  - [4.3. Flujo de Datos y Comunicación](#43-flujo-de-datos-y-comunicación)
+- [Diagramas](#diagramas)
+- [Link de Github](#link-de-github)
+- [Modelo 3D implementado en Maqueta Física](#modelo-3d-implementado-en-maqueta-física)
+- [6. Descripción Del trabajo de Software implementado](#6-descripción-del-trabajo-de-software-implementado)
+  - [6.1. Detalles de Funcionamiento](#61-detalles-de-funcionamiento)
+  - [6.2. Usos y Beneficios del Prototipo (Fase 2)](#62-usos-y-beneficios-del-prototipo-fase-2)
 
 ---
 
-### 1. Resumen Ejecutivo
+### 1. Resumen
 
-Este documento detalla el diseño, la arquitectura y el alcance de la **Fase 1** del proyecto "Sistema de Gestión Inteligente de Tráfico y Seguridad Ciudadana". El proyecto busca abordar los desafíos de movilidad y seguridad en el Centro Histórico de la Zona 1 de Guatemala mediante un prototipo a escala basado en tecnologías de Internet de las Cosas (IoT).
+Este documento presenta de manera detallada el desarrollo, resultados y aprendizajes obtenidos durante la Fase 2 del proyecto "Sistema de Gestión Inteligente de Tráfico y Seguridad Ciudadana". En esta etapa, el equipo se propuso evolucionar el prototipo inicial hacia una solución más robusta y funcional, integrando nuevas tecnologías y optimizando los procesos de monitoreo, comunicación y visualización de datos. La planeación fue exhaustiva, abarcando desde la definición de roles y tareas específicas para cada integrante, hasta la organización semanal de actividades y la gestión colaborativa en plataformas digitales.
 
-En esta fase inicial, el sistema se enfoca en el **monitoreo y la visualización local de datos**. Se implementará un prototipo físico que simula varias cuadras, intersecciones, paradas de transporte público y sitios históricos. Una red de sensores (ultrasónicos, de gas, piezoeléctricos) recolectará datos en tiempo real, los cuales serán procesados por una arquitectura de microcontroladores Arduino en configuración Master-Slave.
+Durante las tres semanas de trabajo, se abordaron retos técnicos y logísticos que requirieron una coordinación constante y la adaptación de estrategias. Se logró implementar una arquitectura distribuida basada en microcontroladores Arduino y Raspberry Pi, conectados a una red de sensores y actuadores que permitieron la recolección y procesamiento de datos en tiempo real. Además, se desarrolló una aplicación móvil en Flutter para la visualización remota y local de información relevante, y se integró un sistema de comunicación MQTT junto a una API y base de datos en MongoDB para la gestión eficiente de los datos.
 
-La información consolidada será enviada a una estación de monitoreo (computadora) a través de comunicación serial y visualizada en un **dashboard interactivo desarrollado en Processing**. Este sistema permitirá supervisar el estado de los semáforos, el flujo del transporte público y activar alertas audibles locales para incidentes como incendios, sismos o pánicos, sentando así las bases para futuras fases que integrarán Inteligencia Artificial y conectividad remota.
+![2](/FASE%202/docs/img/fase%202/S2-7.jpg)
+
+El equipo trabajó en la optimización del cableado y encapsulamiento de la maqueta física, facilitando el acceso y mantenimiento de los componentes electrónicos. Se realizaron pruebas exhaustivas de integración, depuración de errores y validación de funcionalidades, asegurando que el sistema respondiera correctamente ante eventos críticos como alertas de sismo, incendios y activación de botones de pánico. Cada componente, desde los sensores ultrasónicos y de gas, hasta los zumbadores y LEDs, fue seleccionado y configurado para cumplir con los objetivos planteados.
+
+ Los resultados obtenidos en esta fase sientan las bases para futuras mejoras e implementaciones a mayor escala, demostrando la viabilidad y el impacto positivo de la integración de tecnologías IoT, comunicación en tiempo real y visualización avanzada en el contexto de la seguridad y movilidad ciudadana.
 
 ---
 
 ### 2. Introducción
 
+
 #### 2.1. Justificación y Planteamiento del Problema
 
-El Centro Histórico de la Ciudad de Guatemala, como núcleo de gran valor patrimonial y alta densidad poblacional, enfrenta constantes desafíos en materia de movilidad urbana y seguridad ciudadana. La congestión vehicular, la gestión de emergencias y la necesidad de una respuesta rápida a incidentes de seguridad demandan soluciones tecnológicas innovadoras. Los sistemas tradicionales de gestión son a menudo reactivos y carecen de la capacidad de recopilar y analizar datos en tiempo real para una toma de decisiones proactiva.
+La Fase 2 del proyecto surge como respuesta a la necesidad de mejorar la gestión del tráfico y la seguridad ciudadana en entornos urbanos densos y complejos, como el Centro Histórico de la Ciudad de Guatemala. Los problemas de congestión vehicular, la falta de monitoreo en tiempo real y la limitada capacidad de respuesta ante emergencias evidencian la urgencia de implementar soluciones tecnológicas avanzadas. 
 
-Este proyecto se justifica por la necesidad de explorar y validar un modelo de "Ciudad Inteligente" a escala, utilizando tecnología accesible como IoT, que permita sentar las bases para un entorno urbano más seguro, eficiente y resiliente.
+El proyecto se justifica en la exploración y validación de un modelo de ciudad inteligente, donde la tecnología IoT nos ayudará en la comunicación en tiempo real y la visualización avanzada para crear un entorno urbano más seguro, eficiente y de calidad. La integración de sensores y microcontroladores (una raspberry pi), plataformas móviles (Flutter) y sistemas de comunicación permite abordar los retos actuales y sentar las bases para futuras expansiones y mejoras. Esta fase representa un avance significativo en la aplicación práctica de conceptos de smart cities, adaptados a las necesidades y recursos locales.
+
+![2](/FASE%202/docs/img/fase%202/2.jpg)
+#
 
 #### 2.2. Objetivos del Proyecto
 
 ##### **Objetivo General:**
 
-Diseñar, construir e implementar un prototipo funcional a escala de un sistema de monitoreo local para la gestión del tráfico y la seguridad ciudadana, utilizando una red de sensores controlada por microcontroladores Arduino y una interfaz de visualización en Processing.
+Diseñar, construir e implementar un sistema inteligente de monitoreo y gestión urbana, capaz de recolectar, procesar y visualizar datos en tiempo real sobre tráfico y seguridad ciudadana, utilizando una arquitectura distribuida basada en microcontroladores, sensores, comunicación intermediaria de MQTT, implementación de una API y una aplicación móvil en Flutter.
 
 ##### **Objetivos Específicos:**
 
-1.  **Construir** el prototipo físico (maqueta) que represente el entorno urbano simulado, incluyendo semáforos, rutas de transporte y puntos de interés.
-2.  **Integrar** los componentes de hardware, incluyendo sensores de distancia, humo, sismo y botones de pánico, con una arquitectura de control distribuido Master-Slave.
-3.  **Desarrollar** el firmware en `Arduino IDE` para la adquisición de datos de los sensores, la gestión de actuadores (LEDs, zumbadores) y la comunicación vía protocolo I2C y serial.
-4.  **Crear** una aplicación de escritorio en `Processing IDE` que funcione como dashboard para visualizar en tiempo real los datos recibidos del prototipo.
-5.  **Validar** el funcionamiento de los sistemas de alerta temprana para infracciones, incendios, sismos y pánico a través de notificaciones visuales y sonoras locales.
+1.  **Desarrollar** el firmware en Arduino IDE y la lógica de comunicación en Raspberry Pi, permitiendo la gestión de actuadores (LEDs, zumbadores) y la transmisión de datos vía MQTT y API.
+2.  **Crear** una aplicación móvil en Flutter y un dashboard web para la visualización en tiempo real de los datos recolectados y el estado del sistema.
+3.  **Validar** el funcionamiento de los sistemas de alerta temprana, visualización y registro de eventos críticos, asegurando la respuesta adecuada ante infracciones, incendios, sismos y pánico.
 
 ---
 
-### 3. Alcance y Delimitaciones (Fase 1)
+### 3. Alcance y Delimitaciones (Fase 2)
+
 
 #### 3.1. Alcance Funcional
 
-* **Simulación de Tráfico:** El sistema controlará un mínimo de dos intersecciones con semáforos y simulará el recorrido de dos rutas de transporte público (Transmetro y Transurbano) a lo largo de un circuito cerrado.
-* **Monitoreo de Sensores:** El sistema leerá y procesará datos de:
-    * Sensores ultrasónicos (`HC-SR04`) para detectar el paso de vehículos y medir la distancia a paradas.
-    * Sensores de gas (`MQ-02`) para la detección de posibles incendios en 2 sitios históricos.
-    * Un sensor piezoeléctrico para la simulación de detección de sismos.
-    * Múltiples botones de pánico para la activación manual de alertas.
-* **Sistema de Alertas Locales:** Activación de alarmas sonoras (zumbadores) y visuales (en el dashboard) de forma inmediata tras la detección de una anomalía (infracción, incendio, sismo, pánico).
-* **Visualización Centralizada:** Toda la información será presentada de forma gráfica y en tiempo real en un dashboard desarrollado en Processing, que se ejecutará en una computadora conectada directamente al prototipo vía USB.
+Todos los dispositivos que se habian interconectado y configurado en la Fase 1 del proyecto, están ahora conectados a una arquitectura distribuida basada en Arduino y Raspberry Pi, permitiendo la adquisición, procesamiento y transmisión eficiente de datos.
+#
+![2](/FASE%202/docs/img/fase%202/3.png)
+#
+
+El sistema de alertas fue optimizado para activar alarmas sonoras y visuales tanto en la maqueta física como en la aplicación móvil. La información recolectada se visualiza en tiempo real a través de interfaces desarrolladas en Flutter, facilitando la supervisión y toma de decisiones por parte de los usuarios. Además, se implementó una base de datos en MongoDB y comunicación MQTT para asegurar la persistencia y el flujo confiable de los datos entre los diferentes componentes del sistema.
 
 #### 3.2. Delimitaciones y Exclusiones
 
-Para mantener el enfoque en los objetivos de esta fase, las siguientes tecnologías y funcionalidades están **explícitamente fuera del alcance**:
-
-* **No se utilizará Raspberry Pi.** La lógica de control reside exclusivamente en los microcontroladores Arduino.
-* **No se implementarán algoritmos de Inteligencia Artificial.** No habrá procesamiento de video, reconocimiento facial, de matrículas o de objetos.
-* **No habrá conectividad a Internet o redes inalámbricas.** La comunicación es estrictamente local y por cable (USB Serial).
-* **No se utilizará comunicación MQTT, ni se desarrollará una API o base de datos.** Los datos son efímeros y solo se visualizan en tiempo real.
-* **No se desarrollará una aplicación móvil (Flutter).** El único punto de monitoreo es el dashboard en Processing.
+Para mantener el enfoque en los objetivos de la Fase 2, se establecieron ciertas delimitaciones y exclusiones. Aunque se avanzó en la integración de nuevas tecnologías, no se implementaron algoritmos de Inteligencia Artificial ni procesamiento de video, reconocimiento facial o de matrículas, ya que esa sería la siguiente y última Fase a realizar de este extenso proyecto. La conectividad a Internet se limitó a la comunicación entre dispositivos IoT y la base de datos, evitando la exposición de datos sensibles. 
+El sistema en si se centró en la gestión local y remota de información relevante para la seguridad y movilidad urbana. Las pruebas y validaciones se realizaron en un entorno controlado, asegurando la fiabilidad y estabilidad del prototipo antes de considerar una expansión a mayor escala.
 
 ---
 
 ### 4. Arquitectura del Sistema
 
+
 #### 4.1. Arquitectura de Hardware
 
-El sistema se basa en una arquitectura de control distribuido para garantizar la modularidad y escalabilidad.
+La arquitectura de hardware en la Fase 2 está compuesto por microcontroladores Arduino y Raspberry Pi, que actúan como nodos centrales y periféricos para la gestión de sensores y actuadores. Los sensores ultrasónicos, de gas, piezoeléctricos y botones de pánico están distribuidos estratégicamente en la maqueta física, pensada como si fuera a escala para así permitir la detección precisa de eventos críticos y fáciles de acudir. Los actuadores, como LEDs y zumbadores, se encargan de la señalización visual y sonora ante la ocurrencia de incidentes y alertas que disparen los sensores mediante IoT.
 
-* **Arduino Master:** Actúa como el cerebro del sistema. Su función es centralizar la información recibida de los nodos esclavos, tomar decisiones globales (como registrar una alerta) y gestionar la comunicación serial con la computadora que ejecuta el dashboard.
-* **Red de Sensores y Actuadores:** Los sensores (HC-SR04, MQ-02, etc.) y actuadores (LEDs, zumbadores) están conectados a los Arduinos , que se encargan de su lectura y activación directa.
+El cableado y encapsulamiento fueron optimizados para facilitar el acceso y la reparación de componentes, reduciendo el riesgo de fallos a la hora de dañar o desconectar cables y mejorando la eficiencia en las pruebas. La comunicación entre los microcontroladores se realiza mediante protocolos seriales y MQTT, asegurando la transmisión confiable de datos hacia la base de datos y las interfaces de usuario. Esta arquitectura permite la integración de nuevos dispositivos y la expansión del sistema sin afectar la funcionalidad principal.
+#
+![](/FASE%202/docs/img/fase%202/Doc-2.jpg)
+#
+
 
 #### 4.2. Arquitectura de Software
 
-El software se divide en dos componentes principales que operan en tándem:
+El software del sistema se compone de varios módulos que interactúan de manera coordinada para garantizar la adquisición, procesamiento y visualización eficiente de los datos. El firmware de Arduino se encarga de la lectura de sensores y la gestión de actuadores, enviando la información relevante a la Raspberry Pi y al sistema central. La Raspberry Pi ejecuta scripts en Python para la comunicación MQTT, el manejo de la API y la transmisión de datos hacia la base de datos MongoDB.
 
-* **Firmware de Arduino (C/C++ en Arduino IDE):**
-    * **Lógica del Master:** Programa que sondea constantemente , recibe y decodifica sus mensajes, y traduce esta información a una trama de datos simple (ej. una cadena de texto separada por comas) que envía a través del puerto serie (USB).
-
-* **Dashboard de Visualización (Java en Processing IDE):**
-    * **Receptor Serial:** El programa escucha activamente el puerto serie para recibir los datos enviados por el Arduino Master.
-    * **Parser de Datos:** Una vez recibida la trama de datos, se divide y se interpreta para actualizar las variables internas del programa (ej. estado del semáforo 1, nivel de humo del sensor 2, etc.).
-    * **Motor de Renderizado Gráfico:** Utiliza las funciones gráficas de Processing para dibujar y actualizar en tiempo real el estado del sistema en la pantalla, incluyendo mapas, indicadores, gráficos y alertas.
+La visualización de los datos se realiza a través de una aplicación móvil en Flutter, el cual esta diseñado para mostrar en tiempo real una pagina de inicio, una pestaña del control de datos de los sensores, rutas de transporte, notificaciones, etc. 
+#
+![](/FASE%202/docs/img/fase%202/S2-7.jpg)
+#
+![](/FASE%202/docs/img/fase%202/S2-8.jpg)
+#
+![](/FASE%202/docs/img/fase%202/S2-9.jpg)
+#
+![](/FASE%202/docs/img/fase%202/S2-10.jpg)
+#
+![](/FASE%202/docs/img/fase%202/S3-11.jpg)
+#
+![](/FASE%202/docs/img/fase%202/Doc-16.jpg)
+**NOTA:** Si no se configura bien correctamente la API, entonces no va a funcionar en su totalidad la app movil. 
+#
+![](/FASE%202/docs/img/fase%202/Doc-15.jpg)
+#
 
 #### 4.3. Flujo de Datos y Comunicación
 
-El flujo de información sigue una secuencia lógica y jerárquica:
+El flujo de datos en la Fase 2 se diseñó para ser eficiente, seguro y escalable. Los sensores distribuidos en la maqueta capturan eventos físicos como movimiento, presencia de humo, vibraciones y activación de botones de pánico. Los microcontroladores procesan estos datos localmente y, en caso de detectar una situación relevante, activan los actuadores correspondientes y envían la información a la Raspberry Pi.
 
-1.  **Captura:** Los sensores en el prototipo capturan un evento físico (movimiento, humo, etc.).
-2.  **Procesamiento Local:** El Arduino más cercano lee el sensor, interpreta el dato y, si es necesario, activa una respuesta local inmediata (ej. un zumbador).
-3.  **Consolidación:** El arduino recibe la información y la agrega a su estado general del sistema.
-4.  **Transmisión:** El arduino envía el estado actualizado del sistema a la computadora a través del puerto USB-Serial.
-5.  **Visualización:** El programa en Processing recibe, interpreta y muestra la información en el dashboard para el supervisor.
+La Raspberry Pi actúa como intermediario, consolidando los datos y transmitiéndolos mediante MQTT y API al backend y la base de datos MongoDB. El backend procesa y almacena los datos, permitiendo su consulta y visualización en tiempo real a través de la aplicación móvil. Este flujo asegura que los usuarios reciban alertas inmediatas y puedan supervisar el estado del sistema desde cualquier dispositivo autorizado, facilitando la gestión eficiente de la seguridad y movilidad urbana.
 
----
+#
+![](/FASE%202/docs/img/fase%202/1.jpg)
+#
+![](/FASE%202/docs/img/fase%202/S3-6.jpg)
+#
 
-### 5. Metodología de Desarrollo
-
-El proyecto se ejecutará siguiendo una metodología iterativa, dividida en las siguientes etapas:
-
-1.  **Fase 1: Diseño y Planificación:** Definición detallada de los requisitos, selección final de componentes y diseño de los circuitos electrónicos y la maqueta.
-2.  **Fase 2: Montaje del Prototipo:** Ensamblaje físico de la maqueta, instalación de todos los sensores, actuadores y cableado de los microcontroladores.
-3.  **Fase 3: Desarrollo de Software:**
-    * Programación y prueba individual.
-    * Desarrollo incremental del dashboard en Processing.
-4.  **Fase 4: Integración y Pruebas:** Conexión de todos los subsistemas (hardware y software) y realización de pruebas integrales para verificar que el sistema cumple con todos los objetivos funcionales definidos.
-
----
 ## Diagramas 
 
-![diagrama1](../img/Diagrama1.png)
+1. Arquitectura general (Fase 2)
+#
+![](/FASE%202/docs/img/fase%202/diagrama1.png)
+#
 
-![diagrama2](../img/Diagrma2.png)
+2. Flujo de mensajes
+#
+![](/FASE%202/docs/img/fase%202/diagrama%202.png)
+#
 
 ## Link de Github
 
 https://github.com/Ennero/ARQUI2B_2S2025_GA1
 
-## Link de la simulacion      
-![midelado](../img/modelado.png)
+## Modelo 3D implementado en Maqueta Física
+#
+![](/FASE%202/docs/img/fase%202/Doc-1.jpg)
+#
 
-https://app.sketchup.com/share/tc/northAmerica/aJ2IbRWgOl0?stoken=XyzgiDlDwOA2tYNCufjUEXr-pC4gbiujco70CVSAYh1IWYxRf9vRuN2l5BS9yo0-&source=web
+## 6. Descripción Del trabajo de Software implementado
 
-## 6. Descripción Detallada del Prototipo Físico
+El trabajo de software implementado en la Fase 2 fue fundamental para lograr la integración y el funcionamiento eficiente del sistema de monitoreo inteligente. Se desarrolló el firmware para los microcontroladores Arduino, encargado de la lectura de sensores y la gestión de actuadores como LEDs y zumbadores. Además, se programó la Raspberry Pi para actuar como intermediario en la comunicación, utilizando MQTT y una API para transmitir los datos hacia la base de datos MongoDB y la aplicación móvil en Flutter.
 
-El prototipo físico es el componente central de la Fase 1 del proyecto, sirviendo como una representación tangible y funcional del sistema de monitoreo propuesto. A continuación, se detallan sus características, funcionamiento y beneficios.
+La aplicación móvil en Flutter fue diseñada para mostrar en tiempo real la información recolectada por los sensores, permitiendo a los usuarios visualizar el estado de los semáforos, rutas de transporte, notificaciones y alertas de seguridad. El sistema permite la activación de alarmas sonoras y visuales ante eventos críticos, como la detección de humo, sismos o la pulsación de botones de pánico. Todo el flujo de datos está optimizado para garantizar la respuesta inmediata y la confiabilidad en la transmisión de información.
 
-### 6.1. Diseño y Construcción de la Maqueta
+### 6.1. Detalles de Funcionamiento
 
-La maqueta ha sido construida a escala para representar un sector del Centro Histórico de la Zona 1 de Guatemala. Se utilizaron materiales de bajo costo como cartón y elementos impresos para modelar los edificios, calles, paradas de autobús y puntos de interés histórico. El diseño busca no solo ser funcional, sino también visualmente representativo del entorno que se pretende monitorear, 
+El sistema opera como un ecosistema cohesivo donde cada componente cumple una función específica. Por ejemplo, cuando un vehículo simulado avanza por su ruta, el sensor ultrasónico HC-SR04 detecta su presencia y el Arduino procesa el dato, activando los semáforos y enviando la información a la Raspberry Pi. Esta, a su vez, transmite los datos mediante MQTT y la API hacia la base de datos y la app móvil.
 
-El modelo incluye elementos clave como edificios emblemáticos, rutas de transporte público simuladas y la distribución de banderas que refuerzan el contexto geográfico del proyecto.
+La aplicación móvil recibe y muestra en tiempo real los eventos detectados, como el paso de vehículos, la activación de alarmas por humo, sismos o botones de pánico. Los zumbadores y LEDs se activan localmente en la maqueta para alertar a los usuarios presentes, mientras que las notificaciones llegan a la app móvil para informar a los responsables del monitoreo. Este flujo garantiza que tanto la supervisión local como remota sean efectivas y rápidas.
 
-### 6.2. Integración Electrónica y Cableado
+### 6.2. Usos y Beneficios del Prototipo (Fase 2)
 
-El verdadero cerebro del prototipo reside bajo la superficie.  un complejo sistema de cableado interconecta todos los componentes electrónicos. Este "sistema nervioso" es responsable de llevar la energía y los datos entre los microcontroladores Arduino y la red de sensores y actuadores distribuidos por toda la maqueta.
-Cada grupo de cables conecta un componente específico:
-
-- Sensores ultrasónicos (HC-SR04) para la detección de vehículos.
-
-- Sensores de gas (MQ-02) ubicados estratégicamente en los "sitios históricos".
-
-- LEDs que fungen como semáforos en las intersecciones.
-
-- Pulsadores que actúan como botones de pánico.
-
-- Zumbadores para las alarmas sonoras.
-
-La organización de este cableado fue crucial para asegurar el correcto funcionamiento y facilitar la depuración de errores durante las fases de prueba.
-
-### 6.3. Detalles de Funcionamiento
-El prototipo opera como un ecosistema cohesivo donde cada componente tiene un rol definido. Un ejemplo de flujo de trabajo es el siguiente:
-
-- **Detección de Vehículo:** Un carrito simulando una unidad de Transmetro avanza por su ruta. Al pasar por un punto estratégico, un sensor ultrasónico HC-SR04 detecta su presencia.
-
-- **Centralización y Envío:** El Arduino recibe el mensaje, lo formatea en una trama de datos y lo envía por el puerto serie (USB) a la computadora.
-
-- **Visualización:** El dashboard en Processing recibe la trama, la decodifica y actualiza la interfaz gráfica, mostrando un ícono del bus moviéndose a la "Parada X" en el mapa digital.
-
-- **Este mismo principio se aplica para las alertas:** una pulsación de un botón de pánico o la detección de humo activan un zumbador local de forma instantánea y, simultáneamente, envían una alerta al dashboard para el registro central.
-
-### 6.4. Usos y Beneficios del Prototipo
-Más allá de ser un entregable del proyecto, el prototipo ofrece varios usos y beneficios clave:
+El prototipo desarrollado en la Fase 2 ofrece múltiples usos y beneficios que demuestran la efectividad de la integración tecnológica alcanzada:
 
 #### Usos:
 
-- **Prueba de Concepto (PoC):** Demuestra de manera práctica y funcional la viabilidad de un sistema de monitoreo urbano basado en IoT con tecnología de bajo costo.
+- **Prueba de Concepto (PoC):** Demuestra la viabilidad de un sistema de monitoreo urbano inteligente basado en IoT, con integración de sensores, microcontroladores y una app móvil.
+- **Plataforma de Desarrollo y Pruebas:** Permite depurar y mejorar el código, la lógica de control y la comunicación entre dispositivos en un entorno controlado antes de escalar el sistema.
+- **Herramienta de Demostración Visual y Práctica:** Facilita la explicación de conceptos de ciudades inteligentes y sistemas IoT a estudiantes, docentes y público general, mostrando la interacción entre hardware y software en tiempo real.
 
-- **Plataforma de Desarrollo y Pruebas:** Permite depurar el código y la lógica de control en un entorno controlado antes de considerar una implementación a mayor escala.
-
-- **Herramienta de Demostración Visual:** Sirve como un excelente recurso educativo para explicar conceptos de "Ciudades Inteligentes" a audiencias no técnicas, mostrando la interacción tangible entre el mundo físico y su representación digital.
-
-#### Beneficios:
-
-- **Tangibilidad:** Convierte una idea abstracta de software y sensores en un producto físico que se puede ver y con el que se puede interactuar, facilitando la comprensión del sistema.
-
-- **Detección Temprana de Desafíos:** La construcción física del prototipo permite identificar problemas prácticos (ej. interferencia entre sensores, complejidad del cableado, limitaciones de energía) que no son evidentes en la fase de diseño teórico.
-
-- **Modularidad Validada:** La arquitectura Master-Slave implementada en el prototipo demuestra que el sistema es escalable. Se podrían agregar más "cuadras" o tipos de sensores (nuevos Arduinos Esclavos) sin alterar el núcleo del sistema.
-
-- **Validación del Flujo de Datos:** Permite confirmar que el flujo de información, desde el sensor hasta el dashboard, es rápido, confiable y se presenta de manera correcta al usuario final.
+#### Anexos: 
+#
+![](/FASE%202/docs/img/fase%202/Doc-3.jpg)
+#
+![](/FASE%202/docs/img/fase%202/Doc-5.jpg)
+#
+![](/FASE%202/docs/img/fase%202/Doc-7.jpg)
+#
+![](/FASE%202/docs/img/fase%202/Doc-8.jpg)
+#
+![](/FASE%202/docs/img/fase%202/Doc-10.jpg)
+#
+![](/FASE%202/docs/img/fase%202/Doc-11.jpg)
+#
+![](/FASE%202/docs/img/fase%202/Doc-12.jpg)
+#
+![](/FASE%202/docs/img/fase%202/Doc-13.jpg)
+#
+![](/FASE%202/docs/img/fase%202/Doc-14.jpg)
+#
