@@ -56,7 +56,7 @@ class MarkerHotel extends StatelessWidget {
       child: GestureDetector(
         onTap: () => _showInfo(context),
         child: const Icon(
-          Icons.hotel,
+          Icons.apartment,
           color: Colors.blueGrey,
           size: 40,
         ),
