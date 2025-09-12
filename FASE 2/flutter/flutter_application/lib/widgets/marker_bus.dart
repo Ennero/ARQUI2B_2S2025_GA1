@@ -12,25 +12,29 @@ class MarkerBus extends StatelessWidget {
     required this.imageOffset,
   });
 
-  // Función para mostrar ventana emergente con foto y descripción
+  // Función para mostrar ventana emergente con tabla de ruta
   void _showInfo(BuildContext context) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Transurbano"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.asset(
-              "assets/transurbano.jpg",
-              height: 150,
-              fit: BoxFit.cover,
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              "Movilidad urbana para el día a día; la ruta azul que te acerca a los puntos clave del Centro Histórico y más allá.",
-            ),
-          ],
+        title: const Text("Ruta Transurbano"),
+        content: SingleChildScrollView(
+          child: DataTable(
+            columns: const [
+              DataColumn(label: Text("Parada")),
+              DataColumn(label: Text("Descripción")),
+            ],
+            rows: const [
+              DataRow(cells: [
+                DataCell(Text("1")),
+                DataCell(Text("Palacio Nacional de la Cultura")),
+              ]),              
+              DataRow(cells: [
+                DataCell(Text("2")),
+                DataCell(Text("David Campero")),
+              ]),              
+            ],
+          ),
         ),
         actions: [
           TextButton(
@@ -51,13 +55,13 @@ class MarkerBus extends StatelessWidget {
     );
 
     return Positioned(
-      left: abs.dx - 25, // centra el icono
-      top: abs.dy - 25,
+      left: abs.dx - 20, // ajuste con size 30
+      top: abs.dy - 20,
       child: GestureDetector(
         onTap: () => _showInfo(context),
         child: const Icon(
           Icons.directions_bus,
-          color: Color.fromARGB(255, 125, 202, 253),
+          color: Colors.blueAccent,
           size: 30,
         ),
       ),
