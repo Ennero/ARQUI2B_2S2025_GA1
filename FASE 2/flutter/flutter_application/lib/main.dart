@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application/core/app_colors.dart';
 import 'package:flutter_application/core/text_style.dart';
 import 'package:flutter_application/screens/app_navigator_bar.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart'; 
 
-void main() {
+Future<void> main() async { // ← ahora es async
+  WidgetsFlutterBinding.ensureInitialized(); // ← requerido antes de cargar assets
+  await dotenv.load(fileName: '.env'); // ← carga variables del .env
   runApp(const MainApp());
 }
 
@@ -13,7 +16,6 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // Establece el tema global de la aplicación
       theme: ThemeData(
         scaffoldBackgroundColor: AppColors.appBackground, 
         appBarTheme: AppBarTheme(
@@ -28,8 +30,7 @@ class MainApp extends StatelessWidget {
           labelLarge: TextStyles.button,
         ),
       ),
-      home: AppNavigatorBar (),
+      home: AppNavigatorBar(),
     );
   }
-
 }
