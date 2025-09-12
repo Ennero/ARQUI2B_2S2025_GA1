@@ -66,3 +66,6 @@ windows/flutter/generated_plugins.cmake
 
 # Pantallas borradas que no deben versionarse
 lib/screens/place_holder_screen.dart
+
+# Environment files (do not commit secrets)
+.env

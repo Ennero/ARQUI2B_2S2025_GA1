@@ -1,9 +1,15 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/notificacion_model.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class NotificationService {
-  static const String baseUrl = 'http://localhost:8000';
+  // Lee la URL del servicio de notificaciones desde .env
+  // Preferimos NOTIF_BASE_URL, si no existe usamos BASE_URL, y como último recurso localhost
+  static String get baseUrl =>
+      dotenv.env['NOTIF_BASE_URL'] ??
+      dotenv.env['BASE_URL'] ??
+      'http://localhost:8000';
 
   // Headers para intentar evitar CORS
   static const Map<String, String> headers = {
