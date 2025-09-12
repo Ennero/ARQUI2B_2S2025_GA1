@@ -13,7 +13,10 @@ import 'package:flutter_application/widgets/marker_park.dart';
 import 'package:flutter_application/widgets/marker_parqueo.dart';
 import 'package:flutter_application/widgets/marker_pollo.dart';
 import 'package:flutter_application/widgets/market_bus2.dart';
+import 'package:flutter_application/widgets/marker_infobus.dart';
+import 'package:flutter_application/widgets/marker_infotren.dart';
 
+// Pantalla del mapa con marcadores y buses en movimiento
 class MapaScreen extends StatefulWidget {
   const MapaScreen({super.key});
 
@@ -21,23 +24,29 @@ class MapaScreen extends StatefulWidget {
   State<MapaScreen> createState() => _MapaScreenState();
 }
 
+// Estado de la pantalla del mapa
 class _MapaScreenState extends State<MapaScreen> {
+  // OFFSETS FIJOS
   // Desplazamiento para el Transmetro.
-  static const int transmetroOffset = 140;
-
+  static const int transmetroOffset = 143;
   // Desplazamiento para el Transurbano.
-  static const int transurbanoOffset = 165;
+  static const int transurbanoOffset = 155;
 
   // Constante para el padding del panel
   static const _panelPadding = 5.0;
 
-  // Timer para actualizar las posiciones cada cierto tiempo
-  Timer? _timer;
+  // --- Temporizadores ---
+  Timer? _fetchDataTimer; // Timer para obtener datos de la API (cada 4s)
+  Timer? _animationTimer; // Timer para la animación fluida (cada 250ms)
 
-  // Variables de estado para los datos de la API
-  // Se eliminó la variable del Timer
+  // --- Variables de estado para los datos ---
   bool _isLoading = true;
   String? _error;
+  // _distanciaObtenida: Último valor real de la API.
+  int _distanciaObtenida1 = 0;
+  int _distanciaObtenida2 = 0;
+
+  // _dist: Valor animado que se muestra en la UI y mueve el bus.
   int _dist1 = 0;
   int _dist2 = 0;
 
@@ -50,18 +59,30 @@ class _MapaScreenState extends State<MapaScreen> {
   final Offset hotelRel = const Offset(0.51, 0.827);
   final Offset polloRel = const Offset(1 - 0.183, 0.827);
 
+  final Offset busInfoRel = const Offset(0.454, 0.308);
+  final Offset busInfoRel2 = const Offset(0.596, 0.9325);
+
+  final Offset trenInfoRel = const Offset(0.1668, 0.7425);
+  final Offset trenInfoRel2 = const Offset(0.88578, 0.6123);
+
+
   // Posiciones relativas para transmetro
-  static const Offset pp1 = Offset(0.067, 0.037);
-  static const Offset pp2 = Offset(0.982, 0.037);
-  static const Offset pp3 = Offset(0.982, 0.9972);
-  static const Offset pp4 = Offset(0.067, 0.9972);
+  static const Offset pp1 = Offset(0.055, 0.03); // izquierda-arriba
+  static const Offset pp2 = Offset(0.973, 0.03); // derecha-arriba
+  static const Offset pp3 = Offset(0.973, 0.9915); // derecha-abajo
+  static const Offset pp4 = Offset(0.055, 0.9915); // izquierda-abajo
+
+  // Posición especial para el transmetro (centro del mapa)
+  final Offset posicionEspecialTransmetro = const Offset(0.055, 0.748);
+
 
   // Posiciones relativas para transurbano
-  static const Offset p1 = Offset(0.3605, 0.245);
-  static const Offset p2 = Offset(0.6785, 0.245);
-  static const Offset p3 = Offset(0.6785, 0.9972);
-  static const Offset p4 = Offset(0.3605, 0.9972);
+  static const Offset p1 = Offset(0.355, 0.237); // izquierda-arriba
+  static const Offset p2 = Offset(0.677, 0.237); // derecha-arriba
+  static const Offset p3 = Offset(0.677, 0.99); // derecha-abajo
+  static const Offset p4 = Offset(0.355, 0.99); // izquierda-abajo
 
+  // Posiciones actuales de los buses (inicialmente en p1 y pp1)
   Offset _bus1Position = pp1;
   Offset _bus2Position = p1;
 
@@ -75,17 +96,63 @@ class _MapaScreenState extends State<MapaScreen> {
   void initState() {
     super.initState();
     _resolveMapImage();
+    _fetchBusData(); // Primera llamada para obtener datos
 
-    //Calcula la posición inicial del transurbano y transmetro
-    _bus1Position = _calculateTransPosition(_dist1);
-    _bus2Position = _calculateBusPosition(_dist2);
-
-    // Se mantiene la primera llamada para cargar los datos al entrar
-    _fetchBusData();
-
-    _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
+    // Timer para obtener datos de la API cada 4 segundos
+    _fetchDataTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
       _fetchBusData();
     });
+
+    // Timer para la animación, se ejecuta 4 veces por segundo
+    _animationTimer = Timer.periodic(const Duration(milliseconds: 250), (
+      timer,
+    ) {
+      _updateBusAnimation();
+    });
+  }
+
+  // Funcion para actualizar la animación de los buses
+  void _updateBusAnimation() {
+    if (!mounted || _isLoading) return; // No animar si está cargando
+
+    bool needsUiUpdate = false;
+    int nextDist1 = _dist1;
+    int nextDist2 = _dist2;
+
+    // Lógica de animación para Transmetro
+    const int limiteAvanceTransmetro = 32;
+    bool enParadaTransmetro =
+        _distanciaObtenida1 == 0 ||
+        _distanciaObtenida1 == 120 ||
+        _distanciaObtenida1 == 360;
+
+    // Si no está paraado y no ha avanzado más allá del límite, avanza.
+    if (!enParadaTransmetro &&
+        _dist1 < _distanciaObtenida1 + limiteAvanceTransmetro) {
+      nextDist1++; // Avanza 1cm cada 250ms (4cm/s)
+      needsUiUpdate = true;
+    }
+
+    // Lógica de animación para Transurbano
+    const int limiteAvanceTransurbano = 16;
+    bool enParadaTransurbano =
+        _distanciaObtenida2 % 80 == 0; // Parada cada 80cm
+
+    // Si no está paraado y no ha avanzado más allá del límite, avanza.
+    if (!enParadaTransurbano &&
+        _dist2 < _distanciaObtenida2 + limiteAvanceTransurbano) {
+      nextDist2++; // Avanza 1cm cada 250ms (4cm/s)
+      needsUiUpdate = true;
+    }
+
+    // Si hubo un cambio, actualiza el estado y la posición de los buses
+    if (needsUiUpdate) {
+      setState(() {
+        _dist1 = nextDist1;
+        _dist2 = nextDist2;
+        _updateBusPositions(); // Recalcula la posición en el mapa
+      });
+    }
   }
 
   Future<void> _fetchBusData() async {
@@ -93,27 +160,24 @@ class _MapaScreenState extends State<MapaScreen> {
       final data = await DataRepository.fetchDashboardData(
         filter: TimeFilter.map,
       );
-
-      // Recibimos la distancia "real" de la API.
+      // Extrae las distancias del JSON, con valor por defecto 0
       final int rawDist1 = data['dist1']?['distance'] ?? 0;
       final int rawDist2 = data['dist2']?['distance'] ?? 0;
 
-      // Le sumamos nuestro desplazamiento para obtener la distancia "visual".
-      final int newDist1 = rawDist1 + transmetroOffset;
-      final int newDist2 = rawDist2 + transurbanoOffset;
-
-      // El resto de la función usa los nuevos valores y funciona igual que antes.
-      final newBus1Position = _calculateTransPosition(newDist1);
-      final newBusPosition = _calculateBusPosition(newDist2);
-
+      // Actualiza el estado solo si el widget sigue montado
       if (mounted) {
         setState(() {
-          // Guardamos la distancia real, no la visual, para evitar acumular offsets.
-          _dist1 = rawDist1;
-          _dist2 = rawDist2;
+          // Guarda el valor real de la API
+          _distanciaObtenida1 = rawDist1;
+          _distanciaObtenida2 = rawDist2;
 
-          _bus1Position = newBus1Position;
-          _bus2Position = newBusPosition;
+          // Resetea la distancia animada al nuevo valor obtenido
+          _dist1 = _distanciaObtenida1;
+          _dist2 = _distanciaObtenida2;
+
+          // Calcula la posición inicial con los nuevos datos
+          _updateBusPositions();
+
           _isLoading = false;
           _error = null;
         });
@@ -121,11 +185,39 @@ class _MapaScreenState extends State<MapaScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _error = "Error al obtener datos";
+          _error = "Error al obtener datos del servidor.";
           _isLoading = false;
         });
       }
     }
+  }
+
+  // Función para actualizar las posiciones de los buses en el mapa
+  void _updateBusPositions() {
+    // Transmetro
+    if (_dist1 == 120) {
+      _bus1Position = posicionEspecialTransmetro;
+    } else {
+      final int visualDist1 = _dist1 + transmetroOffset;
+      _bus1Position = _calculateTransPosition(visualDist1);
+    }
+
+    // Transurbano
+    final int visualDist2 = _dist2 + transurbanoOffset;
+    _bus2Position = _calculateBusPosition(visualDist2);
+  }
+
+  @override
+  void dispose() {
+    // Cancelar timers y listeners para evitar fugas de memoria
+    _fetchDataTimer?.cancel();
+    _animationTimer?.cancel();
+
+    // Remover listener de la imagen del mapa
+    if (_imageStreamListener != null) {
+      _imageStream?.removeListener(_imageStreamListener!);
+    }
+    super.dispose();
   }
 
   void _resolveMapImage() {
@@ -141,16 +233,6 @@ class _MapaScreenState extends State<MapaScreen> {
       }
     });
     _imageStream?.addListener(_imageStreamListener!);
-  }
-
-  @override
-  void dispose() {
-    // Cancelar el timer si está activo
-    _timer?.cancel();
-    if (_imageStreamListener != null) {
-      _imageStream?.removeListener(_imageStreamListener!);
-    }
-    super.dispose();
   }
 
   Size _fittedSize(Size src, Size dest) {
@@ -270,6 +352,26 @@ class _MapaScreenState extends State<MapaScreen> {
                     imageSize: displayedSize,
                     imageOffset: imageOffset,
                   ),
+                  MarkerInfoBus(
+                    relativePos: busInfoRel,
+                    imageSize: displayedSize,
+                    imageOffset: imageOffset,
+                  ),
+                  MarkerInfoBus(
+                    relativePos: busInfoRel2,
+                    imageSize: displayedSize,
+                    imageOffset: imageOffset,
+                  ),
+                  MarkerInfoTren(
+                    relativePos: trenInfoRel,
+                    imageSize: displayedSize,
+                    imageOffset: imageOffset,
+                  ),
+                  MarkerInfoTren(
+                    relativePos: trenInfoRel2,
+                    imageSize: displayedSize,
+                    imageOffset: imageOffset,
+                  ),
                 ],
               );
             },
@@ -298,23 +400,133 @@ class _MapaScreenState extends State<MapaScreen> {
         ),
       );
     }
+
+    // LOGICA PARA TRANSURBANO
+    const int longitudTramo = 80;
+    final int avanceEnTramo = _dist2 % longitudTramo;
+
+    // Si está justo en una parada, la distancia faltante es 0.
+    final int distanciaFaltanteTransurbano = (avanceEnTramo == 0)
+        ? 0
+        : longitudTramo - avanceEnTramo;
+
+    // Calcular el tiempo aproximado en segundos (1 cm = 0.15 segundos)
+    final double tiempoFaltanteTransurbano =
+        distanciaFaltanteTransurbano * 0.15;
+
+    // LÓGICA PARA TRANSMETRO
+    int distanciaFaltanteTransmetro;
+
+    // Si está en una de las paradas clave, la distancia faltante es 0.
+    if (_dist1 == 0 || _dist1 == 120 || _dist1 == 360) {
+      distanciaFaltanteTransmetro = 0;
+    }
+    // Si está en el primer tramo (después de 0 y hasta 120), la próxima parada es 120.
+    else if (_dist1 > 0 && _dist1 < 120) {
+      distanciaFaltanteTransmetro = 120 - _dist1;
+    }
+    // Si está en el segundo tramo (después de 120 y hasta 360), la próxima parada es 360.
+    else {
+      distanciaFaltanteTransmetro = 360 - _dist1;
+    }
+
+    // Calcular el tiempo aproximado en segundos (1 cm = 0.15 segundos)
+    final double tiempoFaltanteTransmetro = distanciaFaltanteTransmetro * 0.15;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          'Recorrido del transmetro: $_dist1 cm',
-          style: TextStyles.body.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+        // BLOQUE TRANSMETRO
+        Row(
+          children: [
+            Container(
+              width: 12,
+              height: 12,
+              decoration: BoxDecoration(
+                color: AppColors.vibrantGreen,
+                borderRadius: BorderRadius.circular(3),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'TRANSMETRO - próxima parada',
+              style: TextStyles.body.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+
+        // Padding para indentar los detalles
+        Padding(
+          padding: const EdgeInsets.only(left: 20.0),
+          // AHORA ES UNA FILA (ROW) PARA PONER LOS TEXTOS LADO A LADO
+          child: Row(
+            children: [
+              Text(
+                'Distancia aprox: $distanciaFaltanteTransmetro cm', // Texto abreviado
+                style: TextStyles.body.copyWith(
+                  color: Colors.white.withOpacity(0.8),
+                ),
+              ),
+              const SizedBox(width: 16), // Espacio entre los dos textos
+              Text(
+                'Tiempo aprox: ${tiempoFaltanteTransmetro.toStringAsFixed(1)} s', // Texto abreviado
+                style: TextStyles.body.copyWith(
+                  color: Colors.white.withOpacity(0.8),
+                ),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 4),
-        Text(
-          'Recorrido del transurbano: $_dist2 cm',
-          style: TextStyles.body.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+        const SizedBox(height: 16),
+
+        // BLOQUE TRANSURBANO
+        Row(
+          children: [
+            Container(
+              width: 12,
+              height: 12,
+              decoration: BoxDecoration(
+                color: Colors.blue,
+                borderRadius: BorderRadius.circular(3),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'TRANSURBANO - próxima parada',
+              style: TextStyles.body.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+
+        Padding(
+          padding: const EdgeInsets.only(left: 20.0),
+          child: Row(
+            children: [
+              Text(
+                'Distancia aprox: $distanciaFaltanteTransurbano cm', // Texto abreviado
+                style: TextStyles.body.copyWith(
+                  color: Colors.white.withOpacity(0.8),
+                ),
+              ),
+              const SizedBox(width: 16), // Espacio entre los dos textos
+              Text(
+                'Tiempo aprox: ${tiempoFaltanteTransurbano.toStringAsFixed(1)} s', // Texto abreviado
+                style: TextStyles.body.copyWith(
+                  color: Colors.white.withOpacity(0.8),
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -337,7 +549,7 @@ class _MapaScreenState extends State<MapaScreen> {
     // Normalizamos la distancia para que siempre esté dentro de un ciclo de 0 a maxDistanceForLoop
     final double distanceInLoop = distance % maxDistanceForLoop;
 
-    // Calculamos qué tan lejos ha viajado en el perímetro (de 0 a 'perimeter')
+    // Calculamos qué tan lejos ha viajado en el perímetro
     double distanceTravelled =
         (distanceInLoop / maxDistanceForLoop) * perimeter;
 

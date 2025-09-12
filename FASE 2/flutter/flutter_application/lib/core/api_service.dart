@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_application/core/time_filter.dart';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 class ApiService {
   // URL del backend
-  static const String baseUrl = "URL del backend";
+  static String get baseUrl => dotenv.env['BASE_URL'] ?? "http://localhost:8080";
 
   // Obtiene los datos del dashboard desde el backend
   static Future<Map<String, dynamic>> fetchDashboardData({

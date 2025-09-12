@@ -1,6 +1,11 @@
 import 'dart:math';
 import 'package:flutter_application/core/time_filter.dart';
 
+// Servicio simulado para pruebas sin un backend real.
+// ! Funciona para el dashboard y el mapa.
+// Genera datos aleatorios pero consistentes para cada filtro de tiempo.
+// ! Si se quiere desactivar, simplemente cambiar booleano de data_repository.
+
 class MockApiService {
   static int _currentBus1Distance = 0;
   static int _currentBus2Distance = 0;
