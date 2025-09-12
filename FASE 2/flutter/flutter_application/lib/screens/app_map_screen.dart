@@ -51,7 +51,7 @@ class _MapaScreenState extends State<MapaScreen> {
   final Offset polloRel = const Offset(1 - 0.183, 0.827);
 
   // Posición especial para el transmetro (centro del mapa)
-  final Offset posicionEspecialTransmetro = const Offset(0.067, 0.75);
+  final Offset posicionEspecialTransmetro = const Offset(0.067, 0.748);
 
   // Posiciones relativas para transmetro
   static const Offset pp1 = Offset(0.067, 0.037);
