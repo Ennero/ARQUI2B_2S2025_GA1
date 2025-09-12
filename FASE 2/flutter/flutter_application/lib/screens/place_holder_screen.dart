@@ -9,7 +9,6 @@ import 'package:flutter_application/widgets/marker_hotel.dart';
 import 'package:flutter_application/widgets/marker_bus.dart';
 import 'package:flutter_application/widgets/marker_park.dart';
 
-
 import 'package:flutter_application/core/app_colors.dart';
 import 'package:flutter_application/core/text_style.dart';
 
@@ -31,17 +30,19 @@ class _PlaceHolderScreenState extends State<PlaceHolderScreen> {
   late List<Offset> motoRelPositions;
 
   // parte superior   posiciones relativas fijas para marcadores
-  final Offset palacioRel = const Offset(0.50, 0.13); // palacio nacional 
+  final Offset palacioRel = const Offset(0.50, 0.13); // palacio nacional
   // parte medio
   final Offset bibliotecaRel = const Offset(0.25, 0.38); // biblioteca nacional
   final Offset museoRel = const Offset(0.75, 0.35); // portal del comercio
-  final Offset parkRel = const Offset(0.50, 0.35); // portal del comercio  // parte baja
+  final Offset parkRel = const Offset(
+    0.50,
+    0.35,
+  ); // portal del comercio  // parte baja
   // parte baja
   final Offset parqueoRel = const Offset(0.25, 0.65); // parqueo
   final Offset hotelRel = const Offset(0.50, 0.65); // portal del comercio
   final Offset polloRel = const Offset(0.75, 0.65); // portal del comercio
   final Offset bus1Rel = const Offset(0.50, 0.75); // portal del comercio
-  
 
   // Información de la imagen (tamaño intrínseco)
   final AssetImage _mapProvider = const AssetImage('assets/mapa.jpg');
@@ -54,18 +55,24 @@ class _PlaceHolderScreenState extends State<PlaceHolderScreen> {
   void initState() {
     super.initState();
 
-    carroRelPositions =
-        List.generate(3, (_) => Offset(random.nextDouble(), random.nextDouble()));
-    motoRelPositions =
-        List.generate(3, (_) => Offset(random.nextDouble(), random.nextDouble()));
+    carroRelPositions = List.generate(
+      3,
+      (_) => Offset(random.nextDouble(), random.nextDouble()),
+    );
+    motoRelPositions = List.generate(
+      3,
+      (_) => Offset(random.nextDouble(), random.nextDouble()),
+    );
 
     // Resolver la imagen para obtener tamaño intrínseco
     _imageStream = _mapProvider.resolve(const ImageConfiguration());
     _imageStreamListener = ImageStreamListener((ImageInfo info, bool _) {
       final image = info.image;
       setState(() {
-        _mapIntrinsicSize =
-            Size(image.width.toDouble(), image.height.toDouble());
+        _mapIntrinsicSize = Size(
+          image.width.toDouble(),
+          image.height.toDouble(),
+        );
       });
     });
     _imageStream?.addListener(_imageStreamListener!);
@@ -100,26 +107,18 @@ class _PlaceHolderScreenState extends State<PlaceHolderScreen> {
       (container.height - displayedSize.height) / 2,
     );
 
-    // Helper para convertir posición relativa (0..1) a coordenada absoluta
-    Offset relToAbs(Offset rel) {
-      return Offset(
-        imageOffset.dx + rel.dx * displayedSize.width,
-        imageOffset.dy + rel.dy * displayedSize.height,
-      );
-    }
+    // Nota: en esta pantalla todos los marcadores usan Marker* con relativePos,
+    // por lo que no necesitamos convertir manualmente posiciones aquí.
 
     return Scaffold(
       body: Stack(
         children: [
           // Mapa
           Positioned.fill(
-            child: Image(
-              image: _mapProvider,
-              fit: BoxFit.contain,
-            ),
+            child: Image(image: _mapProvider, fit: BoxFit.contain),
           ),
 
-/*
+          /*
           // Carros
           ...carroRelPositions.map((rel) {
             final abs = relToAbs(rel);
@@ -183,7 +182,6 @@ class _PlaceHolderScreenState extends State<PlaceHolderScreen> {
             imageOffset: imageOffset,
           ),
 
-
           // Header
           Positioned(
             top: 30,
@@ -192,9 +190,12 @@ class _PlaceHolderScreenState extends State<PlaceHolderScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(widget.title,
-                    style: TextStyles.headline.copyWith(
-                        color: AppColors.secondaryText)),
+                Text(
+                  widget.title,
+                  style: TextStyles.headline.copyWith(
+                    color: AppColors.secondaryText,
+                  ),
+                ),
                 Icon(widget.icon, color: AppColors.secondaryText),
               ],
             ),
