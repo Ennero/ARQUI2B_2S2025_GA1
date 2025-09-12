@@ -14,6 +14,9 @@ import 'package:flutter_application/widgets/marker_parqueo.dart';
 import 'package:flutter_application/widgets/marker_pollo.dart';
 import 'package:flutter_application/widgets/market_bus2.dart';
 
+import 'package:flutter_application/widgets/marker_infobus.dart';
+import 'package:flutter_application/widgets/marker_infotren.dart';
+
 class MapaScreen extends StatefulWidget {
   const MapaScreen({super.key});
 
@@ -49,6 +52,12 @@ class _MapaScreenState extends State<MapaScreen> {
   final Offset parqueoRel = const Offset(0.21, 0.827);
   final Offset hotelRel = const Offset(0.51, 0.827);
   final Offset polloRel = const Offset(1 - 0.183, 0.827);
+
+  final Offset busInfoRel = const Offset(0.46, 0.31);
+  final Offset busInfoRel2 = const Offset(0.60, 0.95);
+
+  final Offset trenInfoRel = const Offset(0.17, 0.74);
+  final Offset trenInfoRel2 = const Offset(0.90, 0.62);
 
   // Posición especial para el transmetro (centro del mapa)
   final Offset posicionEspecialTransmetro = const Offset(0.067, 0.748);
@@ -279,6 +288,26 @@ class _MapaScreenState extends State<MapaScreen> {
                   ),
                   MarkerPark(
                     relativePos: parkRel,
+                    imageSize: displayedSize,
+                    imageOffset: imageOffset,
+                  ),
+                  MarkerInfoBus(
+                    relativePos: busInfoRel,
+                    imageSize: displayedSize,
+                    imageOffset: imageOffset,
+                  ),
+                  MarkerInfoBus(
+                    relativePos: busInfoRel2,
+                    imageSize: displayedSize,
+                    imageOffset: imageOffset,
+                  ),
+                  MarkerInfoTren(
+                    relativePos: trenInfoRel,
+                    imageSize: displayedSize,
+                    imageOffset: imageOffset,
+                  ),
+                  MarkerInfoTren(
+                    relativePos: trenInfoRel2,
                     imageSize: displayedSize,
                     imageOffset: imageOffset,
                   ),
