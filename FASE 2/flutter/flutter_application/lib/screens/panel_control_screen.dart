@@ -286,12 +286,16 @@ class _PanelControlScreenState extends State<PanelControlScreen> {
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       child: SegmentedButton<TimeFilter>(
         segments: [
-          ...TimeFilter.values.map(
-            (filter) => ButtonSegment<TimeFilter>(
-              value: filter,
-              label: Text(DataRepository.getFilterLabel(filter)),
-            ),
-          ),
+          ...TimeFilter.values
+              .where(
+                (f) => f != TimeFilter.map,
+              ) // Ocultar "Mapa" en panel de control
+              .map(
+                (filter) => ButtonSegment<TimeFilter>(
+                  value: filter,
+                  label: Text(DataRepository.getFilterLabel(filter)),
+                ),
+              ),
         ],
         selected: {_selectedFilter},
         onSelectionChanged: (Set<TimeFilter> newSelection) {
