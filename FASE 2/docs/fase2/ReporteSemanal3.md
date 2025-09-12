@@ -46,7 +46,7 @@ En esta última semana a realizar la segunda fase del proyecto de IoT, ya con to
 
 ### 1. Mejora en el encapsulamiento: 
 Luego de finalizar la primera fase del proyecto, nos dimos cuenta que la forma en la que realizamos el encapsulamiento nos daba más problemas para poder encapsular correctamente los cables y a la hora de mover demasiado los cables de los mismos, podiamos arruinar el circuito ya implementado. Lo que hicimos fue realizar una caja externa la cual se unió al lado de la maqueta para poder guardar las placas de arduino y la raspberry para así, no tener problemas a la hora de tener que verificar algún pin o jumper. Además, con esto no teniamos la necesidad de siempre quitar constantemente las paredes que habiamos puesto anteriormente. 
-![1 maqueta](/FASE%202/img/fase%202/S3-4.jpg)
+![1 maqueta](../img/fase%202/S3-4.jpg)
 #
 #
 
@@ -82,24 +82,24 @@ El desarrollo de la API y el backend presentó varios retos, principalmente rela
 
 ## Evidencia: 
 #
-![2](/FASE%202/img/fase%202/S3-1.jpg)
+![2](../img/fase%202/S3-1.jpg)
 #
-![2](/FASE%202/img/fase%202/S3-2.jpg)
+![2](../img/fase%202/S3-2.jpg)
 #
-![2](/FASE%202/img/fase%202/S3-3.jpg)
+![2](../img/fase%202/S3-3.jpg)
 #
-![2](/FASE%202/img/fase%202/S3-6.jpg)
+![2](../img/fase%202/S3-6.jpg)
 #
-![2](/FASE%202/img/fase%202/S3-7.jpg)
+![2](../img/fase%202/S3-7.jpg)
 #
-![2](/FASE%202/img/fase%202/S3-8.jpg)
+![2](../img/fase%202/S3-8.jpg)
 #
-![2](/FASE%202/img/fase%202/S3-9.jpg)
+![2](../img/fase%202/S3-9.jpg)
 #
-![2](/FASE%202/img/fase%202/S3-10.jpg)
+![2](../img/fase%202/S3-10.jpg)
 #
-![2](/FASE%202/img/fase%202/S3-11.jpg)
+![2](../img/fase%202/S3-11.jpg)
 #
-![2](/FASE%202/img/fase%202/S3-5.jpg)
+![2](../img/fase%202/S3-5.jpg)
 #
-![2](/FASE%202/img/fase%202/Doc-2.jpg)
+![2](../img/fase%202/Doc-2.jpg)
