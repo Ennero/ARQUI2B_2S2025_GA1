@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/notificacion_model.dart';
 
 class NotificationService {
-  static const String baseUrl = 'http://localhost:8000';
+  static const String baseUrl = 'http://18.220.53.96';
 
   // Headers para intentar evitar CORS
   static const Map<String, String> headers = {
