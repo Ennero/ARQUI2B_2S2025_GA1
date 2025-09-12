@@ -17,7 +17,7 @@ class MarkerMuseum extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Museo Nacional"),
+        title: const Text("Portal del Comercio"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -56,7 +56,7 @@ class MarkerMuseum extends StatelessWidget {
       child: GestureDetector(
         onTap: () => _showInfo(context),
         child: const Icon(
-          Icons.museum,
+           Icons.store_mall_directory,
           color: Colors.orange,
           size: 40,
         ),

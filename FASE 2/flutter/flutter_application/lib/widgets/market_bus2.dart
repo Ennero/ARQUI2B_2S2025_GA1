@@ -12,25 +12,29 @@ class MarkerBus2 extends StatelessWidget {
     required this.imageOffset,
   });
 
-  // Función para mostrar ventana emergente con foto y descripción
+  // Función para mostrar ventana emergente con tabla de la ruta
   void _showInfo(BuildContext context) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Transmetro"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.asset(
-              "assets/transmetro.jpg",
-              height: 150,
-              fit: BoxFit.cover,
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              "Corredor de movilidad moderna y eficiente que atraviesa el corazón de la ciudad, conectando el Centro Histórico con los ejes norte y sur.",
-            ),
-          ],
+        title: const Text("Ruta Transmetro"),
+        content: SingleChildScrollView(
+          child: DataTable(
+            columns: const [
+              DataColumn(label: Text("Estación")),
+              DataColumn(label: Text("Ubicación")),
+            ],
+            rows: const [
+              DataRow(cells: [
+                DataCell(Text("1")),
+                DataCell(Text("Portal del Comercio")),
+              ]),
+              DataRow(cells: [
+                DataCell(Text("2")),
+                DataCell(Text("Torre de estacionamiento")),
+              ]),              
+            ],
+          ),
         ),
         actions: [
           TextButton(
@@ -51,12 +55,12 @@ class MarkerBus2 extends StatelessWidget {
     );
 
     return Positioned(
-      left: abs.dx - 25, // centra el icono
-      top: abs.dy - 25,
+      left: abs.dx - 20, // ajusta al centro con ícono
+      top: abs.dy - 20,
       child: GestureDetector(
         onTap: () => _showInfo(context),
         child: const Icon(
-          Icons.directions_bus,
+          Icons.train,
           color: Color.fromARGB(255, 135, 250, 112),
           size: 30,
         ),
