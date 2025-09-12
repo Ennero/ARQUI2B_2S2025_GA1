@@ -17,7 +17,7 @@ class MarkerPark extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Parque Central"),
+        title: const Text("Fuente de Parque Central"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -27,8 +27,7 @@ class MarkerPark extends StatelessWidget {
               fit: BoxFit.cover,
             ),
             const SizedBox(height: 10),
-            const Text(
-              "Oasis urbano para el encuentro y el descanso, donde la naturaleza y la vida citadina de la Zona 1 convergen.",
+            const Text("Edificio histórico emblemático en el centro de la ciudad con arcadas, pasajes y locales comerciales que representa un punto neurálgico de la actividad comercial y cultural de la ciudad",
             ),
           ],
         ),
