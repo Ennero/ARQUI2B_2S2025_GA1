@@ -23,10 +23,10 @@ class MapaScreen extends StatefulWidget {
 
 class _MapaScreenState extends State<MapaScreen> {
   // Desplazamiento para el Transmetro.
-  static const int transmetroOffset = 140;
+  static const int transmetroOffset = 143;
 
   // Desplazamiento para el Transurbano.
-  static const int transurbanoOffset = 165;
+  static const int transurbanoOffset = 155;
 
   // Constante para el padding del panel
   static const _panelPadding = 5.0;
