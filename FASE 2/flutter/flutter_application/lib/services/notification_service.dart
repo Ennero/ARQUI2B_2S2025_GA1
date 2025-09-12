@@ -11,6 +11,7 @@ class NotificationService {
       dotenv.env['BASE_URL'] ??
       'http://localhost:8000';
 
+
   // Headers para intentar evitar CORS
   static const Map<String, String> headers = {
     'Content-Type': 'application/json',
