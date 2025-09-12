@@ -70,26 +70,26 @@ El integrante brindo apoyo para la realización y optimización en el código de
 
 
 ## Evidencia de trabajo realizado por integrantes: 
-![1 - Commits](/FASE%202/img/fase%202/S2-1.jpg)
+![1 - Commits](../img/fase%202/S2-1.jpg)
 #
-![2 - Commits](/FASE%202/img/fase%202/S2-2.jpg)
+![2 - Commits](../img/fase%202/S2-2.jpg)
 #
-![3 - Commits](/FASE%202/img/fase%202/S2-3.jpg)
+![3 - Commits](../img/fase%202/S2-3.jpg)
 #
-![4 - Commits](/FASE%202/img/fase%202/S2-4.jpg)
+![4 - Commits](../img/fase%202/S2-4.jpg)
 #
-![5 - Commits](/FASE%202/img/fase%202/S2-5.jpg)
+![5 - Commits](../img/fase%202/S2-5.jpg)
 #
-![6 - Commits](/FASE%202/img/fase%202/S2-6.jpg)
+![6 - Commits](../img/fase%202/S2-6.jpg)
 #
-![11 - Commits](/FASE%202/img/fase%202/S2-11.jpg)
+![11 - Commits](../img/fase%202/S2-11.jpg)
 #
-![7 - Flutter](/FASE%202/img/fase%202/S2-7.jpg)
+![7 - Flutter](../img/fase%202/S2-7.jpg)
 #
-![8 - Flutter](/FASE%202/img/fase%202/S2-8.jpg)
+![8 - Flutter](../img/fase%202/S2-8.jpg)
 #
-![9 - Flutter](/FASE%202/img/fase%202/S2-9.jpg)
+![9 - Flutter](../img/fase%202/S2-9.jpg)
 #
-![10 - Flutter](/FASE%202/img/fase%202/S2-10.jpg)
+![10 - Flutter](../img/fase%202/S2-10.jpg)
 #
-![12 - encapsulado](/FASE%202/img/fase%202/S2-12.jpg)
+![12 - encapsulado](../img/fase%202/S2-12.jpg)
