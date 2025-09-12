@@ -314,19 +314,96 @@ class _MapaScreenState extends State<MapaScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          'Recorrido del transmetro: $_dist1 cm',
-          style: TextStyles.body.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+        // --- BLOQUE TRANSMETRO ---
+        Row(
+          children: [
+            Container(
+              width: 12,
+              height: 12,
+              decoration: BoxDecoration(
+                color: AppColors.vibrantGreen,
+                borderRadius: BorderRadius.circular(3),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'TRANSMETRO - próxima parada',
+              style: TextStyles.body.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+
+        // Padding para indentar los detalles
+        Padding(
+          padding: const EdgeInsets.only(left: 20.0),
+          // AHORA ES UNA FILA (ROW) PARA PONER LOS TEXTOS LADO A LADO
+          child: Row(
+            children: [
+              Text(
+                'Distancia aprox: $_dist1 cm', // Texto abreviado
+                style: TextStyles.body.copyWith(
+                  color: Colors.white.withOpacity(0.8),
+                ),
+              ),
+              const SizedBox(width: 16), // Espacio entre los dos textos
+              Text(
+                'Tiempo aprox: $_dist1 s', // Texto abreviado
+                style: TextStyles.body.copyWith(
+                  color: Colors.white.withOpacity(0.8),
+                ),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 4),
-        Text(
-          'Recorrido del transurbano: $_dist2 cm',
-          style: TextStyles.body.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+        const SizedBox(height: 16),
+
+        // --- BLOQUE TRANSURBANO ---
+        Row(
+          children: [
+            Container(
+              width: 12,
+              height: 12,
+              decoration: BoxDecoration(
+                color: Colors.blue,
+                borderRadius: BorderRadius.circular(3),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'TRANSURBANO - próxima parada',
+              style: TextStyles.body.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+
+        Padding(
+          padding: const EdgeInsets.only(left: 20.0),
+          child: Row(
+            children: [
+              Text(
+                'Distancia aprox: $_dist2 cm', // Texto abreviado
+                style: TextStyles.body.copyWith(
+                  color: Colors.white.withOpacity(0.8),
+                ),
+              ),
+              const SizedBox(width: 16), // Espacio entre los dos textos
+              Text(
+                'Tiempo aprox: $_dist2 s', // Texto abreviado
+                style: TextStyles.body.copyWith(
+                  color: Colors.white.withOpacity(0.8),
+                ),
+              ),
+            ],
           ),
         ),
       ],
