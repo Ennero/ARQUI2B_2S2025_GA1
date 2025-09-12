@@ -310,6 +310,38 @@ class _MapaScreenState extends State<MapaScreen> {
         ),
       );
     }
+
+
+    // LOGICA PARA TRANSURBANO
+    const int longitudTramo = 80;
+    final int avanceEnTramo = _dist2 % longitudTramo;
+    
+    // Si está justo en una parada, la distancia faltante es 0.
+    // De lo contrario, es 80 menos lo que ha avanzado en el tramo actual.
+    final int distanciaFaltanteTransurbano = (avanceEnTramo == 0) ? 0 : longitudTramo - avanceEnTramo;
+
+    // Calcular el tiempo aproximado en segundos (1 cm = 0.15 segundos)
+    final double tiempoFaltanteTransurbano = distanciaFaltanteTransurbano * 0.15;
+
+    // LÓGICA PARA TRANSMETRO
+    int distanciaFaltanteTransmetro;
+    
+    // Si está en una de las paradas clave (0, 120, o 360), la distancia faltante es 0.
+    if (_dist1 == 0 || _dist1 == 120 || _dist1 == 360) {
+      distanciaFaltanteTransmetro = 0;
+    } 
+    // Si está en el primer tramo (después de 0 y hasta 120), la próxima parada es 120.
+    else if (_dist1 > 0 && _dist1 < 120) {
+      distanciaFaltanteTransmetro = 120 - _dist1;
+    } 
+    // Si está en el segundo tramo (después de 120 y hasta 360), la próxima parada es 360.
+    else {
+      distanciaFaltanteTransmetro = 360 - _dist1;
+    }
+
+    // Calcular el tiempo aproximado en segundos (1 cm = 0.15 segundos)
+    final double tiempoFaltanteTransmetro = distanciaFaltanteTransmetro * 0.15;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -345,14 +377,14 @@ class _MapaScreenState extends State<MapaScreen> {
           child: Row(
             children: [
               Text(
-                'Distancia aprox: $_dist1 cm', // Texto abreviado
+                'Distancia aprox: $distanciaFaltanteTransmetro cm', // Texto abreviado
                 style: TextStyles.body.copyWith(
                   color: Colors.white.withOpacity(0.8),
                 ),
               ),
               const SizedBox(width: 16), // Espacio entre los dos textos
               Text(
-                'Tiempo aprox: $_dist1 s', // Texto abreviado
+                'Tiempo aprox: $tiempoFaltanteTransmetro s', // Texto abreviado
                 style: TextStyles.body.copyWith(
                   color: Colors.white.withOpacity(0.8),
                 ),
@@ -391,14 +423,14 @@ class _MapaScreenState extends State<MapaScreen> {
           child: Row(
             children: [
               Text(
-                'Distancia aprox: $_dist2 cm', // Texto abreviado
+                'Distancia aprox: $distanciaFaltanteTransurbano cm', // Texto abreviado
                 style: TextStyles.body.copyWith(
                   color: Colors.white.withOpacity(0.8),
                 ),
               ),
               const SizedBox(width: 16), // Espacio entre los dos textos
               Text(
-                'Tiempo aprox: $_dist2 s', // Texto abreviado
+                'Tiempo aprox: $tiempoFaltanteTransurbano s', // Texto abreviado
                 style: TextStyles.body.copyWith(
                   color: Colors.white.withOpacity(0.8),
                 ),
