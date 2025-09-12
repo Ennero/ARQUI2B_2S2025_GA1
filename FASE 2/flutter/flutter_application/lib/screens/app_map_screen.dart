@@ -59,26 +59,28 @@ class _MapaScreenState extends State<MapaScreen> {
   final Offset hotelRel = const Offset(0.51, 0.827);
   final Offset polloRel = const Offset(1 - 0.183, 0.827);
 
-  final Offset busInfoRel = const Offset(0.46, 0.31);
-  final Offset busInfoRel2 = const Offset(0.60, 0.95);
+  final Offset busInfoRel = const Offset(0.454, 0.308);
+  final Offset busInfoRel2 = const Offset(0.596, 0.9325);
 
-  final Offset trenInfoRel = const Offset(0.17, 0.74);
-  final Offset trenInfoRel2 = const Offset(0.90, 0.62);
+  final Offset trenInfoRel = const Offset(0.1668, 0.7425);
+  final Offset trenInfoRel2 = const Offset(0.88578, 0.6123);
 
-  // Posición especial para el transmetro (centro del mapa)
-  final Offset posicionEspecialTransmetro = const Offset(0.067, 0.748);
 
   // Posiciones relativas para transmetro
-  static const Offset pp1 = Offset(0.067, 0.037); // izquierda-arriba
-  static const Offset pp2 = Offset(0.982, 0.037); // derecha-arriba
-  static const Offset pp3 = Offset(0.982, 0.9972); // derecha-abajo
-  static const Offset pp4 = Offset(0.067, 0.9972); // izquierda-abajo
+  static const Offset pp1 = Offset(0.055, 0.03); // izquierda-arriba
+  static const Offset pp2 = Offset(0.973, 0.03); // derecha-arriba
+  static const Offset pp3 = Offset(0.973, 0.9915); // derecha-abajo
+  static const Offset pp4 = Offset(0.055, 0.9915); // izquierda-abajo
+
+  // Posición especial para el transmetro (centro del mapa)
+  final Offset posicionEspecialTransmetro = const Offset(0.055, 0.748);
+
 
   // Posiciones relativas para transurbano
-  static const Offset p1 = Offset(0.3605, 0.245); // izquierda-arriba
-  static const Offset p2 = Offset(0.6785, 0.245); // derecha-arriba
-  static const Offset p3 = Offset(0.6785, 0.9972); // derecha-abajo
-  static const Offset p4 = Offset(0.3605, 0.9972); // izquierda-abajo
+  static const Offset p1 = Offset(0.355, 0.237); // izquierda-arriba
+  static const Offset p2 = Offset(0.677, 0.237); // derecha-arriba
+  static const Offset p3 = Offset(0.677, 0.99); // derecha-abajo
+  static const Offset p4 = Offset(0.355, 0.99); // izquierda-abajo
 
   // Posiciones actuales de los buses (inicialmente en p1 y pp1)
   Offset _bus1Position = pp1;
