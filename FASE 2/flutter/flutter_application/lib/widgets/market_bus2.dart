@@ -27,24 +27,12 @@ class MarkerBus2 extends StatelessWidget {
             rows: const [
               DataRow(cells: [
                 DataCell(Text("1")),
-                DataCell(Text("Palacio Nacional")),
+                DataCell(Text("Portal del Comercio")),
               ]),
               DataRow(cells: [
                 DataCell(Text("2")),
-                DataCell(Text("Plaza Municipal")),
-              ]),
-              DataRow(cells: [
-                DataCell(Text("3")),
-                DataCell(Text("El Trébol")),
-              ]),
-              DataRow(cells: [
-                DataCell(Text("4")),
-                DataCell(Text("El Amate")),
-              ]),
-              DataRow(cells: [
-                DataCell(Text("5")),
-                DataCell(Text("David Campero")),
-              ]),
+                DataCell(Text("Torre de estacionamiento")),
+              ]),              
             ],
           ),
         ),

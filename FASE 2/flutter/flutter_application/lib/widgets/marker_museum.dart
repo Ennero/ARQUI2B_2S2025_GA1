@@ -17,7 +17,7 @@ class MarkerMuseum extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Museo Nacional"),
+        title: const Text("Portal del Comercio"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
