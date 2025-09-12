@@ -50,6 +50,9 @@ class _MapaScreenState extends State<MapaScreen> {
   final Offset hotelRel = const Offset(0.51, 0.827);
   final Offset polloRel = const Offset(1 - 0.183, 0.827);
 
+  // Posición especial para el transmetro (centro del mapa)
+  final Offset posicionEspecialTransmetro = const Offset(0.067, 0.2);
+
   // Posiciones relativas para transmetro
   static const Offset pp1 = Offset(0.067, 0.037);
   static const Offset pp2 = Offset(0.982, 0.037);
@@ -98,12 +101,21 @@ class _MapaScreenState extends State<MapaScreen> {
       final int rawDist1 = data['dist1']?['distance'] ?? 0;
       final int rawDist2 = data['dist2']?['distance'] ?? 0;
 
-      // Le sumamos nuestro desplazamiento para obtener la distancia "visual".
-      final int newDist1 = rawDist1 + transmetroOffset;
-      final int newDist2 = rawDist2 + transurbanoOffset;
+      late final Offset newBus1Position;
 
+      // Comprobamos si la distancia del Transmetro es exactamente 120
+      if (rawDist1 == 120) {
+        // Si es 120, usamos la posición especial definida arriba.
+        newBus1Position = posicionEspecialTransmetro;
+      } else {
+        // Si no es 120, calculamos la posición normal en la ruta.
+        final int newDist1 = rawDist1 + transmetroOffset;
+        newBus1Position = _calculateTransPosition(newDist1);
+      }
+
+      // Le sumamos nuestro desplazamiento para obtener la distancia "visual".
+      final int newDist2 = rawDist2 + transurbanoOffset;
       // El resto de la función usa los nuevos valores y funciona igual que antes.
-      final newBus1Position = _calculateTransPosition(newDist1);
       final newBusPosition = _calculateBusPosition(newDist2);
 
       if (mounted) {
