@@ -4,7 +4,7 @@ import 'package:flutter_application/core/moch_api_service.dart' as mock;
 
 class DataRepository {
   // Cámbiarlo a false para usar backend real.
-  static bool useMock = true;
+  static bool useMock = false;
 
   static Future<Map<String, dynamic>> fetchDashboardData({
     TimeFilter filter = TimeFilter.today,
