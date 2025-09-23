@@ -1,7 +1,7 @@
 # FastAPI + AI Models
+***Python >= 3.13.4***
 
-
-> Python >= 3.13.4
+---
 
 ## Installation
 
@@ -19,3 +19,19 @@
     # Run the application
     fastapi dev main.py
 ```
+
+---
+
+## Use Docker containers
+
+First, ensure you have the `.env` file with all the required variables configured.
+Then, run this command in the terminal.
+
+```bash
+    docker compose up # pass '-d' flag to run it detached
+```
+
+---
+
+
+Built with :blue_heart: by **Bondel Technologies S, A.**
