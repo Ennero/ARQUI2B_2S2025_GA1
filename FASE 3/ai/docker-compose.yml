@@ -1,0 +1,14 @@
+
+
+services:
+
+  app:
+    build:
+      context: .
+      target: ${STAGE}
+      dockerfile: Dockerfile
+    container_name: smartcity-ai
+    volumes:
+      - .:/app/
+    ports:
+      - 8000:8000
