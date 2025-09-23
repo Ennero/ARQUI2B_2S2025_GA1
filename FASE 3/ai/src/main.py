@@ -23,13 +23,23 @@
 # SOFTWARE.
 
 # For more information, contact https://github.com/marcosbondel
-
-
-
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import ORJSONResponse
+from config.settings import settings
 
-application = FastAPI()
+application = FastAPI(
+    title=settings.app_name,
+    default_response_class=ORJSONResponse
+)
 
+application.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'],
+    allow_credentials=True,
+    allow_methods=['*'],
+    allow_headers=['*']
+)
 
 @application.get("/")
 def root_application():
