@@ -25,10 +25,20 @@
 # For more information, contact https://github.com/marcosbondel
 
 from pydantic_settings import BaseSettings
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 class Settings(BaseSettings):
 
-    app_name: str = "My API"
+    app_name: str = os.getenv('APP_NAME')
+    app_status: str = "off"
+
+    stage: str = os.getenv('STAGE')
+    api_url: str = os.getenv('API_URL')
+    perform_algorithm_for: str = os.getenv('PERFORM_ALGORITHM_FOR') # weapons|plates|faces
+
 
 
 settings = Settings()
