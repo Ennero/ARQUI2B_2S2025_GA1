@@ -1,6 +1,6 @@
 name: flutter_application
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
@@ -10,8 +10,8 @@ dependencies:
   flutter:
     sdk: flutter
   google_nav_bar: ^5.0.7
-  fl_chart: ^1.1.0 
-  http: ^1.2.1 
+  fl_chart: ^1.1.0
+  http: ^1.2.1
   flutter_dotenv: ^6.0.0
 
 dev_dependencies:
@@ -33,3 +33,13 @@ flutter:
     - assets/park.jpg
     - assets/transurbano.jpg
     - assets/transmetro.jpg
+    - assets/image_simulation/1.png
+    - assets/image_simulation/2.png
+    - assets/image_simulation/3.png
+    - assets/image_simulation/4.png
+    - assets/image_simulation/5.png
+    - assets/image_simulation/6.png
+    - assets/image_simulation/7.png
+    - assets/image_simulation/8.png
+    - assets/image_simulation/9.png
+    - assets/image_simulation/10.png
