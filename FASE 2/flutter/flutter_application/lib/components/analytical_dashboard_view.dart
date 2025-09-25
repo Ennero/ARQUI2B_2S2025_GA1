@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application/widgets/top_persons.dart';
+import 'package:flutter_application/widgets/top_weapons.dart';
 
 class AnalyticalDashboardView extends StatelessWidget {
   const AnalyticalDashboardView({super.key});
@@ -15,10 +16,7 @@ class AnalyticalDashboardView extends StatelessWidget {
         SizedBox(height: 24),
 
         // Espacio para el top de Armas
-        Placeholder(
-          fallbackHeight: 200,
-          child: Center(child: Text('Aquí irá el top de Armas')),
-        ),
+        TopWeaponsWidget(),
         SizedBox(height: 24),
 
         // Espacio para las infracciones

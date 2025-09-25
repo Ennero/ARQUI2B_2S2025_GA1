@@ -1,10 +1,12 @@
 [
     {
         "plate": "P-123ABC",
-        "timestamp": "2025-09-24T14:30:15Z"
+        "timestamp": "2025-09-24T14:30:15Z",
+        "ubication": "16 Av. Zona 1"
     },
     {
         "plate": "P-789XYZ",
-        "timestamp": "2025-09-24T11:05:42Z"
+        "timestamp": "2025-09-24T11:05:42Z",
+        "ubication": "35 Av. Zona 1"
     }
 ]
