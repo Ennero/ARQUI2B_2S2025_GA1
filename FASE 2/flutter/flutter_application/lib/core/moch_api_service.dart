@@ -128,6 +128,25 @@ class MockApiService {
     }
   }
 
+  static Future<List<dynamic>> fetchTopPersons() async {
+    // Simulamos un retraso de red
+    await Future.delayed(const Duration(milliseconds: 800));
+
+    // SImulamos un posible error de conexión
+    if (Random().nextDouble() < 0.1) {
+      throw Exception("Error de conexión simulado al obtener personas");
+    }
+
+    // Generamos una lista de 10 personas con datos aleatorios
+    return List.generate(10, (index) {
+      return {
+        "person_id": "PERSONA_${(index + 1).toString().padLeft(3, '0')}",
+        "detection_count": Random().nextInt(20) + 1, // Detecciones entre 1 y 20
+        "face_image_url": 'assets/image_simulation/${index + 1}.png',
+      };
+    });
+  }
+
   static String getFilterLabel(TimeFilter filter) {
     switch (filter) {
       case TimeFilter.map:
