@@ -142,9 +142,85 @@ class MockApiService {
       return {
         "person_id": "PERSONA_${(index + 1).toString().padLeft(3, '0')}",
         "detection_count": Random().nextInt(20) + 1, // Detecciones entre 1 y 20
-        "face_image_url": 'assets/image_simulation/${index + 1}.png',
+        "face_image_url": 'assets/image_simulation/${index + 1}.jfif',
       };
     });
+  }
+
+  static Future<List<dynamic>> fetchTopWeapons() async {
+    // Simulamos un retraso de red
+    await Future.delayed(const Duration(milliseconds: 800));
+
+    // SImulamos un posible error de conexión
+    if (Random().nextDouble() < 0.1) {
+      throw Exception("Error de conexión simulado al obtener personas");
+    }
+
+    // Datos simulados estático spara consistencia visual
+    final weaponsData = [
+      {
+        "weapon_type": "bayoneta",
+        "detection_count": Random().nextInt(30) + 10, // Entre 10 y 40
+        "last_seen": "2025-09-25T10:15:00Z",
+        "image_url": "assets/weapons/1.jfif",
+      },
+      {
+        "weapon_type": "Cuchillo",
+        "detection_count": Random().nextInt(30) + 10, // Entre 10 y 40
+        "last_seen": "2025-09-25T10:15:00Z",
+        "image_url": "assets/weapons/2.jfif",
+      },
+      {
+        "weapon_type": "Daga",
+        "detection_count": Random().nextInt(30) + 10, // Entre 10 y 40
+        "last_seen": "2025-09-25T10:15:00Z",
+        "image_url": "assets/weapons/3.jfif",
+      },
+      {
+        "weapon_type": "Destornillador",
+        "detection_count": Random().nextInt(30) + 10, // Entre 10 y 40
+        "last_seen": "2025-09-25T10:15:00Z",
+        "image_url": "assets/weapons/4.jfif",
+      },
+      {
+        "weapon_type": "Espada",
+        "detection_count": Random().nextInt(30) + 10, // Entre 10 y 40
+        "last_seen": "2025-09-25T10:15:00Z",
+        "image_url": "assets/weapons/5.jfif",
+      },
+      {
+        "weapon_type": "Esapadín",
+        "detection_count": Random().nextInt(30) + 10, // Entre 10 y 40
+        "last_seen": "2025-09-25T10:15:00Z",
+        "image_url": "assets/weapons/6.jfif",
+      },
+      {
+        "weapon_type": "Flecha",
+        "detection_count": Random().nextInt(30) + 10, // Entre 10 y 40
+        "last_seen": "2025-09-25T10:15:00Z",
+        "image_url": "assets/weapons/7.jfif",
+      },
+      {
+        "weapon_type": "Hacha",
+        "detection_count": Random().nextInt(30) + 10, // Entre 10 y 40
+        "last_seen": "2025-09-25T10:15:00Z",
+        "image_url": "assets/weapons/8.jfif",
+      },
+      {
+        "weapon_type": "Katana",
+        "detection_count": Random().nextInt(30) + 10, // Entre 10 y 40
+        "last_seen": "2025-09-25T10:15:00Z",
+        "image_url": "assets/weapons/9.jfif",
+      },
+      {
+        "weapon_type": "Kunai",
+        "detection_count": Random().nextInt(30) + 10, // Entre 10 y 40
+        "last_seen": "2025-09-25T10:15:00Z",
+        "image_url": "assets/weapons/10.jfif",
+      },
+    ];
+
+    return weaponsData;
   }
 
   static String getFilterLabel(TimeFilter filter) {
