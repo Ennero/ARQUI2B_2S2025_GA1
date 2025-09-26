@@ -12,7 +12,12 @@ class TopPersonsWidget extends StatefulWidget {
   State<TopPersonsWidget> createState() => _TopPersonsWidgetState();
 }
 
-class _TopPersonsWidgetState extends State<TopPersonsWidget> {
+class _TopPersonsWidgetState extends State<TopPersonsWidget>
+    with AutomaticKeepAliveClientMixin {
+  // Indicar que queremos mantener el widget vivo
+  @override
+  bool get wantKeepAlive => true;
+
   // El PageController nos permite controlar la vista del carrusel
   late PageController _pageController;
   // Guardaremos la página actual para los indicadores y las animaciones
@@ -55,6 +60,8 @@ class _TopPersonsWidgetState extends State<TopPersonsWidget> {
 
   @override
   Widget build(BuildContext context) {
+    // Llamar a super.build() al inicio
+    super.build(context);
     return Column(
       children: [
         // Título mejorado y centrado

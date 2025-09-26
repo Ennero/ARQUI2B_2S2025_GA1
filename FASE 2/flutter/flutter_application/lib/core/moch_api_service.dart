@@ -223,6 +223,51 @@ class MockApiService {
     return weaponsData;
   }
 
+  // Datos simulacdos de las infracciones del día
+  static Future<List<dynamic>> fetchTodaysInfractions() async {
+    // Simulamos un retraso en la red
+    await Future.delayed(const Duration(milliseconds: 700));
+
+    // Simular un error de conexión
+    if (Random().nextDouble() < 0.1) {
+      throw Exception("Error de conexión simulado al obtener personas");
+    }
+
+    final now = DateTime.now();
+    return List.generate(10, (index) {
+      final hour = 18 - index; // Horas hacia atrás desde las 6 PM
+      final minute = Random().nextInt(60);
+      final locationIndex = Random().nextInt(5);
+      final locations = [
+        "16 Av. y 4a Calle, Zona 1",
+        "Calzada Roosevelt, Zona 7",
+        "Blvd. Vista Hermosa, Zona 15",
+        "Av. Las Américas, Zona 13",
+        "Anillo Periférico, Zona 11",
+      ];
+      final plates = [
+        "P-123ABC",
+        "P-789XYZ",
+        "C-456DEF",
+        "M-321GHI",
+        "P-987JKL",
+      ];
+
+      return {
+        "plate": plates[Random().nextInt(plates.length)],
+        // Formato ISO 8601 Z (UTC)
+        "timestamp": DateTime.utc(
+          now.year,
+          now.month,
+          now.day,
+          hour,
+          minute,
+        ).toIso8601String(),
+        "location": locations[locationIndex],
+      };
+    });
+  }
+
   static String getFilterLabel(TimeFilter filter) {
     switch (filter) {
       case TimeFilter.map:
