@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/widgets/infractions.dart';
 import 'package:flutter_application/widgets/top_persons.dart';
 import 'package:flutter_application/widgets/top_weapons.dart';
 
@@ -20,10 +21,7 @@ class AnalyticalDashboardView extends StatelessWidget {
         SizedBox(height: 24),
 
         // Espacio para las infracciones
-        Placeholder(
-          fallbackHeight: 200,
-          child: Center(child: Text('Aquí irán las infracciones del día')),
-        ),
+        InfractionsWidget(),
       ],
     );
   }
