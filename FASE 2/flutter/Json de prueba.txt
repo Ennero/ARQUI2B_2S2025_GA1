@@ -1,0 +1,62 @@
+Json del panel de control:
+
+// Endpoint: GET /api/dashboard?periodo=hoy
+// El parámetro 'periodo' puede ser 'hoy', 'semana', 'mes'.
+{
+"summary": {
+"totalInfracciones": 42,
+"totalAlertasPanico": 13,
+"calidadAirePromedio": 158.5, // Valor promedio de PM1 y PM2
+"alertasCriticas": 2 // Suma de Sismos e Incendios
+},
+"airQualityChart": {
+"label": "Niveles de Calidad del Aire (PM)",
+"dataPoints": [
+// Lista de puntos para el gráfico: { hora, valor }
+{ "hour": 8, "value": 120.0 },
+{ "hour": 9, "value": 145.0 },
+{ "hour": 10, "value": 135.0 },
+{ "hour": 11, "value": 150.0 },
+{ "hour": 12, "value": 160.0 },
+{ "hour": 13, "value": 175.0 },
+{ "hour": 14, "value": 180.0 },
+{ "hour": 15, "value": 165.0 },
+{ "hour": 16, "value": 190.0 },
+{ "hour": 17, "value": 210.0 },
+{ "hour": 18, "value": 195.0 },
+{ "hour": 19, "value": 170.0 }
+]
+}
+}
+
+Notificaciones:
+
+// Endpoint: GET /api/alertas/recientes
+// Devuelve una lista de las últimas 20-30 alertas generadas.
+// NOTA: Esto es para 'ver' el historial. La notificación 'instantánea' se explica abajo.
+[
+{
+"id": "alrt_9f86d",
+"tipo": "PANICO",
+"titulo": "Botón de Pánico Activado",
+"descripcion": "Se ha recibido una alerta de pánico desde la fuente PANICO3.",
+"fuente": "PANICO3",
+"timestamp": "2025-09-05T16:21:15Z" // Formato ISO 8601
+},
+{
+"id": "alrt_7c3a1",
+"tipo": "INFRACCION",
+"titulo": "Infracción de Semáforo Detectada",
+"descripcion": "Un vehículo ha cruzado en rojo en el punto de control INFRAB.",
+"fuente": "INFRAB",
+"timestamp": "2025-09-05T16:20:55Z"
+},
+{
+"id": "alrt_b4e22",
+"tipo": "SISMO",
+"titulo": "Alerta Sísmica",
+"descripcion": "Se ha detectado una vibración anómala. Protocolos de seguridad activados.",
+"fuente": "SISMO",
+"timestamp": "2025-09-05T15:10:02Z"
+}
+]
