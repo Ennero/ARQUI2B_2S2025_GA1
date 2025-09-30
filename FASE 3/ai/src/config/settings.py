@@ -24,7 +24,7 @@
 
 # For more information, contact https://github.com/marcosbondel
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from dotenv import load_dotenv
 import os
 
@@ -33,12 +33,16 @@ load_dotenv()
 class Settings(BaseSettings):
 
     app_name: str = os.getenv('APP_NAME')
-    app_status: str = "off"
-
     stage: str = os.getenv('STAGE')
     api_url: str = os.getenv('API_URL')
     perform_algorithm_for: str = os.getenv('PERFORM_ALGORITHM_FOR') # weapons|plates|faces
 
-
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        arbitrary_types_allowed=True,
+        env_prefix="",
+        extra="ignore"
+    )
 
 settings = Settings()

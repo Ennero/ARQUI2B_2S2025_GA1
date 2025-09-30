@@ -27,6 +27,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
 from config.settings import settings
+from routers import services
 
 application = FastAPI(
     title=settings.app_name,
@@ -46,3 +47,6 @@ def root_application():
     return {
         "ok": True
     }
+
+# Routers
+application.include_router(services.router)
