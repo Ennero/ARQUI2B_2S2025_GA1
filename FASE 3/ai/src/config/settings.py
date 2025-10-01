@@ -25,27 +25,26 @@
 # For more information, contact https://github.com/marcosbondel
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from dotenv import load_dotenv
+from pydantic import HttpUrl, Field
 import os
 
-load_dotenv()
 
 class Settings(BaseSettings):
 
-    app_name: str = os.getenv('APP_NAME')
-    stage: str = os.getenv('STAGE')
-    api_url: str = os.getenv('API_URL')
-    perform_algorithm_for: str = os.getenv('PERFORM_ALGORITHM_FOR') # weapons|plates|faces
+    app_name: str = Field(min_length=5)
+    stage: str = Field(frozen=True)
+    api_url: HttpUrl
+    perform_algorithm_for: str # weapons|plates|faces
     
     # Database settings
     mongo_uri: str = os.getenv('MONGO_URI')
-    mongo_username: str = os.getenv('MONGO_USERNAME')
-    mongo_password: str = os.getenv('MONGO_PASSWORD')
-    mongo_database: str = os.getenv('MONGO_DATABASE')
+    mongo_username: str = Field(min_length=5, frozen=True)
+    mongo_password: str = Field(min_length=12, frozen=True)
+    mongo_database: str = Field(min_length=12, frozen=True)
 
     # Third-party devics
-    video_source: str = os.getenv('VIDEO_SOURCE', '0')
-    conf_weapon: float = float(os.getenv("CONF_WEAPON", "0.45"))
+    video_source: str = Field(default='0', frozen=True)
+    conf_weapon: float = Field(default=0.45)
 
     model_config = SettingsConfigDict(
         env_file=".env",
