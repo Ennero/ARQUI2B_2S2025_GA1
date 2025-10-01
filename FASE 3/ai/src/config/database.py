@@ -24,11 +24,17 @@
 
 # For more information, contact https://github.com/marcosbondel
 
-from pydantic.functional_validators import BeforeValidator
-from typing_extensions import Annotated
-from pymongo import AsyncMongoClient
+from beanie import init_beanie
 from config.settings import settings
+from pymongo import AsyncMongoClient
 
-# Mongo Client config
-client = AsyncMongoClient(settings.mongo_uri)
-db = client[settings.mongo_database] # Set specific database
+# import models
+from models.service import Service
+
+
+async def init_mongo():
+    # Create Async Pymongo client
+    client = AsyncMongoClient(host=settings.mongo_uri)
+
+    # Init beanie with the corresponding document classes
+    await init_beanie(database=client[f"{settings.mongo_database}"], document_models=[Service])

@@ -23,10 +23,20 @@
 # SOFTWARE.
 
 # For more information, contact https://github.com/marcosbondel
+from config.database import init_mongo
+from models.service import Service
 
+async def seed_services():
 
-def seed_database():
-    pass
+    await init_mongo()
 
-def bulk_services():
-    pass
+    # Initiate Default services
+    weapon_recognition_service = Service(name='Weapon recognition')
+    plate_recognition_service = Service(name='Plate recognition')
+    face_recognition_service = Service(name='Face recognition')
+
+    await Service.insert_many([
+        weapon_recognition_service,
+        plate_recognition_service,
+        face_recognition_service
+    ])
