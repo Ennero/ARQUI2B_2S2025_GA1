@@ -36,6 +36,16 @@ class Settings(BaseSettings):
     stage: str = os.getenv('STAGE')
     api_url: str = os.getenv('API_URL')
     perform_algorithm_for: str = os.getenv('PERFORM_ALGORITHM_FOR') # weapons|plates|faces
+    
+    # Database settings
+    mongo_uri: str = os.getenv('MONGO_URI')
+    mongo_username: str = os.getenv('MONGO_USERNAME')
+    mongo_password: str = os.getenv('MONGO_PASSWORD')
+    mongo_database: str = os.getenv('MONGO_DATABASE')
+
+    # Third-party devics
+    video_source: str = os.getenv('VIDEO_SOURCE', '0')
+    conf_weapon: float = float(os.getenv("CONF_WEAPON", "0.45"))
 
     model_config = SettingsConfigDict(
         env_file=".env",
