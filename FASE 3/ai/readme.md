@@ -17,7 +17,7 @@
     pip3 install -r requirements.txt
 
     # Run the application
-    fastapi dev main.py
+    fastapi dev src/main.py
 ```
 
 ---

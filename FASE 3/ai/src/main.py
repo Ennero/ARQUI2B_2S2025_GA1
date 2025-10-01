@@ -24,12 +24,16 @@
 
 # For more information, contact https://github.com/marcosbondel
 
+# · ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~
+# · 
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
 from config.settings import settings
 from config.database import init_mongo
 from config.seed import seed_services
+from config.worker import Worker
 from routers import services
 from contextlib import asynccontextmanager
 
@@ -39,9 +43,10 @@ async def lifespan(app: FastAPI):
     await init_mongo()
 
     # Execute seeds
-    # await seed_services()
+    # await seed_services() #! Still have to ensure uniq records
 
-    # Start corresponding services threads based on the variables configured in the .env file
+    # Start workers
+    Worker().perform()
 
     yield
 

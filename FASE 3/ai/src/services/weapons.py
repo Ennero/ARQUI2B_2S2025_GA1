@@ -24,6 +24,9 @@
 
 # For more information, contact https://github.com/marcosbondel
 
+# · ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~
+# · 
+
 from ultralytics import YOLO
 from config.settings import settings
 from utils.camera import Camera
@@ -41,30 +44,34 @@ class WeaponsService:
 
 
     def perform(self):
+        self.running = True
+
         if not self.camera.isOpened():
-            print("[ERR] No se pudo abrir self.video_source: ", self.video_source)
-            running = False
+            print("[ERR] Could not open self.video_source: ", self.video_source)
+            self.running = False
             return
 
         last_sent = 0.0
-        while running:
+        while self.running:
             ok, frame = self.camera.read()
             
             if not ok:
                 time.sleep(0.05); continue
 
             results = self.model.predict(source=frame, verbose=False)
+
             for r in results:
                 for b in r.boxes:
                     cls_id = int(b.cls[0])
                     name = r.names[cls_id]
                     conf = float(b.conf[0])
                     if name == 'knife' and conf >= self.conf_weapon:
+                        pass
                         # Enviar 1 evento cada 2 s como máximo (para no spamear)
-                        now = time.time()
-                        if now - last_sent > 2.0:
-                            post_event(frame, conf)
-                            last_sent = now
+                        # now = time.time()
+                        # if now - last_sent > 2.0:
+                        #     post_event(frame, conf)
+                        #     last_sent = now
 
             time.sleep(0.02)
 

@@ -24,6 +24,9 @@
 
 # For more information, contact https://github.com/marcosbondel
 
+# · ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~
+# · 
+
 import base64, cv2, requests, datetime
 
 def jpeg_b64(img_bgr):

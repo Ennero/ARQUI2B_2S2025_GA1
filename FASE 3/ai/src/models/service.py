@@ -24,6 +24,9 @@
 
 # For more information, contact https://github.com/marcosbondel
 
+# · ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~
+# · 
+
 from enum import Enum
 from uuid import UUID, uuid4
 from pydantic import BaseModel, Field
@@ -35,6 +38,12 @@ class ServiceStatus(Enum):
     STARTED = "STARTED"
     STOPPED = "STOPPED"
 
+class ServiceWorker(Enum):
+    WEAPON = "WEAPON"
+    FACE = "FACE"
+    PLATE = "PLATE"
+
 class Service(Document):
-    name: str = Field(min_length=4)
+    name: str = Field(min_length=5)
     status: ServiceStatus = 'NOT_INITIATED'
+    worker: ServiceWorker = Field(frozen=True)

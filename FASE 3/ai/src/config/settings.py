@@ -24,6 +24,9 @@
 
 # For more information, contact https://github.com/marcosbondel
 
+# · ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~
+# · 
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import HttpUrl, Field
 import os
