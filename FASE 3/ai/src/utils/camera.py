@@ -36,3 +36,6 @@ class Camera:
 
     def release(self):
         self.cap.release()
+
+    def is_open(self):
+        return self.cap.isOpened()

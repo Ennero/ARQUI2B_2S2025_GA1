@@ -30,10 +30,10 @@ def jpeg_b64(img_bgr):
     _, buf = cv2.imencode(".jpg", img_bgr)
     return base64.b64encode(buf.tobytes()).decode("utf-8")
 
-def post_event(url, tipo, subtipo, meta, frame_bgr):
+def post_event(url, _type, subtype, meta, frame_bgr):
     payload = {
-        "tipo": tipo,
-        "subtipo": subtipo,
+        "type": _type,
+        "subtype": subtype,
         "meta": {
             **meta,
             "timestamp": datetime.datetime.utcnow().isoformat()
