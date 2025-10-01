@@ -28,9 +28,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
 from config.settings import settings
 from routers import services
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Start corresponding services threads based on the variables configured in the .env file
+    yield
+
 
 application = FastAPI(
     title=settings.app_name,
+    lifespan=lifespan,
     default_response_class=ORJSONResponse
 )
 
