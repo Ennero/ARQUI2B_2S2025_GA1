@@ -27,6 +27,7 @@
 from enum import Enum
 from uuid import UUID, uuid4
 from pydantic import BaseModel, Field
+from beanie import Document
 
 
 class ServiceStatus(Enum):
@@ -34,7 +35,6 @@ class ServiceStatus(Enum):
     STARTED = "STARTED"
     STOPPED = "STOPPED"
 
-class Service(BaseModel):
-    service_id: UUID = Field(default_factory=uuid4, frozen=True)
+class Service(Document):
     name: str = Field(min_length=4)
     status: ServiceStatus = 'NOT_INITIATED'
