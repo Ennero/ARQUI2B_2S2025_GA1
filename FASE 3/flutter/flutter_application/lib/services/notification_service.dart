@@ -9,7 +9,7 @@ class NotificationService {
   static String get baseUrl =>
       dotenv.env['NOTIF_BASE_URL'] ??
       dotenv.env['BASE_URL'] ??
-      'http://localhost:8000';
+      'http://18.220.53.96';
 
 
   // Headers para intentar evitar CORS
