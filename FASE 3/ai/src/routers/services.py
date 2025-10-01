@@ -24,11 +24,18 @@
 
 # For more information, contact https://github.com/marcosbondel
 
+# · ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~
+# · 
+
 
 from fastapi import APIRouter
 
 router = APIRouter(prefix='/services',tags=['services'])
 
+
+@router.get("/{service_name}")
+async def get_service():
+    return {}
 
 @router.post("/{service_name}/start")
 def start_service(service_name: str):

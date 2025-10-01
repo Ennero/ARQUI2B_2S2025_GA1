@@ -24,9 +24,21 @@
 
 # For more information, contact https://github.com/marcosbondel
 
+# · ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~
+# · 
+
+from multiprocessing import Process
+from services.weapons import WeaponsService
+
 class Worker:
 
 
     def __init__(self):
-        pass
+        self.weapons_service = WeaponsService()
+        self.weapons_pt_process = Process(target=self.weapons_service.perform)
 
+
+    def perform(self):
+        
+        self.weapons_pt_process.start()
+        self.weapons_pt_process.join()
