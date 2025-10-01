@@ -28,12 +28,21 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
 from config.settings import settings
+from config.database import init_mongo
+from config.seed import seed_services
 from routers import services
 from contextlib import asynccontextmanager
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Start Mongo Database
+    await init_mongo()
+
+    # Execute seeds
+    # await seed_services()
+
     # Start corresponding services threads based on the variables configured in the .env file
+
     yield
 
 
@@ -55,7 +64,7 @@ application.add_middleware(
 def root_application():
     return {
         "ok": True,
-        "api_version": '1.0.0',
+        "version": '1.0.0',
         "company": {
             "company_name": "Bondel Technologies S. A.",
             "description": "Building a better future",
