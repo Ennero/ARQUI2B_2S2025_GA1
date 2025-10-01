@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 # For more information, contact https://github.com/marcosbondel
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
@@ -53,7 +54,14 @@ application.add_middleware(
 @application.get("/")
 def root_application():
     return {
-        "ok": True
+        "ok": True,
+        "api_version": '1.0.0',
+        "company": {
+            "company_name": "Bondel Technologies S. A.",
+            "description": "Building a better future",
+            "github": "https://github.com/bondeltech"
+        },
+        "license": "MIT",
     }
 
 # Routers
