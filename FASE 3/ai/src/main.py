@@ -27,6 +27,7 @@
 # · ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~
 # · 
 
+import asyncio
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
@@ -47,6 +48,7 @@ async def lifespan(app: FastAPI):
 
     # Start workers
     Worker().perform()
+    # asyncio.create_task(Worker().perform())
 
     yield
 
