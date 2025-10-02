@@ -46,7 +46,7 @@ class Settings(BaseSettings):
     mongo_database: str = Field(min_length=12, frozen=True)
 
     # Third-party devics
-    video_source: str = Field(default='0', frozen=True)
+    video_source: str = Field(default='0', frozen=True) # "0", "1" or URL
     conf_weapon: float = Field(default=0.45)
 
     model_config = SettingsConfigDict(
