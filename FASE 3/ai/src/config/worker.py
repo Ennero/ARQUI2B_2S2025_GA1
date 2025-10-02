@@ -28,17 +28,27 @@
 # · 
 
 from multiprocessing import Process
-from services.weapons import WeaponsService
+from services.weapons import run_weapons, WeaponsService
+from config.settings import settings 
 
 class Worker:
-
-
     def __init__(self):
-        self.weapons_service = WeaponsService()
-        self.weapons_pt_process = Process(target=self.weapons_service.perform)
-
+        self.weapons_service = WeaponsService(
+            video_source=settings.video_source,
+            conf_weapon=settings.conf_weapon,
+            weapon_type="knife"
+        )
+        self.weapons_pt_process = Process(
+            target=run_weapons,
+            args=(self.weapons_service.video_source,
+                  self.weapons_service.conf_weapon,
+                  self.weapons_service.weapon_type)
+        )
+        self.weapons_pt_process.daemon = True  # opcional
 
     def perform(self):
-        
         self.weapons_pt_process.start()
-        self.weapons_pt_process.join()
+        # self.weapons_pt_process.join()
+    
+    # def stop(self):
+    #     pass
