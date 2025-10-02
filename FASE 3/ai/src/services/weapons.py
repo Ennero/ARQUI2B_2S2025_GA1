@@ -27,52 +27,61 @@
 # · ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~
 # · 
 
+import time
+import cv2
 from ultralytics import YOLO
-from config.settings import settings
-from utils.camera import Camera
-import os, time
+
+def run_weapons(video_source: str, conf_weapon: float, weapon_type: str = "knife"):
+    source = 0 if str(video_source).isdigit() else video_source
+
+    if isinstance(source, int):
+        cap = cv2.VideoCapture(source, cv2.CAP_AVFOUNDATION)
+    else:
+        cap = cv2.VideoCapture(source)
+
+    if not cap.isOpened():
+        print(f"[ERR] Could not open VIDEO_SOURCE: {video_source}")
+        return
+
+    model = YOLO("yolov8n.pt")
+
+    last_sent = 0.0
+    while True:
+        ok, frame = cap.read()
+        if not ok:
+            time.sleep(0.05)
+            continue
+
+        results = model.predict(source=frame, verbose=False)
+        for r in results:
+            for b in r.boxes:
+                cls_id = int(b.cls[0])
+                name = r.names[cls_id]
+                conf = float(b.conf[0])
+                if name == weapon_type and conf >= conf_weapon:
+                    print("knife detected", conf)
+                    # now = time.time()
+                    # if now - last_sent > 2.0:
+                    #     post_event(frame, conf)
+                    #     last_sent = now
+
+                    x1,y1,x2,y2 = map(int, b.xyxy[0].tolist())
+                    cv2.rectangle(frame, (x1,y1), (x2,y2), (0,255,0), 2)
+                    cv2.putText(frame, f"{name} {conf:.2f}", (x1, y1-8),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,255,0), 2)
+
+        cv2.imshow("Armas blancas (knife)", frame)
+        if cv2.waitKey(1) & 0xFF == 27:  # ESC for exiting
+            break
+
+        # time.sleep(0.02)
+
+    cap.release()
+
 
 class WeaponsService:
+    def __init__(self, video_source: str, conf_weapon: float, weapon_type: str = "knife"):
+        self.video_source = video_source
+        self.conf_weapon = conf_weapon
+        self.weapon_type = weapon_type
 
-    def __init__(self):
-        self.video_source = 0 if settings.video_source == "0" else settings.video_source
-        self.camera = Camera(self.video_source)
-        self.self.model = YOLO('yolov8n.pt')
-        self.weapon_type = 'knife'
-        self.conf_weapon = settings.conf_weapon
-        self.running = False
-
-
-    def perform(self):
-        self.running = True
-
-        if not self.camera.isOpened():
-            print("[ERR] Could not open self.video_source: ", self.video_source)
-            self.running = False
-            return
-
-        last_sent = 0.0
-        while self.running:
-            ok, frame = self.camera.read()
-            
-            if not ok:
-                time.sleep(0.05); continue
-
-            results = self.model.predict(source=frame, verbose=False)
-
-            for r in results:
-                for b in r.boxes:
-                    cls_id = int(b.cls[0])
-                    name = r.names[cls_id]
-                    conf = float(b.conf[0])
-                    if name == 'knife' and conf >= self.conf_weapon:
-                        pass
-                        # Enviar 1 evento cada 2 s como máximo (para no spamear)
-                        # now = time.time()
-                        # if now - last_sent > 2.0:
-                        #     post_event(frame, conf)
-                        #     last_sent = now
-
-            time.sleep(0.02)
-
-        self.camera.release()
