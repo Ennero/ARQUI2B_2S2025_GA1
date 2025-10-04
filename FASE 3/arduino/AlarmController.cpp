@@ -32,7 +32,9 @@ void AlarmController::activarAlarm(int buzzerIndex, AlarmType type, int *panicAr
         _tiempoInicioBuzzer[buzzerIndex] = now;
         _ultimaAccionAlarm[buzzerIndex] = now;
         _estadoPatronAlarm[buzzerIndex] = false;
-        if (panicArray)
+        
+        // Solo actualizar panicArray si es un botón de pánico Y se pasó el array
+        if (panicArray && type == PANICO_BTN)
             panicArray[buzzerIndex] = 1;
     }
 }
@@ -48,9 +50,12 @@ void AlarmController::controlarAlarms(int *panicArray)
         if (now - _tiempoInicioBuzzer[i] >= _duracionBuzzer)
         {
             noTone(_buzzerPins[i]);
-            _activeAlarms[i] = NONE;
-            if (panicArray)
+            
+            // Solo apagar panicArray si era un botón de pánico Y se pasó el array
+            if (panicArray && _activeAlarms[i] == PANICO_BTN)
                 panicArray[i] = 0;
+                
+            _activeAlarms[i] = NONE;
             continue;
         }
 

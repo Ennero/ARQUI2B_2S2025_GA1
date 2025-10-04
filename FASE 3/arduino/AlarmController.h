@@ -21,8 +21,8 @@ public:
     AlarmController(const int *buzzerPins, uint8_t numBuzzers);
     ~AlarmController();
     void begin();
-    void activarAlarm(int buzzerIndex, AlarmType type, int *panicArray);
-    void controlarAlarms(int *panicArray);
+    void activarAlarm(int buzzerIndex, AlarmType type, int *panicArray = nullptr);
+    void controlarAlarms(int *panicArray = nullptr);
 
 private:
     const int *_buzzerPins;
