@@ -27,6 +27,28 @@ int dist2 = 0;
 unsigned long lastPiezoCheck = 0;
 const unsigned long piezoInterval = 500;
 
+// Definición de los tipos de alarma
+enum AlarmType {
+  NONE,        // Sin alarma
+  PANICO_BTN,  // Botón de pánico
+  INCENDIO,    // Alarma de humo/fuego
+  INFRACCION,  // Infracción de semáforo
+  SISMO_ALARM  // Alarma de sismo
+};
+
+// Frecuencias de las alarmas
+#define FREQ_PANICO    1500  // Tono agudo y constante
+#define FREQ_INCENDIO_A 800  // Tono bajo de la sirena
+#define FREQ_INCENDIO_B 1200 // Tono alto de la sirena
+#define FREQ_INFRACCION 2000 // Tono muy agudo y corto
+#define FREQ_SISMO      400  // Tono grave e intermitente
+
+// Variables para manejar las alarmas
+AlarmType activeAlarms[NUM_BOTONES]; // Guarda qué tipo de alarma está sonando en cada buzzer
+unsigned long ultimaAccionAlarma[NUM_BOTONES] = { 0 }; // Para patrones complejos (sirena, intermitencia)
+bool estadoPatronAlarma[NUM_BOTONES] = { false }; // Para alternar tonos (ej. sirena)
+
+
 // Estados globales
 String SEM1 = "ROJO";
 String SEM2 = "ROJO";
@@ -107,7 +129,7 @@ const unsigned long duracionBuzzer = 2000;
 // --- MQ2 ---
 #define MQ2_SENSOR_1 A0
 #define MQ2_SENSOR_2 A1
-#define SMOKE_THRESHOLD 260
+#define SMOKE_THRESHOLD 5000
 
 unsigned long lastSmokeCheck = 0;
 const unsigned long smokeInterval = 1000;
@@ -125,15 +147,12 @@ int lastStateRoute2[ROUTE2_COUNT];
 // --- Reset reed ---
 int lastStateReset = HIGH;
 
-// --- Para detectar el caso especial en ROUTE2 (índices) ---
-int lastTriggeredIndexRoute2 = -1;  // -1 = ninguno todavía
-
 void leerPiezoelectrico(bool makeItSound = false) {
   int piezoState = digitalRead(PIEZO_PIN);
   SISMO = (piezoState == HIGH) ? 1 : 0;
-  if (SISMO == 1 || makeItSound) {
+  if (makeItSound) {
     unsigned long now = millis();
-    for (int i = 0; i < NUM_BOTONES; i++) sonarBuzzer(i, now);
+    for (int i = 0; i < NUM_BOTONES; i++) sonarBuzzer(i, now, SISMO_ALARM);
   }
 }
 
@@ -224,8 +243,6 @@ void manejarReeds() {
       if (newDist != dist1) {
         dist1 = newDist;
       }
-      // No debounce, actualización inmediata del estado interno (emitido periódicamente)
-      lastTriggeredIndexRoute2 = lastTriggeredIndexRoute2; // sin efecto aquí, solo para mantener variable
     }
     lastStateRoute1[i] = lectura;
   }
@@ -235,20 +252,15 @@ void manejarReeds() {
     int pin = ROUTE2_PINS[i];
     int lectura = digitalRead(pin);
     if (lastStateRoute2[i] == HIGH && lectura == LOW) {
-      int normalNewDist = (i + 1) * DIST2_INCREMENT;
-      int newDist = normalNewDist;
+      int newDist = (i + 1) * DIST2_INCREMENT;
 
-      // Caso especial: si el anterior índice activado fue 1 (pin 16) y ahora es 2 (pin 14)
-      if (lastTriggeredIndexRoute2 == 2 && i == 3) {
-        newDist = normalNewDist + 20;  // aplica el salto extra sólo en ese caso
+      if (i > 3) {
+        newDist = newDist + 20;  // aplica el salto extra sólo en ese caso
       }
 
       if (newDist != dist2) {
         dist2 = newDist;
       }
-
-      // actualizar índice último activado en ROUTE2
-      lastTriggeredIndexRoute2 = i;
     }
     lastStateRoute2[i] = lectura;
   }
@@ -261,7 +273,6 @@ void manejarResetReed() {
     // reset manual por reed: resetea distancias
     dist1 = 0;
     dist2 = 0;
-    lastTriggeredIndexRoute2 = -1;  // limpiar historial de ruta2
   }
   lastStateReset = lectura;
 }
@@ -272,25 +283,86 @@ void inicializarPerifericos() {
     pinMode(PINES_BOTONES[i], INPUT_PULLUP);
     pinMode(PINES_BUZZER[i], OUTPUT);
     digitalWrite(PINES_BUZZER[i], LOW);
+    activeAlarms[i] = NONE; // Inicializa sin alarmas activas
   }
   pinMode(MQ2_SENSOR_1, INPUT);
   pinMode(MQ2_SENSOR_2, INPUT);
 }
 
-void sonarBuzzer(int buzzerIndex, unsigned long now) {
+void sonarBuzzer(int buzzerIndex, unsigned long now, AlarmType type) {
   if (buzzerIndex >= 0 && buzzerIndex < NUM_BOTONES) {
-    digitalWrite(PINES_BUZZER[buzzerIndex], HIGH);
-    tiempoInicioBuzzer[buzzerIndex] = now;
-    PANICO[buzzerIndex] = 1;
+    // Solo activa una nueva alarma si el buzzer está libre
+    if (activeAlarms[buzzerIndex] == NONE) {
+        activeAlarms[buzzerIndex] = type;
+        tiempoInicioBuzzer[buzzerIndex] = now;
+        ultimaAccionAlarma[buzzerIndex] = now;
+        estadoPatronAlarma[buzzerIndex] = false; // Estado inicial del patrón
+        PANICO[buzzerIndex] = 1; // Mantenemos esta variable para la comunicación serial
+    }
   }
 }
 
+// REEMPLAZA CON ESTE CÓDIGO
 void controlarBuzzer() {
   unsigned long now = millis();
   for (int i = 0; i < NUM_BOTONES; i++) {
-    if (PANICO[i] && (now - tiempoInicioBuzzer[i] >= duracionBuzzer)) {
-      digitalWrite(PINES_BUZZER[i], LOW);
-      PANICO[i] = 0;
+    // Si no hay alarma activa en este buzzer, no hagas nada.
+    if (activeAlarms[i] == NONE) {
+      continue;
+    }
+
+    // Comprueba si la duración total de la alarma ha terminado.
+    if (now - tiempoInicioBuzzer[i] >= duracionBuzzer) {
+      noTone(PINES_BUZZER[i]);       // Apaga el tono
+      activeAlarms[i] = NONE;        // Marca la alarma como inactiva
+      PANICO[i] = 0;                 // Actualiza la variable de estado para serial
+      continue;                      // Pasa al siguiente buzzer
+    }
+
+    // Genera el patrón de sonido según el tipo de alarma activa.
+    switch (activeAlarms[i]) {
+      case PANICO_BTN:
+        // Tono continuo y agudo
+        tone(PINES_BUZZER[i], FREQ_PANICO);
+        break;
+
+      case INCENDIO:
+        // Sirena que alterna entre dos tonos cada 300ms
+        if (now - ultimaAccionAlarma[i] > 300) {
+          estadoPatronAlarma[i] = !estadoPatronAlarma[i]; // Invierte el estado
+          ultimaAccionAlarma[i] = now;
+        }
+        if (estadoPatronAlarma[i]) {
+          tone(PINES_BUZZER[i], FREQ_INCENDIO_A);
+        } else {
+          tone(PINES_BUZZER[i], FREQ_INCENDIO_B);
+        }
+        break;
+
+      case INFRACCION:
+        // Patrón de dos pitidos cortos: "bip-bip"
+        {
+          unsigned long elapsedTime = now - tiempoInicioBuzzer[i];
+          if ((elapsedTime > 0 && elapsedTime < 150) || (elapsedTime > 300 && elapsedTime < 450)) {
+            tone(PINES_BUZZER[i], FREQ_INFRACCION);
+          } else {
+            noTone(PINES_BUZZER[i]);
+          }
+        }
+        break;
+
+      case SISMO_ALARM:
+        // Tono grave e intermitente: 500ms de sonido, 500ms de silencio
+        if ((now - tiempoInicioBuzzer[i]) % 1000 < 500) {
+          tone(PINES_BUZZER[i], FREQ_SISMO);
+        } else {
+          noTone(PINES_BUZZER[i]);
+        }
+        break;
+      
+      default:
+        noTone(PINES_BUZZER[i]);
+        break;
     }
   }
 }
@@ -301,7 +373,7 @@ void manejarBotones() {
     bool estadoActual = digitalRead(PINES_BOTONES[i]) == LOW;
     if (estadoActual != estadoAnteriorBotones[i] && (now - ultimaLecturaBoton[i] >= debounceTime)) {
       if (estadoActual) {
-        sonarBuzzer(i, now);
+        sonarBuzzer(i, now, PANICO_BTN);
       } else {
         PANICO[i] = 0;
       }
@@ -319,8 +391,8 @@ void leerSensoresHumo() {
 
   unsigned long now = millis();
   // activar buzzer correspondiente si hay humo
-  if (INC1) sonarBuzzer(2, now); // buzzer más cercano al sensor 1
-  if (INC2) sonarBuzzer(3, now); // buzzer más cercano al sensor 2
+  if (INC1) sonarBuzzer(2, now, INCENDIO); // buzzer más cercano al sensor 1
+  if (INC2) sonarBuzzer(3, now, INCENDIO); // buzzer más cercano al sensor 2
 }
 
 // echoCheck: recibe resultado del sonar; aquí reaccionamos sin imprimir
@@ -355,14 +427,13 @@ void echoCheck() {
       case 6: case 7: INFRAC = 1; buzzerIdx = 3; break;
       case 8: case 9: INFRAD = 1; buzzerIdx = 2; break;
     }
-    if (buzzerIdx >= 0) sonarBuzzer(buzzerIdx, millis());
+    if (buzzerIdx >= 0) sonarBuzzer(buzzerIdx, millis(), INFRACCION);
   }
 
   // Si el sensor es el RESET_SENSOR_ID y lee cerca (<=3 cm) -> resetea dist2 inmediatamente
   if (sensors[currentSensor].purpose == SENSOR_ARRIVAL) {
     if (sensors[currentSensor].id == RESET_SENSOR_ID) {
       dist2 = 0;
-      lastTriggeredIndexRoute2 = -1;
     } else if (sensors[currentSensor].id == 13) {
       dist2 = 80;
     }
