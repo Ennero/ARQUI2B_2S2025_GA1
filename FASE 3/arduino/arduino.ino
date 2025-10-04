@@ -206,9 +206,9 @@ void handleSensoresHumo()
   INC2 = (PM2 > SMOKE_THRESHOLD);
 
   if (INC1)
-    alarmController.activarAlarm(2, INCENDIO, PANICO);
+    alarmController.activarAlarm(2, INCENDIO);
   if (INC2)
-    alarmController.activarAlarm(3, INCENDIO, PANICO);
+    alarmController.activarAlarm(3, INCENDIO);
   lastCheck = millis();
 }
 
@@ -223,7 +223,7 @@ void handleSismo()
   { // Activa solo si ambos sensores lo detectan
     for (int i = 0; i < NUM_BOTONES; i++)
     {
-      alarmController.activarAlarm(i, SISMO_ALARM, PANICO);
+      alarmController.activarAlarm(i, SISMO_ALARM);
     }
   }
   lastCheck = millis();
@@ -337,7 +337,7 @@ void echoCheck()
           else if (sensors[currentSensor].id <= 9)
             buzzerIdx = 2;
           if (buzzerIdx != -1)
-            alarmController.activarAlarm(buzzerIdx, INFRACCION, PANICO);
+            alarmController.activarAlarm(buzzerIdx, INFRACCION);
         }
       }
     }
