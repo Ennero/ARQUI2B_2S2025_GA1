@@ -113,6 +113,8 @@ void setup()
 {
   Serial.begin(9600);
 
+  verificarConfiguracionSensores();
+
   // Inicializar Módulos
   alarmController.begin();
   trafficA.begin();
@@ -233,7 +235,10 @@ void handleReeds()
 {
   static int lastStateRoute1[ROUTE1_COUNT];
   static int lastStateRoute2[ROUTE2_COUNT];
+  static unsigned long lastDebounceRoute1[ROUTE1_COUNT] = {0};
+  static unsigned long lastDebounceRoute2[ROUTE2_COUNT] = {0};
   static bool initialized = false;
+  const unsigned long REED_DEBOUNCE = 50; // ms
 
   if (!initialized)
   {
@@ -244,37 +249,85 @@ void handleReeds()
     initialized = true;
   }
 
+  unsigned long now = millis();
+
+  // Ruta 1
   for (uint8_t i = 0; i < ROUTE1_COUNT; i++)
   {
     int lectura = digitalRead(ROUTE1_PINS[i]);
-    if (lastStateRoute1[i] == HIGH && lectura == LOW)
+
+    if (lectura != lastStateRoute1[i])
     {
-      dist1 = (i + 1) * DIST1_INCREMENT;
+      lastDebounceRoute1[i] = now;
+    }
+
+    if ((now - lastDebounceRoute1[i]) > REED_DEBOUNCE)
+    {
+      if (lastStateRoute1[i] == HIGH && lectura == LOW)
+      {
+        dist1 = (i + 1) * DIST1_INCREMENT;
+      }
     }
     lastStateRoute1[i] = lectura;
   }
+
+  // Ruta 2
   for (uint8_t i = 0; i < ROUTE2_COUNT; i++)
   {
     int lectura = digitalRead(ROUTE2_PINS[i]);
-    if (lastStateRoute2[i] == HIGH && lectura == LOW)
+
+    if (lectura != lastStateRoute2[i])
     {
-      int newDist = (i + 1) * DIST2_INCREMENT;
-      if (i > 3)
-        newDist += 20;
-      dist2 = newDist;
+      lastDebounceRoute2[i] = now;
+    }
+
+    if ((now - lastDebounceRoute2[i]) > REED_DEBOUNCE)
+    {
+      if (lastStateRoute2[i] == HIGH && lectura == LOW)
+      {
+        int newDist = (i + 1) * DIST2_INCREMENT;
+        if (i > 3)
+          newDist += 20;
+        dist2 = newDist;
+      }
     }
     lastStateRoute2[i] = lectura;
   }
 }
 
+void resetReedStates()
+{
+  static int *lastStateRoute1 = nullptr;
+  static int *lastStateRoute2 = nullptr;
+}
+
 void handleResetReed()
 {
   static int lastStateReset = HIGH;
+  static unsigned long lastDebounce = 0;
+  static bool needsFullReset = false;
+
   int lectura = digitalRead(RESET1_PIN);
-  if (lastStateReset == HIGH && lectura == LOW)
+  unsigned long now = millis();
+
+  if (lectura != lastStateReset)
   {
-    dist1 = 0;
-    dist2 = 0;
+    lastDebounce = now;
+  }
+
+  if ((now - lastDebounce) > DEBOUNCE_TIME)
+  {
+    if (lastStateReset == HIGH && lectura == LOW)
+    {
+      dist1 = 0;
+      dist2 = 0;
+      needsFullReset = true;
+
+      INFRAA = 0;
+      INFRAB = 0;
+      INFRAC = 0;
+      INFRAD = 0;
+    }
   }
   lastStateReset = lectura;
 }
@@ -301,6 +354,10 @@ void handleSonarSensors(unsigned long now)
 
 void echoCheck()
 {
+  // Verificación de seguridad
+  if (currentSensor >= NUM_SENSORS)
+    return;
+
   if (!sensors[currentSensor].sonar || !sensors[currentSensor].sonar->check_timer())
     return;
 
@@ -310,35 +367,54 @@ void echoCheck()
   if (sensors[currentSensor].purpose == SENSOR_PASS)
   {
     int *infraVar = nullptr;
-    if (sensors[currentSensor].id <= 2)
+    int buzzerIdx = -1;
+
+    // Mapeo correcto de sensores PASS a variables de infracción
+    // Verifica que el sensor SÍ sea SENSOR_PASS antes de asignar
+    uint8_t id = sensors[currentSensor].id;
+
+    if (id == 1 || id == 2)
+    {
       infraVar = &INFRAA;
-    else if (sensors[currentSensor].id <= 5)
+      buzzerIdx = 0;
+    }
+    else if (id == 4 || id == 5) // Saltamos id=3 porque es ARRIVAL
+    {
       infraVar = &INFRAB;
-    else if (sensors[currentSensor].id <= 7)
+      buzzerIdx = 0;
+    }
+    else if (id == 6 || id == 7)
+    {
       infraVar = &INFRAC;
-    else if (sensors[currentSensor].id <= 9)
+      buzzerIdx = 3;
+    }
+    else if (id == 8 || id == 9)
+    {
       infraVar = &INFRAD;
+      buzzerIdx = 2;
+    }
 
     if (infraVar)
     {
-      *infraVar = (dist > 0 && dist <= 3);
-
-      if (*infraVar)
+      // Mantener el estado de infracción
+      if (dist > 0 && dist <= 3)
       {
-        bool isRedLight = (sensors[currentSensor].group == 0 && (currentCycle == GREEN_B || currentCycle == YELLOW_B)) ||
-                          (sensors[currentSensor].group == 1 && (currentCycle == GREEN_A || currentCycle == YELLOW_A));
-        if (isRedLight)
+        *infraVar = 1;
+
+        // Verificar si hay luz roja
+        bool isRedLight = (sensors[currentSensor].group == 0 &&
+                           (currentCycle == GREEN_B || currentCycle == YELLOW_B)) ||
+                          (sensors[currentSensor].group == 1 &&
+                           (currentCycle == GREEN_A || currentCycle == YELLOW_A));
+
+        if (isRedLight && buzzerIdx != -1)
         {
-          int buzzerIdx = -1;
-          if (sensors[currentSensor].id <= 5)
-            buzzerIdx = 0;
-          else if (sensors[currentSensor].id <= 7)
-            buzzerIdx = 3;
-          else if (sensors[currentSensor].id <= 9)
-            buzzerIdx = 2;
-          if (buzzerIdx != -1)
-            alarmController.activarAlarm(buzzerIdx, INFRACCION);
+          alarmController.activarAlarm(buzzerIdx, INFRACCION);
         }
+      }
+      else
+      {
+        *infraVar = 0;
       }
     }
   }
@@ -346,12 +422,39 @@ void echoCheck()
   {
     if (dist > 0 && dist <= 3)
     {
-      if (sensors[currentSensor].id == RESET_SENSOR_ID)
+      uint8_t id = sensors[currentSensor].id;
+      if (id == RESET_SENSOR_ID)
         dist2 = 0;
-      else if (sensors[currentSensor].id == 13)
+      else if (id == 13)
         dist2 = 80;
+      // Agrega casos para otros sensores ARRIVAL (ids: 3, 11, 12)
+      else if (id == 3)
+        dist2 = 0; // O el valor que corresponda
+      else if (id == 11)
+        dist2 = 0; // O el valor que corresponda
+      else if (id == 12)
+        dist2 = 0; // O el valor que corresponda
     }
   }
+}
+
+void verificarConfiguracionSensores()
+{
+  Serial.println(F("=== Verificando Sensores ==="));
+
+  for (uint8_t i = 0; i < NUM_SENSORS; i++)
+  {
+    Serial.print(F("Sensor "));
+    Serial.print(i);
+    Serial.print(F(" - ID: "));
+    Serial.print(sensors[i].id);
+    Serial.print(F(", Grupo: "));
+    Serial.print(sensors[i].group);
+    Serial.print(F(", Tipo: "));
+    Serial.println(sensors[i].purpose == SENSOR_PASS ? F("PASS") : F("ARRIVAL"));
+  }
+
+  Serial.println(F("=== Verificación Completa ==="));
 }
 
 void updateTrafficLights(unsigned long now)
