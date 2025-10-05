@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
+
 from fastapi import APIRouter, Query, Depends, HTTPException
 from typing import Dict, Any, List, Optional, Tuple
 from datetime import datetime, date, time, timedelta, timezone
@@ -324,3 +325,109 @@ async def analytics_monthly(
             mk_series("Alertas Críticas", "crit_alerts"),
         ],
     }
+
+
+# ---------- /analytics/infractions-today ----------
+@router.get("/infractions-today")
+async def analytics_infractions_today(db: AsyncIOMotorDatabase = Depends(get_db)):
+    """
+    Devuelve las infracciones de semáforo detectadas hoy.
+    ASUNCIÓN: El evento de tipo 'infraction' contiene la placa en ev['data']['plate'].
+    """
+    start_utc, end_utc = day_range_utc(datetime.now(GT_TZ).date())
+
+    q = {
+        "type": "infraction",
+        "created_at": {
+            "$gte": start_utc.isoformat(),
+            "$lt": end_utc.isoformat(),
+        }
+    }
+    
+    cursor = db.events.find(q).sort("created_at", -1)
+    
+    infractions = []
+    async for ev in cursor:
+        data = ev.get("data") or {}
+        infractions.append({
+            "plate": data.get("plate", "N/A"),
+            "timestamp": ev.get("created_at"),
+            "ubication": ev.get("source", "Ubicación Desconocida") 
+        })
+        
+    return infractions
+
+
+# ---------- /analytics/top-weapons ----------
+@router.get("/top-weapons")
+async def analytics_top_weapons(
+    limit: int = Query(10, ge=1, le=50),
+    db: AsyncIOMotorDatabase = Depends(get_db)
+):
+    """
+    Devuelve un ranking de los tipos de armas más detectados.
+    """
+    pipeline = [
+        {
+            "$group": {
+                "_id": "$weapon_type",  # Agrupar por tipo de arma
+                "detection_count": {"$sum": 1},  # Contar cuántas veces aparece cada tipo
+                "representative_image_url": {"$first": "$image_url"} # Tomar la URL de la primera detección como representativa
+            }
+        },
+        {
+            "$sort": {"detection_count": -1} # Ordenar de más a menos detectadas
+        },
+        {
+            "$limit": limit # Limitar al top N
+        },
+        {
+            "$project": {
+                "_id": 0, # No incluir el campo _id
+                "weapon_type": "$_id",
+                "detection_count": "$detection_count",
+                "representative_image_url": "$representative_image_url"
+            }
+        }
+    ]
+    
+    cursor = db.detecciones_armas.aggregate(pipeline)
+    return [doc async for doc in cursor]
+
+
+# ---------- /analytics/top-persons ----------
+@router.get("/top-persons")
+async def analytics_top_persons(
+    limit: int = Query(10, ge=1, le=50),
+    db: AsyncIOMotorDatabase = Depends(get_db)
+):
+    """
+    Devuelve un ranking de las personas (IDs) más detectadas.
+    """
+    pipeline = [
+        {
+            "$group": {
+                "_id": "$person_id", # Agrupar por el ID de la persona
+                "detection_count": {"$sum": 1},
+                "face_image_url": {"$first": "$image_url"}
+            }
+        },
+        {
+            "$sort": {"detection_count": -1}
+        },
+        {
+            "$limit": limit
+        },
+        {
+            "$project": {
+                "_id": 0,
+                "person_id": "$_id",
+                "detection_count": "$detection_count",
+                "face_image_url": "$face_image_url"
+            }
+        }
+    ]
+    
+    cursor = db.detecciones_personas.aggregate(pipeline)
+    return [doc async for doc in cursor]
+
