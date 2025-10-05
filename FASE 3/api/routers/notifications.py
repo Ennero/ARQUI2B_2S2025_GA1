@@ -58,6 +58,28 @@ def _title_and_description(ev: Dict[str, Any]) -> (str, str, str):
     """
     t = _upper(ev.get("type"))
     data = ev.get("data") or {}
+
+    # PERSONA EN LISTA NEGRA
+    if t == "PERSON_ON_BLACKLIST":
+        person_id = _upper(data.get("person_id"))
+        location = data.get("location", "ubicación desconocida")
+        return (
+            "PERSONA_EN_LISTA_NEGRA",
+            "Persona de Interés Detectada",
+            f"Se ha detectado a la persona con ID {person_id} en {location}."
+        )
+    
+    # ARMA BLANCA
+    if t == "BLADED_WEAPON":
+        weapon_type = (data.get("weapon_type") or "arma blanca").capitalize()
+        location = data.get("location", "ubicación desconocida")
+        return (
+            "ARMA_BLANCA",
+            "Posible Amenaza: Arma Blanca Detectada",
+            f"{weapon_type} detectada en {location}. Se requiere atención inmediata."
+        )
+
+
     # PANICO
     if t == "PANIC":
         btn = _upper(data.get("button"))
