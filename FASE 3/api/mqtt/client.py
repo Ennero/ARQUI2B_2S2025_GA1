@@ -121,7 +121,7 @@ async def run_mqtt():
                         "deleted_at": None
                     }
                     db = await get_db()
-                    await db.detecciones_placas_vehiculos.insert_one(detection_document)
+                    await db.plate_detections.insert_one(detection_document)
                     print("[MQTT] Plate detection saved to MongoDB")
                 except Exception as e:
                     print(f"[MQTT] Error saving plate detection: {e}")
@@ -145,7 +145,7 @@ async def run_mqtt():
                         "deleted_at": None
                     }
                     db = await get_db()
-                    await db.detecciones_personas.insert_one(detection_document)
+                    await db.person_detections.insert_one(detection_document)
                     print("[MQTT] Person detection saved to MongoDB")
                 except Exception as e:
                     print(f"[MQTT] Error saving person detection: {e}")
@@ -169,7 +169,7 @@ async def run_mqtt():
                         "deleted_at": None
                     }
                     db = await get_db()
-                    await db.detecciones_armas.insert_one(detection_document)
+                    await db.weapon_detections.insert_one(detection_document)
                     print("[MQTT] Weapon detection saved to MongoDB")
                 except Exception as e:
                     print(f"[MQTT] Error saving weapon detection: {e}")
