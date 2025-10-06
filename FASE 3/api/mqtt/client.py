@@ -102,5 +102,77 @@ async def run_mqtt():
                     print("[MQTT] Ignored: invalid JSON for readings")
                 except Exception as e:
                     print(f"[MQTT] Error saving readings: {e}")
+
+            # Tópico para Detección de Placas
+            elif f"{message.topic}".strip() == f"{settings.mqtt_client_topic_prefix}/gt/zone1/detections/plates".strip():
+                print(f"Plate Detection received: {payload_text}")
+                try:
+                    data = json.loads(payload_text)
+                    if not isinstance(data, dict):
+                        print("[MQTT] Ignored: plate detection payload is not a JSON object")
+                        continue
+                    
+                    detection_document = {
+                        "plate_text": data.get("plate_text"),
+                        "source": data.get("source"),
+                        "location": data.get("location"),
+                        "created_at": utcnow_iso(),
+                        "updated_at": utcnow_iso(),
+                        "deleted_at": None
+                    }
+                    db = await get_db()
+                    await db.detecciones_placas_vehiculos.insert_one(detection_document)
+                    print("[MQTT] Plate detection saved to MongoDB")
+                except Exception as e:
+                    print(f"[MQTT] Error saving plate detection: {e}")
+
+            # Tópico para Detección de Personas
+            elif f"{message.topic}".strip() == f"{settings.mqtt_client_topic_prefix}/gt/zone1/detections/persons".strip():
+                print(f"Person Detection received: {payload_text}")
+                try:
+                    data = json.loads(payload_text)
+                    if not isinstance(data, dict):
+                        print("[MQTT] Ignored: person detection payload is not a JSON object")
+                        continue
+
+                    detection_document = {
+                        "person_id": data.get("person_id"),
+                        "source": data.get("source"),
+                        "location": data.get("location"),
+                        "image_url": data.get("image_url"),
+                        "created_at": utcnow_iso(),
+                        "updated_at": utcnow_iso(),
+                        "deleted_at": None
+                    }
+                    db = await get_db()
+                    await db.detecciones_personas.insert_one(detection_document)
+                    print("[MQTT] Person detection saved to MongoDB")
+                except Exception as e:
+                    print(f"[MQTT] Error saving person detection: {e}")
+
+            # Tópico para Detección de Armas
+            elif f"{message.topic}".strip() == f"{settings.mqtt_client_topic_prefix}/gt/zone1/detections/weapons".strip():
+                print(f"Weapon Detection received: {payload_text}")
+                try:
+                    data = json.loads(payload_text)
+                    if not isinstance(data, dict):
+                        print("[MQTT] Ignored: weapon detection payload is not a JSON object")
+                        continue
+
+                    detection_document = {
+                        "weapon_type": data.get("weapon_type"),
+                        "source": data.get("source"),
+                        "location": data.get("location"),
+                        "image_url": data.get("image_url"),
+                        "created_at": utcnow_iso(),
+                        "updated_at": utcnow_iso(),
+                        "deleted_at": None
+                    }
+                    db = await get_db()
+                    await db.detecciones_armas.insert_one(detection_document)
+                    print("[MQTT] Weapon detection saved to MongoDB")
+                except Exception as e:
+                    print(f"[MQTT] Error saving weapon detection: {e}")
+
             else:
                 pass
