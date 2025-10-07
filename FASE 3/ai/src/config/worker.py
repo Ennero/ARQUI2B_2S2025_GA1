@@ -29,7 +29,9 @@
 
 from multiprocessing import Process
 from services.weapons import run_weapons, WeaponsService
-from config.settings import settings 
+from services.plates import run_plates_cascade
+from services.faces import run_faces
+from config.settings import settings
 
 class Worker:
     def __init__(self):
@@ -44,11 +46,41 @@ class Worker:
                   self.weapons_service.conf_weapon,
                   self.weapons_service.weapon_type)
         )
-        self.weapons_pt_process.daemon = True  # opcional
+        self.weapons_pt_process.daemon = True
+
+        self.plates_process = Process(
+            target=run_plates_cascade,
+            args=(settings.video_source, settings.api_url)
+        )
+        self.plates_process.daemon = True
+
+        self.faces_process = Process(
+            target=run_faces,
+            args=(settings.video_source, settings.api_url, "models/blacklist_lbph.yml", "models/blacklist_labels.json")
+        )
+        self.faces_process.daemon = True
 
     def perform(self):
-        self.weapons_pt_process.start()
-        # self.weapons_pt_process.join()
-    
-    # def stop(self):
-    #     pass
+        if settings.perform_algorithm_for == 'weapons':
+            if not self.weapons_pt_process.is_alive():
+                self.weapons_pt_process.start()
+        elif settings.perform_algorithm_for == 'plates':
+            if not self.plates_process.is_alive():
+                self.plates_process.start()
+        elif settings.perform_algorithm_for == 'faces':
+            if not self.faces_process.is_alive():
+                self.faces_process.start()
+
+    def stop(self):
+        if settings.perform_algorithm_for == 'weapons':
+            if self.weapons_pt_process and self.weapons_pt_process.is_alive():
+                self.weapons_pt_process.terminate()
+                self.weapons_pt_process.join(timeout=2)
+        elif settings.perform_algorithm_for == 'plates':
+            if self.plates_process and self.plates_process.is_alive():
+                self.plates_process.terminate()
+                self.plates_process.join(timeout=2)
+        elif settings.perform_algorithm_for == 'faces':
+            if self.faces_process and self.faces_process.is_alive():
+                self.faces_process.terminate()
+                self.faces_process.join(timeout=2)

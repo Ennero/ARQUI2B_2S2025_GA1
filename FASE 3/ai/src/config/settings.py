@@ -49,6 +49,12 @@ class Settings(BaseSettings):
     video_source: str = Field(default='0', frozen=True) # "0", "1" or URL
     conf_weapon: float = Field(default=0.45)
 
+    ocr_langs: str = 'en'
+    read_every_n_frames: int = 5
+    conf_ocr_min: float = 0.3
+    plate_regex_pattern: str = r"[A-Z0-9]{5,8}"
+    plate_min_chars: int = 5
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
