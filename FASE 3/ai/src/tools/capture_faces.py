@@ -35,7 +35,13 @@ CASCADE = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface
 def main(person_name: str, out_dir="blacklist", video_source="0", max_imgs=30):
     os.makedirs(Path(out_dir)/person_name, exist_ok=True)
     src = int(video_source) if str(video_source).isdigit() else video_source
-    cap = cv2.VideoCapture(src)
+
+    if isinstance(src, int):
+        cap = cv2.VideoCapture(src, cv2.CAP_AVFOUNDATION)
+    else:
+        cap = cv2.VideoCapture(src)
+
+
     if not cap.isOpened():
         raise RuntimeError(f"No se pudo abrir VIDEO_SOURCE={video_source}")
 
