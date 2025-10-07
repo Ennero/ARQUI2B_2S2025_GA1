@@ -41,7 +41,7 @@ from contextlib import asynccontextmanager
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Start Mongo Database
-    await init_mongo()
+    # await init_mongo()
 
     # Execute seeds
     # await seed_services() #! Still have to ensure uniq records
