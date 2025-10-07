@@ -34,4 +34,13 @@ Then, run this command in the terminal.
 ---
 
 
+## Add a new person to the face recognition model
+
+
+```bash
+    python3 src/utils/capture_faces.py --person "marcos"
+    python src/train/faces.py
+    fastapi dev src/main.py
+```
+
 Built with :blue_heart: by **Bondel Technologies S, A.**

@@ -43,7 +43,7 @@ def run_weapons(video_source: str, conf_weapon: float, weapon_type: str = "knife
         print(f"[ERR] Could not open VIDEO_SOURCE: {video_source}")
         return
 
-    model = YOLO("yolov8n.pt")
+    model = YOLO("yolov8s.pt")
 
     last_sent = 0.0
     while True:
