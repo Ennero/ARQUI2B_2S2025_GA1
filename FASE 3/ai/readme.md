@@ -38,7 +38,7 @@ Then, run this command in the terminal.
 
 
 ```bash
-    python3 src/tools/capture_faces.py --person "marcos"
+    python3 src/tools/capture_faces.py --person "fulano" --video 1
     python src/train/faces.py
     fastapi dev src/main.py
 ```
