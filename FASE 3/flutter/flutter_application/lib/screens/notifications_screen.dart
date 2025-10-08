@@ -24,57 +24,57 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     try {
       // Obtain notifications from the backend
       final List<NotificationModel> loadedNotifications =
-          // await NotificationService.getNotifications();
-      [
-        {
-          "id": "alrt_9f86d",
-          "tipo": "PANICO",
-          "titulo": "Botón de Pánico Activado",
-          "descripcion": "Se ha recibido una alerta de pánico desde la fuente PANICO3.",
-          "fuente": "PANICO3",
-          "timestamp": "2025-09-05T16:21:15Z" // Formato ISO 8601
-        },
-        {
-          "id": "alrt_7c3a1",
-          "tipo": "INFRACCION",
-          "titulo": "Infracción de Semáforo Detectada",
-          "descripcion": "Un vehículo ha cruzado en rojo en el punto de control INFRAB.",
-          "fuente": "INFRAB",
-          "timestamp": "2025-09-05T16:20:55Z"
-        },
-        {
-          "id": "alrt_b4e22",
-          "tipo": "SISMO",
-          "titulo": "Alerta Sísmica",
-          "descripcion": "Se ha detectado una vibración anómala. Protocolos de seguridad activados.",
-          "fuente": "SISMO",
-          "timestamp": "2025-09-05T15:10:02Z"
-        },
-        {
-          "id": "alrt_b57e9",
-          "tipo": "CALIDAD DE AIRE",
-          "titulo": "Alerta de calidad de aire",
-          "descripcion": "La calidad del aire en el entorno no es la adecuada.",
-          "fuente": "**Sensor que lo detecta",
-          "timestamp": "2025-09-27T13:15:45Z"
-        },
-        {
-          "id": "alrt_b32a8",
-          "tipo": "PERSONA EN LISTA NEGRA DETECTADA",
-          "titulo": "Persona en lista negra detectada",
-          "descripcion": "Se detectó una persona con record criminal en la ciudad.",
-          "fuente": "**Sensor que lo detecta",
-          "timestamp": "2025-09-27T13:15:45Z"
-        },
-        {
-          "id": "alrt_c9j24",
-          "tipo": "ARMA BLANCA DETECTADA",
-          "titulo": "Arma blanca detectada",
-          "descripcion": "Se detectó un arma blanca en la ciudad.",
-          "fuente": "**Sensor que lo detecta",
-          "timestamp": "2025-09-27T13:15:45Z"
-        }
-      ].map((json) => NotificationModel.fromJson(json)).toList();
+          await NotificationService.getNotifications();
+      // [
+      //   {
+      //     "id": "alrt_9f86d",
+      //     "tipo": "PANICO",
+      //     "titulo": "Botón de Pánico Activado",
+      //     "descripcion": "Se ha recibido una alerta de pánico desde la fuente PANICO3.",
+      //     "fuente": "PANICO3",
+      //     "timestamp": "2025-09-05T16:21:15Z" // Formato ISO 8601
+      //   },
+      //   {
+      //     "id": "alrt_7c3a1",
+      //     "tipo": "INFRACCION",
+      //     "titulo": "Infracción de Semáforo Detectada",
+      //     "descripcion": "Un vehículo ha cruzado en rojo en el punto de control INFRAB.",
+      //     "fuente": "INFRAB",
+      //     "timestamp": "2025-09-05T16:20:55Z"
+      //   },
+      //   {
+      //     "id": "alrt_b4e22",
+      //     "tipo": "SISMO",
+      //     "titulo": "Alerta Sísmica",
+      //     "descripcion": "Se ha detectado una vibración anómala. Protocolos de seguridad activados.",
+      //     "fuente": "SISMO",
+      //     "timestamp": "2025-09-05T15:10:02Z"
+      //   },
+      //   {
+      //     "id": "alrt_b57e9",
+      //     "tipo": "CALIDAD DE AIRE",
+      //     "titulo": "Alerta de calidad de aire",
+      //     "descripcion": "La calidad del aire en el entorno no es la adecuada.",
+      //     "fuente": "**Sensor que lo detecta",
+      //     "timestamp": "2025-09-27T13:15:45Z"
+      //   },
+      //   {
+      //     "id": "alrt_b32a8",
+      //     "tipo": "PERSONA EN LISTA NEGRA DETECTADA",
+      //     "titulo": "Persona en lista negra detectada",
+      //     "descripcion": "Se detectó una persona con record criminal en la ciudad.",
+      //     "fuente": "**Sensor que lo detecta",
+      //     "timestamp": "2025-09-27T13:15:45Z"
+      //   },
+      //   {
+      //     "id": "alrt_c9j24",
+      //     "tipo": "ARMA BLANCA DETECTADA",
+      //     "titulo": "Arma blanca detectada",
+      //     "descripcion": "Se detectó un arma blanca en la ciudad.",
+      //     "fuente": "**Sensor que lo detecta",
+      //     "timestamp": "2025-09-27T13:15:45Z"
+      //   }
+      // ].map((json) => NotificationModel.fromJson(json)).toList();
 
       setState(() {
         notifications = loadedNotifications;
