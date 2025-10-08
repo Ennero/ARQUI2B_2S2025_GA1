@@ -38,13 +38,13 @@ class Worker:
         self.weapons_service = WeaponsService(
             video_source=settings.video_source,
             conf_weapon=settings.conf_weapon,
-            weapon_type="knife"
+            target_classes=["Knife", "handgun", "Pistol", "rifle", "Grenade"]
         )
         self.weapons_pt_process = Process(
             target=run_weapons,
             args=(self.weapons_service.video_source,
                   self.weapons_service.conf_weapon,
-                  self.weapons_service.weapon_type)
+                  ["Knife", "handgun", "Pistol", "rifle", "Grenade"])
         )
         self.weapons_pt_process.daemon = True
 

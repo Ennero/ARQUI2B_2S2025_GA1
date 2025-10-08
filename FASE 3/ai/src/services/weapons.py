@@ -30,12 +30,25 @@
 import time
 import cv2
 from ultralytics import YOLO
+from typing import List
 
-def run_weapons(video_source: str, conf_weapon: float, weapon_type: str = "knife"):
+# El modelo debe estar entrenado en un dataset de armas
+# Reemplaza "yolov5s.pt" con el nombre de tu modelo de detección de armas
+WEAPONS_MODEL_PATH = "yolov8s_weapons.pt"
+
+# Definimos las clases que queremos detectar
+# Asumimos que el modelo entrenado tiene las clases "knife" y "gun"
+# Ajusta esta lista según las clases que tenga tu modelo.
+TARGET_WEAPONS = ["Knife", "handgun", "Pistol", "rifle", "Grenade"] # Lista de armas a detectar
+
+def run_weapons(video_source: str, conf_weapon: float, target_classes: List[str] = TARGET_WEAPONS):
     source = 0 if str(video_source).isdigit() else video_source
 
     if isinstance(source, int):
-        cap = cv2.VideoCapture(source, cv2.CAP_AVFOUNDATION)
+        # Usamos cv2.CAP_DSHOW o cv2.CAP_V4L2 en Windows/Linux si es necesario, 
+        # pero mantenemos CAP_AVFOUNDATION para macOS por ahora.
+        # cap = cv2.VideoCapture(source, cv2.CAP_AVFOUNDATION)
+        cap = cv2.VideoCapture(source)
     else:
         cap = cv2.VideoCapture(source)
 
@@ -43,7 +56,12 @@ def run_weapons(video_source: str, conf_weapon: float, weapon_type: str = "knife
         print(f"[ERR] Could not open VIDEO_SOURCE: {video_source}")
         return
 
-    model = YOLO("yolov8s.pt")
+    # >>> CAMBIO CLAVE 1: Cargar el modelo de detección de armas <<<
+    try:
+        model = YOLO(WEAPONS_MODEL_PATH)
+    except Exception as e:
+        print(f"[ERR] Could not load YOLO model: {WEAPONS_MODEL_PATH}. Check if the file exists and is valid. Error: {e}")
+        return
 
     last_sent = 0.0
     while True:
@@ -58,30 +76,46 @@ def run_weapons(video_source: str, conf_weapon: float, weapon_type: str = "knife
                 cls_id = int(b.cls[0])
                 name = r.names[cls_id]
                 conf = float(b.conf[0])
-                if name == weapon_type and conf >= conf_weapon:
-                    print("knife detected", conf)
+                
+                # >>> CAMBIO CLAVE 2: Comprobar si el nombre de la clase está en la lista de objetivos <<<
+                if name in target_classes and conf >= conf_weapon:
+                    print(f"[{name} detected] confidence: {conf:.2f}")
+
+                    # Lógica de dibujo del bounding box
+                    x1,y1,x2,y2 = map(int, b.xyxy[0].tolist())
+                    
+                    # Color rojo (0,0,255) para advertencia
+                    color = (0, 0, 255)
+                    
+                    cv2.rectangle(frame, (x1,y1), (x2,y2), color, 2)
+                    cv2.putText(frame, f"{name} {conf:.2f}", (x1, y1-8),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
+                    
+                    # Lógica de notificación (descomentar si tienes post_event)
                     # now = time.time()
                     # if now - last_sent > 2.0:
-                    #     post_event(frame, conf)
+                    #     post_event(frame, conf, name) # podrías pasar el tipo de arma
                     #     last_sent = now
 
-                    x1,y1,x2,y2 = map(int, b.xyxy[0].tolist())
-                    cv2.rectangle(frame, (x1,y1), (x2,y2), (0,255,0), 2)
-                    cv2.putText(frame, f"{name} {conf:.2f}", (x1, y1-8),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,255,0), 2)
-
-        cv2.imshow("Armas blancas (knife)", frame)
-        if cv2.waitKey(1) & 0xFF == 27:  # ESC for exiting
+        # El título de la ventana ahora es más general
+        cv2.imshow("Detección de Armas", frame) 
+        if cv2.waitKey(1) & 0xFF == 27:  # ESC para salir
             break
 
-        # time.sleep(0.02)
-
     cap.release()
+    cv2.destroyAllWindows()
 
 
+# ---
+# La clase de servicio (opcionalmente)
 class WeaponsService:
-    def __init__(self, video_source: str, conf_weapon: float, weapon_type: str = "knife"):
+    # Se actualiza el parámetro para usar target_classes
+    def __init__(self, video_source: str, conf_weapon: float, target_classes: List[str] = TARGET_WEAPONS):
         self.video_source = video_source
         self.conf_weapon = conf_weapon
-        self.weapon_type = weapon_type
+        self.target_classes = target_classes
 
+# Ejemplo de uso:
+# Si quisieras ejecutarlo directamente:
+# run_weapons("ruta/a/tu/video.mp4", conf_weapon=0.5) 
+# run_weapons(0, conf_weapon=0.5, target_classes=["knife", "pistol", "rifle"])
