@@ -29,7 +29,7 @@
 
 from multiprocessing import Process
 from services.weapons import run_weapons, WeaponsService
-from services.plates import run_plates_cascade
+from services.plates import run_plate_recognizer
 from services.faces import run_faces
 from config.settings import settings
 
@@ -49,8 +49,10 @@ class Worker:
         self.weapons_pt_process.daemon = True
 
         self.plates_process = Process(
-            target=run_plates_cascade,
-            args=(settings.video_source, settings.api_url)
+            target=run_plate_recognizer,
+            args=(settings.video_source, settings.api_url),
+            # kwargs opcionales:
+            # kwargs={"valid_regexes": [r"^P[0-9]{3}[A-Z]{3}$"]}
         )
         self.plates_process.daemon = True
 
