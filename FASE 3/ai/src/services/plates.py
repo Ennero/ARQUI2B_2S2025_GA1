@@ -27,13 +27,11 @@
 # · ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~
 # · 
 
-import os, time, re, base64, datetime, requests
-from typing import Optional, List, Tuple
-import cv2
+import os, re, cv2, time, base64, datetime, requests, math
 import numpy as np
-import easyocr
+from collections import deque, Counter
+from typing import List, Tuple, Optional
 
-# ---------- Utils ----------
 def _to_b64_jpeg(img_bgr: np.ndarray) -> Optional[str]:
     ok, buf = cv2.imencode(".jpg", img_bgr)
     return base64.b64encode(buf).decode("utf-8") if ok else None
@@ -42,6 +40,7 @@ def _normalize_text(t: str) -> str:
     return re.sub(r"[^A-Z0-9]", "", t.upper())
 
 def _open_capture(source_str: str) -> cv2.VideoCapture:
+    # macOS: AVFoundation mejora mucho abrir la cámara integrada
     src = int(source_str) if str(source_str).isdigit() else source_str
     try:
         cap = cv2.VideoCapture(src, cv2.CAP_AVFOUNDATION) if isinstance(src, int) else cv2.VideoCapture(src)
@@ -51,174 +50,245 @@ def _open_capture(source_str: str) -> cv2.VideoCapture:
         cap = cv2.VideoCapture(src)
     return cap
 
-# chequea que haya borde oscuro y centro claro (placa blanca con marco)
+def _order_quad(pts: np.ndarray) -> np.ndarray:
+    rect = np.zeros((4, 2), dtype="float32")
+    s = pts.sum(axis=1)
+    diff = np.diff(pts, axis=1)
+    rect[0] = pts[np.argmin(s)]
+    rect[2] = pts[np.argmax(s)]
+    rect[1] = pts[np.argmin(diff)]
+    rect[3] = pts[np.argmax(diff)]
+    return rect
+
+def _four_point_warp(image: np.ndarray, pts: np.ndarray, out_w: int = 320, out_h: int = 96) -> np.ndarray:
+    rect = _order_quad(pts.astype("float32"))
+    dst = np.array([[0,0],[out_w-1,0],[out_w-1,out_h-1],[0,out_h-1]], dtype="float32")
+    M = cv2.getPerspectiveTransform(rect, dst)
+    warped = cv2.warpPerspective(image, M, (out_w, out_h))
+    return warped
+
+def _rectangularity(cnt: np.ndarray) -> float:
+    area = cv2.contourArea(cnt)
+    x,y,w,h = cv2.boundingRect(cnt)
+    rect_area = float(w*h) if w*h>0 else 1.0
+    return area/rect_area
+
 def _border_interior_check(gray_roi: np.ndarray, border_frac: float = 0.08) -> bool:
+    """placa clara con marco oscuro suele funcionar bien"""
     h, w = gray_roi.shape[:2]
     bw = max(2, int(min(w, h) * border_frac))
     interior = gray_roi[bw:h-bw, bw:w-bw] if h>2*bw and w>2*bw else gray_roi
     if interior.size == 0:
         return False
-    border_mask = np.ones_like(gray_roi, dtype=np.uint8)
-    border_mask[bw:h-bw, bw:w-bw] = 0
-    border = gray_roi.copy()
-    border[border_mask == 0] = 0
-
+    mask = np.ones_like(gray_roi, dtype=np.uint8)
+    mask[bw:h-bw, bw:w-bw] = 0
+    border_vals = gray_roi[mask == 1]
     m_int = float(np.mean(interior))
-    m_bor = float(np.mean(border[border_mask == 1])) if np.count_nonzero(border_mask) else 255.0
+    m_bor = float(np.mean(border_vals)) if border_vals.size else 255.0
+    return (m_int >= 120.0) and (m_bor + 15.0 < m_int)
 
-    # interior claro, borde oscuro
-    return (m_int >= 130.0) and (m_bor + 15.0 < m_int)
-
-# texto oscuro en fondo claro (blackhat)
-def _has_text_signal(gray_roi: np.ndarray) -> bool:
+def _text_signal(gray_roi: np.ndarray) -> bool:
+    """blackhat para resaltar texto oscuro; umbral por porcentaje de pixeles"""
     k = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
     bh = cv2.morphologyEx(gray_roi, cv2.MORPH_BLACKHAT, k)
-    # binariza puntos “oscuros” relevantes
     _, thr = cv2.threshold(bh, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
     ratio = float(np.count_nonzero(thr)) / thr.size
-    return ratio > 0.01  # >=1% de pixeles con “texto oscuro”
+    return ratio > 0.008  # ~0.8%
+
+def _common_fixes(s: str) -> str:
+    # Correcciones típicas OCR: O↔0, I↔1, B↔8, S↔5, Z↔2
+    s = s.replace("O", "0") if re.search(r"\d", s) else s  # si hay números, O -> 0
+    s = s.replace("I", "1")
+    s = s.replace("B", "8")
+    s = s.replace("S", "5")
+    s = s.replace("Z", "2")
+    return s
 
 # ---------- Core ----------
-def run_plates_cascade(
+def run_plate_recognizer(
     video_source: str,
-    rpi_api_url: str,
+    api_url: str,
     ocr_langs: str = "en",
-    plate_regex: str = r"[A-Z0-9]{5,8}",
-    min_chars: int = 5,
+    # patrones válidos (edita estos para TU formato local)
+    valid_regexes: List[str] = None,
     draw_overlay: bool = True,
     send_cooldown_s: float = 3.0,
-    read_every_n_frames: int = 2,
-    scaleFactor: float = 1.1,
-    minNeighbors: int = 5,
-    minSize: Tuple[int,int] = (60, 20),
-    aspect_min: float = 2.3,
-    aspect_max: float = 5.8,
-) -> None:
+    read_stride: int = 2,          # procesa 1 de cada N frames
+    canny_lo: int = 60,
+    canny_hi: int = 170,
+    min_area: int = 2500,
+    max_area: int = 140000,
+    min_ratio: float = 2.4,
+    max_ratio: float = 6.0,
+    approx_eps: float = 0.02,      # aprox poligonal
+    vote_window: int = 7,          # N frames para votar
+    ocr_conf_min: float = 0.28,    # conf mínima EasyOCR
+):
     """
-    Detector de placas con Haar-cascade + validaciones visuales + OCR en el recorte.
-    Sin entrenamiento. Multiprocessing-friendly (solo args simples).
+    Pipeline clásico: candidatos por morfología/contornos → deskew → EasyOCR → regex → voting → POST
     """
+    # Regex válidos
+    if valid_regexes is None:
+        # genérico 5–8 alfanum / y 2 ejemplos de formatos tipo "P123ABC" y "ABC1234"
+        valid_regexes = [r"^[A-Z0-9]{5,8}$", r"^P[0-9]{3}[A-Z]{3}$", r"^[A-Z]{3}[0-9]{4}$"]
+    regex_list = [re.compile(rx) for rx in valid_regexes]
+
+    # OCR
+    import easyocr
+    reader = easyocr.Reader(ocr_langs.split(","), gpu=False)
+
+    # Video
     cap = _open_capture(video_source)
     if not cap.isOpened():
-        print(f"[plates-cv] ERROR: no se pudo abrir VIDEO_SOURCE={video_source}")
+        print(f"[plates] ERROR: no se pudo abrir VIDEO_SOURCE={video_source}")
         return
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
     cap.set(cv2.CAP_PROP_FPS, 30)
 
-    # Haar cascade (incluido con opencv-python)
-    cascade_path = os.path.join(cv2.data.haarcascades, "haarcascade_russian_plate_number.xml")
-    if not os.path.exists(cascade_path):
-        print("[plates-cv] ERROR: no se encontró haarcascade_russian_plate_number.xml")
-        print("Instala opencv-python adecuado o coloca el xml en tu proyecto y actualiza la ruta.")
-        return
-    plate_cascade = cv2.CascadeClassifier(cascade_path)
-
-    # OCR una sola instancia
-    reader = easyocr.Reader(ocr_langs.split(","), gpu=False)
-    regex = re.compile(plate_regex)
-
-    def _is_plate_text(t: str) -> bool:
-        t2 = _normalize_text(t)
-        return len(t2) >= min_chars and bool(regex.fullmatch(t2))
-
-    def _post_plate(texto: str, frame_bgr: np.ndarray, conf_ocr: float):
-        payload = {
-            "tipo": "placa",
-            "subtipo": "N/A",
-            "meta": {
-                "conf": float(conf_ocr),
-                "texto": _normalize_text(texto),
-                "timestamp": datetime.datetime.utcnow().isoformat(),
-                "ubicacion": "zona1_camara_1",
-            },
-            "img_b64": _to_b64_jpeg(frame_bgr),
-        }
-        try:
-            requests.post(rpi_api_url, json=payload, timeout=3)
-        except Exception as e:
-            print("[plates-cv] WARN POST:", e)
-
     last_sent_text = ""
     last_sent_t = 0.0
-
-    print(f"[plates-cv] iniciado. fuente={video_source} → POST {rpi_api_url}")
     frame_id = 0
+    votes = deque(maxlen=vote_window)  # buffer de strings detectados recientemente
+
+    print(f"[plates] iniciado. fuente={video_source} → POST {api_url}")
     while True:
         ok, frame = cap.read()
         if not ok:
-            time.sleep(0.05); continue
+            time.sleep(0.03); continue
         frame_id += 1
 
-        if frame_id % read_every_n_frames != 0:
+        if frame_id % read_stride != 0:
             if draw_overlay:
-                cv2.imshow("Plates (Haar + OCR)", frame)
+                cv2.imshow("Plates (from scratch)", frame)
                 if cv2.waitKey(1) & 0xFF == 27: break
             continue
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        gray = cv2.equalizeHist(gray)  # mejora contraste global
+        # pre-mejoras
+        gray_blur = cv2.bilateralFilter(gray, 7, 50, 50)
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+        gray_eq = clahe.apply(gray_blur)
 
-        # 1) Detección de candidatos con Haar
-        rects = plate_cascade.detectMultiScale(
-            gray,
-            scaleFactor=scaleFactor,
-            minNeighbors=minNeighbors,
-            minSize=minSize
-        )
+        # bordes
+        edges = cv2.Canny(gray_eq, canny_lo, canny_hi)
+        edges = cv2.dilate(edges, np.ones((3,3), np.uint8), iterations=1)
 
-        detections = []
-        for (x, y, w, h) in rects:
-            if h <= 0 or w <= 0:
+        # contornos
+        contours, _ = cv2.findContours(edges, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+        candidates: List[Tuple[np.ndarray, Tuple[int,int,int,int]]] = []
+
+        for cnt in contours:
+            x,y,w,h = cv2.boundingRect(cnt)
+            area = w*h
+            if area < min_area or area > max_area:
                 continue
-            aspect = w / float(h)
-            if aspect < aspect_min or aspect > aspect_max:
+            ratio = w / float(h)
+            if ratio < min_ratio or ratio > max_ratio:
                 continue
 
+            # rectangularidad
+            rectness = _rectangularity(cnt)
+            if rectness < 0.60:  # muy “dentado”, descartar
+                continue
+
+            peri = cv2.arcLength(cnt, True)
+            approx = cv2.approxPolyDP(cnt, approx_eps * peri, True)
+            if len(approx) != 4:
+                continue
+
+            pts = approx.reshape(-1,2)
+            # chequeos visuales adicionales
             roi = frame[y:y+h, x:x+w]
             if roi.size == 0:
                 continue
-
-            # 2) Validaciones visuales: borde/interior y señal de texto
-            gray_roi = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
-            if not _border_interior_check(gray_roi, border_frac=0.08):
+            rgray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+            if not _border_interior_check(rgray, border_frac=0.08):
                 continue
-            if not _has_text_signal(gray_roi):
+            if not _text_signal(rgray):
                 continue
 
-            # 3) OCR en ROI binarizado suave
-            den = cv2.fastNlMeansDenoising(gray_roi, None, 7, 7, 21)
-            thr = cv2.adaptiveThreshold(den, 255, cv2.ADAPTIVE_THRESH_MEAN_C,
-                                        cv2.THRESH_BINARY, 31, 5)
+            candidates.append((pts, (x,y,w,h)))
+
+        detections = []
+        for quad_pts, (x,y,w,h) in candidates:
+            try:
+                warped = _four_point_warp(frame, quad_pts, out_w=360, out_h=110)
+            except:
+                warped = frame[y:y+h, x:x+w]
+                if warped.size == 0:
+                    continue
+
+            # binarización suave (placa clara / letras oscuras)
+            wgray = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
+            wgray = cv2.fastNlMeansDenoising(wgray, None, 7, 7, 21)
+            thr = cv2.adaptiveThreshold(wgray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                                        cv2.THRESH_BINARY, 31, 3)
             thr_rgb = cv2.cvtColor(thr, cv2.COLOR_GRAY2BGR)
 
             results = reader.readtext(thr_rgb)  # [(bbox, text, conf)]
             best = None
             for _, text, conf in results:
+                if float(conf) < ocr_conf_min: 
+                    continue
                 tnorm = _normalize_text(text)
-                if _is_plate_text(tnorm):
+                tnorm = _common_fixes(tnorm)
+                # valida contra cualquiera de los regex
+                if any(rx.fullmatch(tnorm) for rx in regex_list):
                     if (best is None) or (conf > best[1]):
                         best = (tnorm, float(conf))
 
             if best:
-                detections.append((best[0], best[1], (x,y,w,h)))
+                detections.append((best[0], best[1], quad_pts))
 
-        # 4) Overlay + POST (debounce)
-        for texto, conf_ocr, (x,y,w,h) in detections:
+        # Voting multi-frame
+        display_texts = []
+        for texto, conf, quad_pts in detections:
+            votes.append(texto)
+            # pinta
             if draw_overlay:
-                cv2.rectangle(frame, (x,y), (x+w,y+h), (0,255,255), 2)
-                cv2.putText(frame, f"{texto} {conf_ocr:.2f}", (x, max(0, y-8)),
+                cv2.polylines(frame, [quad_pts], True, (0,255,255), 2)
+                x0, y0 = quad_pts[0][0], quad_pts[0][1]
+                cv2.putText(frame, f"{texto} {conf:.2f}", (x0, max(0, y0-8)),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0,255,255), 2)
+            display_texts.append(texto)
 
+        if votes:
+            # mayoría simple
+            c = Counter(votes)
+            voted_text, voted_count = c.most_common(1)[0]
+            # envía si cambió o si pasó el cooldown
             now = time.time()
-            if texto != last_sent_text or (now - last_sent_t) > send_cooldown_s:
-                print(f"[plates-cv] detectada: {texto} (ocr={conf_ocr:.2f})")
-                _post_plate(texto, frame, conf_ocr)
-                last_sent_text, last_sent_t = texto, now
+            if voted_text and (voted_text != last_sent_text or (now - last_sent_t) > send_cooldown_s):
+                # sólo envía si aparece en los últimos 2-3 frames (evita fantasmas antiguos)
+                if voted_count >= max(2, vote_window//3):
+                    payload = {
+                        "tipo": "placa",
+                        "subtipo": "N/A",
+                        "meta": {
+                            "texto": voted_text,
+                            "conf_voto": voted_count/float(len(votes)),
+                            "timestamp": datetime.datetime.utcnow().isoformat(),
+                            "ubicacion": "zona1_camara_1",
+                        },
+                        "img_b64": _to_b64_jpeg(frame)
+                    }
+                    # try:
+                    #     requests.post(api_url, json=payload, timeout=3)
+                    #     print(f"[plates] POST {voted_text} (vote={voted_count}/{len(votes)})")
+                    # except Exception as e:
+                    #     print("[plates] WARN POST:", e)
+                    print(voted_text)
+                    last_sent_text, last_sent_t = voted_text, now
 
         if draw_overlay:
-            cv2.imshow("Plates (Haar + OCR)", frame)
-            if cv2.waitKey(1) & 0xFF == 27:  # ESC
+            # opcional: muestra el top vote en overlay
+            if votes:
+                c = Counter(votes); top, n = c.most_common(1)[0]
+                cv2.putText(frame, f"VOTE: {top} ({n}/{len(votes)})",
+                            (20,30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,255,255), 2)
+            cv2.imshow("Plates (from scratch)", frame)
+            if cv2.waitKey(1) & 0xFF == 27:
                 break
 
     cap.release()
