@@ -54,6 +54,7 @@ class Settings(BaseSettings):
     conf_ocr_min: float = 0.3
     plate_regex_pattern: str = r"[A-Z0-9]{5,8}"
     plate_min_chars: int = 5
+    conf_plate: float = Field(default=0.4)  # Confidence threshold for plate detection
 
     model_config = SettingsConfigDict(
         env_file=".env",

@@ -32,22 +32,14 @@ import cv2
 from ultralytics import YOLO
 from typing import List
 
-# El modelo debe estar entrenado en un dataset de armas
-# Reemplaza "yolov5s.pt" con el nombre de tu modelo de detección de armas
 WEAPONS_MODEL_PATH = "yolov8s_weapons.pt"
 
-# Definimos las clases que queremos detectar
-# Asumimos que el modelo entrenado tiene las clases "knife" y "gun"
-# Ajusta esta lista según las clases que tenga tu modelo.
-TARGET_WEAPONS = ["Knife", "handgun", "Pistol", "rifle", "Grenade"] # Lista de armas a detectar
+TARGET_WEAPONS = ["Knife", "Pistol", "rifle"]
 
 def run_weapons(video_source: str, conf_weapon: float, target_classes: List[str] = TARGET_WEAPONS):
     source = 0 if str(video_source).isdigit() else video_source
 
     if isinstance(source, int):
-        # Usamos cv2.CAP_DSHOW o cv2.CAP_V4L2 en Windows/Linux si es necesario, 
-        # pero mantenemos CAP_AVFOUNDATION para macOS por ahora.
-        # cap = cv2.VideoCapture(source, cv2.CAP_AVFOUNDATION)
         cap = cv2.VideoCapture(source)
     else:
         cap = cv2.VideoCapture(source)
