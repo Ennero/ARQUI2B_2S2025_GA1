@@ -43,6 +43,12 @@ def post_event(url, _type, subtype, meta, frame_bgr):
         },
         "img_b64": jpeg_b64(frame_bgr)
     }
-    r = requests.post(url, json=payload, timeout=3)
-    r.raise_for_status()
-    return r.json() if r.headers.get("content-type","").startswith("application/json") else {"ok": True}
+
+    try:
+        r = requests.post(url, json=payload, timeout=3)
+        r.raise_for_status()
+        return r.json() if r.headers.get("content-type","").startswith("application/json") else r.text
+    except Exception as e:
+        print("[net] WARN POST:", e)
+        return {"ok": False, "error": str(e)}
+
