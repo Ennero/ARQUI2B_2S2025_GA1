@@ -27,14 +27,18 @@
 # · ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~
 # · 
 
+# worker.py
+
 from multiprocessing import Process
 from services.weapons import run_weapons, WeaponsService
-from services.plates import run_plate_recognizer
+# Asegúrate de importar la nueva función y clase de servicio
+from services.plates import run_plates_yolo, PlateService
 from services.faces import run_faces
 from config.settings import settings
 
 class Worker:
     def __init__(self):
+        # 1. Configuración del Servicio de Armas (Sin cambios)
         self.weapons_service = WeaponsService(
             video_source=settings.video_source,
             conf_weapon=settings.conf_weapon,
@@ -48,14 +52,23 @@ class Worker:
         )
         self.weapons_pt_process.daemon = True
 
+        # 2. >>> IMPLEMENTACIÓN DEL SERVICIO DE PLACAS YOLO (NUEVO) <<<
+        # Usamos PlateService para configurar el proceso
+        self.plates_service = PlateService(
+            video_source=settings.video_source,
+            # Asegúrate de añadir conf_plate a tus settings o definirlo aquí
+            conf_plate=settings.conf_plate, 
+            target_classes=["license_plate", "plate"] # Nombres de clases de tu modelo
+        )
         self.plates_process = Process(
-            target=run_plate_recognizer,
-            args=(settings.video_source, settings.api_url),
-            # kwargs opcionales:
-            # kwargs={"valid_regexes": [r"^P[0-9]{3}[A-Z]{3}$"]}
+            target=run_plates_yolo, # Usamos la nueva función
+            args=(self.plates_service.video_source, 
+                  self.plates_service.conf_plate,
+                  self.plates_service.target_classes)
         )
         self.plates_process.daemon = True
 
+        # 3. Configuración del Servicio de Rostros (Sin cambios)
         self.faces_process = Process(
             target=run_faces,
             args=(settings.video_source, settings.api_url, "models/blacklist_lbph.yml", "models/blacklist_labels.json")
@@ -63,6 +76,7 @@ class Worker:
         self.faces_process.daemon = True
 
     def perform(self):
+        # ... (La lógica de ejecución del proceso sigue igual) ...
         if settings.perform_algorithm_for == 'weapons':
             if not self.weapons_pt_process.is_alive():
                 self.weapons_pt_process.start()
@@ -74,6 +88,7 @@ class Worker:
                 self.faces_process.start()
 
     def stop(self):
+        # ... (La lógica de detención del proceso sigue igual) ...
         if settings.perform_algorithm_for == 'weapons':
             if self.weapons_pt_process and self.weapons_pt_process.is_alive():
                 self.weapons_pt_process.terminate()
