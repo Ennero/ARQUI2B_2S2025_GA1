@@ -30,12 +30,10 @@
 import os, cv2, time, base64, datetime, json, requests
 from pathlib import Path
 import numpy as np
+from utils.net import post_event
 
 CASCADE = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
 
-def _to_b64(img):
-    ok, buf = cv2.imencode(".jpg", img); 
-    return base64.b64encode(buf).decode("utf-8") if ok else None
 
 def _open(video_source):
     src = int(video_source) if str(video_source).isdigit() else video_source
@@ -53,7 +51,7 @@ def _load_model(model_path, labels_path):
     return rec, labels
 
 def run_faces(video_source: str,
-              rpi_api_url: str,
+              api_url: str,
               model_path="models/blacklist_lbph.yml",
               labels_path="models/blacklist_labels.json",
               size=(128,128),
@@ -67,7 +65,7 @@ def run_faces(video_source: str,
     cap.set(cv2.CAP_PROP_FRAME_WIDTH,1280)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT,720)
 
-    last_sent = {}  # person_id -> last ts
+    last_sent = 0.0
 
     print("[faces] iniciado.")
     while True:
@@ -93,24 +91,26 @@ def run_faces(video_source: str,
             if matched:
                 print('----------- MATHCHED ----------- ')
                 print(f"[faces] ALERTA: {person} conf={conf:.2f} dist={dist:.1f}")
-                # now = time.time()
-                # if person not in last_sent or (now - last_sent[person]) > send_cooldown:
-                #     payload = {
-                #         "tipo": "persona",
-                #         "subtipo": "lista_negra",
-                #         "meta": {
-                #             "id": person,
-                #             "conf": float(conf),
-                #             "timestamp": datetime.datetime.utcnow().isoformat(),
-                #             "ubicacion": "zona1_camara_1"
-                #         },
-                #         "img_b64": _to_b64(frame)
-                #     }
-                #     try:
-                #         requests.post(rpi_api_url, json=payload, timeout=3)
-                #     except Exception as e:
-                #         print("[faces] WARN POST:", e)
-                #     last_sent[person] = now
+
+
+                now = time.time()
+                if now - last_sent > 2.0:
+
+                    # Make HTTP request
+                    post_event(
+                        api_url,
+                        'person',
+                        'blacklist',
+                        {
+                            "name": person,
+                            "conf": float(conf),
+                            "dist": float(dist),
+                            "location": "zone1_camera1"
+                        },
+                        frame[y:y+h, x:x+w]
+                    )
+
+                    last_sent = now
 
         if draw:
             cv2.imshow("Blacklist (Haar + LBPH)", frame)
