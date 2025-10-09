@@ -233,13 +233,12 @@ void handleSismo()
 
 void handleReeds()
 {
+  // Variables estáticas para recordar el estado entre llamadas a la función
   static int lastStateRoute1[ROUTE1_COUNT];
   static int lastStateRoute2[ROUTE2_COUNT];
-  static unsigned long lastDebounceRoute1[ROUTE1_COUNT] = {0};
-  static unsigned long lastDebounceRoute2[ROUTE2_COUNT] = {0};
   static bool initialized = false;
-  const unsigned long REED_DEBOUNCE = 50; // ms
 
+  // Este bloque se ejecuta solo una vez para inicializar los estados
   if (!initialized)
   {
     for (uint8_t i = 0; i < ROUTE1_COUNT; i++)
@@ -249,54 +248,42 @@ void handleReeds()
     initialized = true;
   }
 
-  unsigned long now = millis();
-
-  // Ruta 1
+  // --- Ruta 1 ---
   for (uint8_t i = 0; i < ROUTE1_COUNT; i++)
   {
     int lectura = digitalRead(ROUTE1_PINS[i]);
-
-    if (lectura != lastStateRoute1[i])
+    // Detecta el flanco de bajada (cuando el pin pasa de HIGH a LOW)
+    if (lastStateRoute1[i] == HIGH && lectura == LOW)
     {
-      lastDebounceRoute1[i] = now;
+      dist1 = (i + 1) * DIST1_INCREMENT;
     }
-
-    if ((now - lastDebounceRoute1[i]) > REED_DEBOUNCE)
-    {
-      if (lastStateRoute1[i] == HIGH && lectura == LOW)
-      {
-        dist1 = (i + 1) * DIST1_INCREMENT;
-      }
-    }
+    // Guarda el estado actual para la próxima comprobación
     lastStateRoute1[i] = lectura;
   }
 
-  // Ruta 2
+  // --- Ruta 2 ---
   for (uint8_t i = 0; i < ROUTE2_COUNT; i++)
   {
     int lectura = digitalRead(ROUTE2_PINS[i]);
-
-    if (lectura != lastStateRoute2[i])
+    // Detecta el flanco de bajada
+    if (lastStateRoute2[i] == HIGH && lectura == LOW)
     {
-      lastDebounceRoute2[i] = now;
-    }
-
-    if ((now - lastDebounceRoute2[i]) > REED_DEBOUNCE)
-    {
-      if (lastStateRoute2[i] == HIGH && lectura == LOW)
+      int newDist = (i + 1) * DIST2_INCREMENT;
+      // Lógica especial para los últimos sensores de la ruta 2
+      if (i > 3)
       {
-        int newDist = (i + 1) * DIST2_INCREMENT;
-        if (i > 3)
-          newDist += 20;
-        dist2 = newDist;
+        newDist += 20;
       }
+      dist2 = newDist;
     }
+    // Guarda el estado actual para la próxima comprobación
     lastStateRoute2[i] = lectura;
   }
 }
 
 void resetReedStates()
 {
+  // Esta función parece no usarse, puedes dejarla o eliminarla.
   static int *lastStateRoute1 = nullptr;
   static int *lastStateRoute2 = nullptr;
 }
@@ -304,33 +291,25 @@ void resetReedStates()
 void handleResetReed()
 {
   static int lastStateReset = HIGH;
-  static unsigned long lastDebounce = 0;
-  static bool needsFullReset = false;
-
   int lectura = digitalRead(RESET1_PIN);
-  unsigned long now = millis();
 
-  if (lectura != lastStateReset)
+  // Detecta el flanco de bajada (cuando el pin pasa de HIGH a LOW)
+  if (lastStateReset == HIGH && lectura == LOW)
   {
-    lastDebounce = now;
+    // Resetea las distancias y los indicadores de infracción
+    dist1 = 0;
+    dist2 = 0;
+    INFRAA = 0;
+    INFRAB = 0;
+    INFRAC = 0;
+    INFRAD = 0;
   }
-
-  if ((now - lastDebounce) > DEBOUNCE_TIME)
-  {
-    if (lastStateReset == HIGH && lectura == LOW)
-    {
-      dist1 = 0;
-      dist2 = 0;
-      needsFullReset = true;
-
-      INFRAA = 0;
-      INFRAB = 0;
-      INFRAC = 0;
-      INFRAD = 0;
-    }
-  }
+  // Guarda el estado actual para la próxima comprobación
   lastStateReset = lectura;
 }
+
+
+
 
 void handleSonarSensors(unsigned long now)
 {
