@@ -27,10 +27,12 @@
 # · ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~
 # · 
 
-import time
+import time, datetime
 import cv2
 from ultralytics import YOLO
 from typing import List
+from config.settings import settings
+from utils.net import post_event
 
 WEAPONS_MODEL_PATH = "yolov8s_weapons.pt"
 
@@ -83,31 +85,35 @@ def run_weapons(video_source: str, conf_weapon: float, target_classes: List[str]
                     cv2.putText(frame, f"{name} {conf:.2f}", (x1, y1-8),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
                     
-                    # Lógica de notificación (descomentar si tienes post_event)
-                    # now = time.time()
-                    # if now - last_sent > 2.0:
-                    #     post_event(frame, conf, name) # podrías pasar el tipo de arma
-                    #     last_sent = now
+                    now = time.time()
+                    if now - last_sent > 2.0:
+                        
 
-        # El título de la ventana ahora es más general
+                        # Make HTTP request
+                        post_event(
+                            settings.api_url,
+                            'weapon',
+                            name,
+                            {
+                                "name": name,
+                                "conf": conf,
+                                "location": "zone1_camera1"
+                            },
+                            frame[y1:y2, x1:x2]
+                        )
+
+                        last_sent = now
+
         cv2.imshow("Detección de Armas", frame) 
-        if cv2.waitKey(1) & 0xFF == 27:  # ESC para salir
+        if cv2.waitKey(1) & 0xFF == 27:
             break
 
     cap.release()
     cv2.destroyAllWindows()
 
 
-# ---
-# La clase de servicio (opcionalmente)
 class WeaponsService:
-    # Se actualiza el parámetro para usar target_classes
     def __init__(self, video_source: str, conf_weapon: float, target_classes: List[str] = TARGET_WEAPONS):
         self.video_source = video_source
         self.conf_weapon = conf_weapon
         self.target_classes = target_classes
-
-# Ejemplo de uso:
-# Si quisieras ejecutarlo directamente:
-# run_weapons("ruta/a/tu/video.mp4", conf_weapon=0.5) 
-# run_weapons(0, conf_weapon=0.5, target_classes=["knife", "pistol", "rifle"])

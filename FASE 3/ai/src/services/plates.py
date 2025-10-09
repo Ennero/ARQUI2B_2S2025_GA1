@@ -31,6 +31,8 @@ import time
 import cv2
 from ultralytics import YOLO
 from typing import List
+from config.settings import settings
+from utils.net import post_event
 
 # Configuración del modelo y clases
 # ASEGÚRATE DE QUE ESTA RUTA Y NOMBRE DE CLASE SEAN CORRECTOS
@@ -57,6 +59,7 @@ def run_plates_yolo(video_source: str, conf_plate: float, target_classes: List[s
         print(f"[ERR] Could not load YOLO model: {LICENSE_PLATE_MODEL_PATH}. Error: {e}")
         return
 
+    last_sent = 0.0
     while True:
         ok, frame = cap.read()
         if not ok:
@@ -85,6 +88,24 @@ def run_plates_yolo(video_source: str, conf_plate: float, target_classes: List[s
                     cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
                     cv2.putText(frame, f"{name}: {conf:.2f}", (x1, y1 - 8),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
+                    
+                    now = time.time()
+                    if now - last_sent > 2.0:
+
+                        # Make HTTP request
+                        post_event(
+                            settings.api_url,
+                            'vehicle',
+                            'license_plate',
+                            {
+                                "name": name,
+                                "conf": conf,
+                                "location": "zone1_camera1"
+                            },
+                            frame[y1:y2, x1:x2]
+                        )
+
+                        last_sent = now
 
         cv2.imshow("Detección de Placas YOLO", frame) 
         if cv2.waitKey(1) & 0xFF == 27:
