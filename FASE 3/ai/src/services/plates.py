@@ -44,7 +44,8 @@ def run_plates_yolo(video_source: str, conf_plate: float, target_classes: List[s
     """
     Función de ejecución para la detección de placas usando el modelo YOLO.
     """
-    source = 0 if str(video_source).isdigit() else video_source
+    # source = 0 if str(video_source).isdigit() else video_source
+    source = int(video_source) if str(video_source).isdigit() else video_source
 
     cap = cv2.VideoCapture(source)
 
@@ -89,23 +90,23 @@ def run_plates_yolo(video_source: str, conf_plate: float, target_classes: List[s
                     cv2.putText(frame, f"{name}: {conf:.2f}", (x1, y1 - 8),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
                     
-                    now = time.time()
-                    if now - last_sent > 2.0:
+                    # now = time.time()
+                    # if now - last_sent > 2.0:
 
-                        # Make HTTP request
-                        post_event(
-                            settings.api_url,
-                            'vehicle',
-                            'license_plate',
-                            {
-                                "name": name,
-                                "conf": conf,
-                                "location": "zone1_camera1"
-                            },
-                            frame[y1:y2, x1:x2]
-                        )
+                    #     # Make HTTP request
+                    #     post_event(
+                    #         settings.api_url,
+                    #         'vehicle',
+                    #         'license_plate',
+                    #         {
+                    #             "name": name,
+                    #             "conf": conf,
+                    #             "location": "zone1_camera1"
+                    #         },
+                    #         frame[y1:y2, x1:x2]
+                    #     )
 
-                        last_sent = now
+                    #     last_sent = now
 
         cv2.imshow("Detección de Placas YOLO", frame) 
         if cv2.waitKey(1) & 0xFF == 27:

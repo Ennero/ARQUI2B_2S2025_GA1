@@ -93,24 +93,24 @@ def run_faces(video_source: str,
                 print(f"[faces] ALERTA: {person} conf={conf:.2f} dist={dist:.1f}")
 
 
-                now = time.time()
-                if now - last_sent > 2.0:
+                # now = time.time()
+                # if now - last_sent > 2.0:
 
-                    # Make HTTP request
-                    post_event(
-                        api_url,
-                        'person',
-                        'blacklist',
-                        {
-                            "name": person,
-                            "conf": float(conf),
-                            "dist": float(dist),
-                            "location": "zone1_camera1"
-                        },
-                        frame[y:y+h, x:x+w]
-                    )
+                #     # Make HTTP request
+                #     post_event(
+                #         api_url,
+                #         'person',
+                #         'blacklist',
+                #         {
+                #             "name": person,
+                #             "conf": float(conf),
+                #             "dist": float(dist),
+                #             "location": "zone1_camera1"
+                #         },
+                #         frame[y:y+h, x:x+w]
+                #     )
 
-                    last_sent = now
+                #     last_sent = now
 
         if draw:
             cv2.imshow("Blacklist (Haar + LBPH)", frame)

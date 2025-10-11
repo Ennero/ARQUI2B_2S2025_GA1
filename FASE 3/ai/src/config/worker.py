@@ -48,7 +48,7 @@ class Worker:
             target=run_weapons,
             args=(self.weapons_service.video_source,
                   self.weapons_service.conf_weapon,
-                  ["Knife", "handgun", "Pistol", "rifle", "Grenade"])
+                  ["Knife", "Pistol", "rifle"])
         )
         self.weapons_pt_process.daemon = True
 
