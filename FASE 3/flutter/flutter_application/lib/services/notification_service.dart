@@ -4,15 +4,11 @@ import '../models/notificacion_model.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class NotificationService {
-  // Lee la URL del servicio de notificaciones desde .env
-  // Preferimos NOTIF_BASE_URL, si no existe usamos BASE_URL, y como último recurso localhost
   static String get baseUrl =>
       dotenv.env['NOTIF_BASE_URL'] ??
       dotenv.env['BASE_URL'] ??
-      'http://localhost:8000';
+      'http://54.160.158.12:8000';
 
-
-  // Headers para intentar evitar CORS
   static const Map<String, String> headers = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -23,19 +19,25 @@ class NotificationService {
 
   static Future<List<NotificationModel>> getNotifications() async {
     try {
-      print('🔄 Conectando a: $baseUrl/notifications');
+      print('Conectando a: $baseUrl/notifications');
 
       final response = await http
           .get(Uri.parse('$baseUrl/notifications'), headers: headers)
           .timeout(const Duration(seconds: 10));
 
-      print('📡 Status: ${response.statusCode}');
+      print('Status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
         final List<dynamic> jsonResponse = json.decode(response.body);
-        return jsonResponse
+        
+        final notifications = jsonResponse
             .map((jsonItem) => NotificationModel.fromJson(jsonItem))
             .toList();
+            
+        // Ordenar descendente por timestamp
+        notifications.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+        
+        return notifications;
       } else {
         throw Exception('Error HTTP: ${response.statusCode}');
       }
