@@ -1,5 +1,5 @@
 # 📝 Reporte Semanal 1 - Proyecto IoT Zona 1 - Fase 3
-**Fecha:** 28 de Septiembre de 2025  
+**Fecha:** 05 de Octubre de 2025  
 **Clase:** Arquitectura de Computadoras y Ensambladores 2  
 **Fase:** Planeación y Organización Inicial (Fase 3/Primera Semana)
 ## Grupo 1 - Tutor 1
@@ -20,7 +20,7 @@
 ### 1. Planificación Semanal del Proyecto
 En esta semana nos juntamos en un meet donde nos pusimos a organizar como se iba a distribuir el trabajo y el tiempo en el que se realizaría, lo que conlleva, a también los horarios de reunirnos y en dónde. Esto con el fin de poder llevar en un buen camino la realización del proyecto de forma calmada, organizada y comoda para todos los integrantes del grupo puedan trabajar con tiempo sin presión alguna. 
 
-![Reunion meet](../img/reporteS1/s1-1.jpg)
+![Reunion meet](../img/fase%203/reporteS1/s1-1.jpg)
 #
 
 ---
@@ -29,24 +29,24 @@ En esta semana nos juntamos en un meet donde nos pusimos a organizar como se iba
 En el proyecto de 3 fases se contempla una arquitectura tecnológica integral que combina hardware embebido, procesamiento distribuido y visualización de datos avanzada. En el núcleo del sistema se encuentra la Raspberry Pi, configurada como servidor API para recibir y almacenar los resultados de detecciones enviadas por laptops externas, las cuales ejecutan modelos de Inteligencia Artificial seleccionadas para identificar en la maqueta fisica placas vehiculares, rostros en "listas negras" y armas blancas. 
 #
 
-![IA](../img/reporteS1/s1-2.jpg)
+![IA](../img/fase%203/reporteS1/s1-2.jpg)
 
 La comunicación entre dispositivos se realiza mediante el protocolo MQTT, garantizando eficiencia y desacoplamiento.
 El Arduino que usamos desde el inicio mantiene su rol como interfaz física, activando alertas sonoras según los comandos recibidos que tiene configuradas.
 #
 
-![MQTT](../img/reporteS1/s1-3.png)
+![MQTT](../img/fase%203/reporteS1/s1-3.png)
 
 Por el otro lado, en el área de trabajo en el software, se desarrolló una API RESTful la cual, respaldada por una base de datos NoSQL (MongoDB), recibe las alertas/mensajes de nuestra aplicación móvil en Flutter la cuál se actualiza para mostrar alertas en tiempo real, rankings analíticos y datos históricos. 
 #
 
-![MONGODB](../img/reporteS1/s1-4.png)
+![MONGODB](../img/fase%203/reporteS1/s1-4.png)
 
 Por último, Grafana se empleará para visualizar métricas en paneles dinámicos; además, se implementará un sistema de códigos QR vinculado a una web informativa en la nube, fomentando el turismo cultural en la maqueta urbana simulada.
 #
 
 
-![Grafana](../img/reporteS1/s1-5.png)
+![Grafana](../img/fase%203/reporteS1/s1-5.png)
 
 #
 
@@ -77,7 +77,7 @@ La segunda semana (6 de octubre - 10 de octubre) tenemos planeada las configurac
 
 Las reuniones presenciales se han programado los martes, jueves y sábados de cada semana en las instalaciones universitarias con un seguimiento de reportes semanales en los domingos para evaluar el progreso de cada uno que se ira anotando para así resolver impedimentos técnicos que puedan surgir durante el desarrollo de esta fase final.
 #
-![Cronograma](../img/reporteS1/s1-7.jpg)
+![Cronograma](../img/fase%203/reporteS1/s1-7.jpg)
 #
 #
 
@@ -87,4 +87,4 @@ Las reuniones presenciales se han programado los martes, jueves y sábados de ca
 - Realización de prueba y error organizadas y con tiempo para poder realizar el proyecto con calma y con seguridad. 
 #
 
-![Reuniones](../img/reporteS1/s1-6.jpg)
+![Reuniones](../img/fase%203/reporteS1/s1-6.jpg)
