@@ -26,6 +26,7 @@ void TrafficLight::setState(State newState)
 
     switch (state)
     {
+<<<<<<< HEAD
     case RED:
         digitalWrite(pinRed, HIGH);
         break;
@@ -35,6 +36,17 @@ void TrafficLight::setState(State newState)
     case GREEN:
         digitalWrite(pinGreen, HIGH);
         break;
+=======
+        case RED:
+            digitalWrite(pinRed, HIGH);
+            break;
+        case YELLOW:
+            digitalWrite(pinYellow, HIGH);
+            break;
+        case GREEN:
+            digitalWrite(pinGreen, HIGH);
+            break;
+>>>>>>> feature/ai
     }
 }
 

@@ -10,9 +10,12 @@ First, ensure you the respective `.env` file with the correct credentials accord
 ```bash
     # Create Virtual Enviroment
     python3 -m venv .venv
+<<<<<<< HEAD
 
     # For bash terminal in windows
     python -m venv .venv
+=======
+>>>>>>> feature/ai
 ```
 
 #### Activate Virtual Environment
@@ -29,6 +32,7 @@ First, ensure you the respective `.env` file with the correct credentials accord
 ```bash
     # Install Python packages from the requirements.txt
     pip3 install -r requirements.txt
+<<<<<<< HEAD
 
     # For windows bash terminal
     pip install -r requirements.txt
@@ -42,6 +46,11 @@ Create a ```.env``` file, copy ```.env.example``` content and fill out with cred
 
 The recommended way to run the app for development is with uvicorn, as it provides live reloading.
 
+=======
+```
+
+#### Run App
+>>>>>>> feature/ai
 ```bash
     # Run App
     fastapi dev main.py
@@ -49,12 +58,16 @@ The recommended way to run the app for development is with uvicorn, as it provid
     uvicorn main:application --reload --port 8000
 ```
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> feature/ai
 *You should get an output like this:*
 
 ![Output](./docs/img/run_app_output.png)
 
 
+<<<<<<< HEAD
 #### Implement Daemon
 
 ##### Create a Service Configuration File
@@ -108,6 +121,8 @@ sudo systemctl status api_siepa.service
 # Shows real-time logs
 journalctl -u api_siepa.service -f
 ```
+=======
+>>>>>>> feature/ai
 
 ### Endpoints
 
@@ -118,6 +133,7 @@ GET /analytics/daily?day=2025-09-09
 
 GET /analytics/weekly?day=2025-09-09
 
+<<<<<<< HEAD
 GET /analytics/monthly
 GET /analytics/monthly?year=2025&month=9
 
@@ -125,6 +141,11 @@ GET /analytics/infractions-today
 GET /analytics/top-persons?limit=5
 GET /analytics/top-weapons?limit=5
 
+=======
+
+GET /analytics/monthly
+GET /analytics/monthly?year=2025&month=9
+>>>>>>> feature/ai
 ```
 
 ### Bus tracking
@@ -138,6 +159,9 @@ GET /live/bus/distances
 GET /notifications
 GET /notifications?severity=critical
 GET /notifications?types=panic,infraction
+<<<<<<< HEAD
 GET /notifications?types=person_on_blacklist,bladed_weapon
+=======
+>>>>>>> feature/ai
 GET /notifications?since=2025-09-05T16:00:00Z
 ```

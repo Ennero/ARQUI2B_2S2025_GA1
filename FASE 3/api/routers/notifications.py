@@ -58,6 +58,7 @@ def _title_and_description(ev: Dict[str, Any]) -> (str, str, str):
     """
     t = _upper(ev.get("type"))
     data = ev.get("data") or {}
+<<<<<<< HEAD
 
     # PERSONA EN LISTA NEGRA
     if t == "PERSON_ON_BLACKLIST":
@@ -80,6 +81,8 @@ def _title_and_description(ev: Dict[str, Any]) -> (str, str, str):
         )
 
 
+=======
+>>>>>>> feature/ai
     # PANICO
     if t == "PANIC":
         btn = _upper(data.get("button"))

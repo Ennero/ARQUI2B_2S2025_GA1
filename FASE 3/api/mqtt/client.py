@@ -102,6 +102,7 @@ async def run_mqtt():
                     print("[MQTT] Ignored: invalid JSON for readings")
                 except Exception as e:
                     print(f"[MQTT] Error saving readings: {e}")
+<<<<<<< HEAD
 
             # Tópico para Detección de Placas
             elif f"{message.topic}".strip() == f"{settings.mqtt_client_topic_prefix}/gt/zone1/detections/plates".strip():
@@ -174,5 +175,7 @@ async def run_mqtt():
                 except Exception as e:
                     print(f"[MQTT] Error saving weapon detection: {e}")
 
+=======
+>>>>>>> feature/ai
             else:
                 pass

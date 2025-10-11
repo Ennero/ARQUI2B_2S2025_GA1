@@ -24,11 +24,53 @@
 
 # For more information, contact https://github.com/marcosbondel
 
+<<<<<<< HEAD
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
 
     app_name: str = "My API"
 
+=======
+# · ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~
+# · 
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import HttpUrl, Field
+import os
+
+
+class Settings(BaseSettings):
+
+    app_name: str = Field(min_length=5)
+    stage: str = Field(frozen=True)
+    api_url: HttpUrl
+    perform_algorithm_for: str # weapons|plates|faces
+    
+    # Database settings
+    mongo_uri: str = os.getenv('MONGO_URI')
+    mongo_username: str = Field(min_length=5, frozen=True)
+    mongo_password: str = Field(min_length=12, frozen=True)
+    mongo_database: str = Field(min_length=12, frozen=True)
+
+    # Third-party devics
+    video_source: str = Field(default='0', frozen=True) # "0", "1" or URL
+    conf_weapon: float = Field(default=0.45)
+
+    ocr_langs: str = 'en'
+    read_every_n_frames: int = 5
+    conf_ocr_min: float = 0.3
+    plate_regex_pattern: str = r"[A-Z0-9]{5,8}"
+    plate_min_chars: int = 5
+    conf_plate: float = Field(default=0.4)  # Confidence threshold for plate detection
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        arbitrary_types_allowed=True,
+        env_prefix="",
+        extra="ignore"
+    )
+>>>>>>> feature/ai
 
 settings = Settings()
