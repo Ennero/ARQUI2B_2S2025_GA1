@@ -21,10 +21,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
-<<<<<<< HEAD
-
-=======
->>>>>>> feature/ai
 from fastapi import APIRouter, Query, Depends, HTTPException
 from typing import Dict, Any, List, Optional, Tuple
 from datetime import datetime, date, time, timedelta, timezone
@@ -328,7 +324,6 @@ async def analytics_monthly(
             mk_series("Alertas Críticas", "crit_alerts"),
         ],
     }
-<<<<<<< HEAD
 
 
 # ---------- /analytics/infractions-today ----------
@@ -435,5 +430,3 @@ async def analytics_top_persons(
     cursor = db.detecciones_personas.aggregate(pipeline)
     return [doc async for doc in cursor]
 
-=======
->>>>>>> feature/ai

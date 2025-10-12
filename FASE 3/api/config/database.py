@@ -65,8 +65,8 @@ async def ensure_indexes(db: AsyncIOMotorDatabase):
     await db.readings.create_index("ts", name="ts")
     # events indexes
     await db.events.create_index([("type", 1), ("ts", -1)], name="type_ts")
-<<<<<<< HEAD
-
+    
+    '''
     print("Ensuring indexes for detection collections...")
     # Detecciones de placas
     await db.plate_detections.create_index("created_at", name="detection_ts_placas")
@@ -76,5 +76,4 @@ async def ensure_indexes(db: AsyncIOMotorDatabase):
     # Detecciones de armas
     await db.weapon_detections.create_index("created_at", name="detection_ts_armas")
     print("Detection indexes created.")
-=======
->>>>>>> feature/ai
+    '''
