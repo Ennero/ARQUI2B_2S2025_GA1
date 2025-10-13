@@ -14,17 +14,20 @@ enum MelodyID
     SONG_PACMAN,
     SONG_TAKEONME,
     SONG_MARIO,
-    SONG_SIREN 
+    SONG_SIREN,
+    SONG_MERRYCHRISTMAS // <-- Nueva canción
 };
 
 // Enum para los tipos de alarma
 enum AlarmType
 {
-    ALARM_INFRACTION, // Nokia
-    ALARM_PANIC,      // Pacman
-    ALARM_SISMO,      // Mario
-    ALARM_GAS,        // Tetris    
-    ALARM_STARTUP     // Take On Me
+    ALARM_INFRACTION,
+    ALARM_PANIC,
+    ALARM_SISMO,
+    ALARM_GAS,
+    ALARM_STARTUP,
+    ALARM_ANTIROBO,   
+    ALARM_ARMABLANCA  
 };
 
 

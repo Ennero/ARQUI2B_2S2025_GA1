@@ -203,10 +203,15 @@ void setup()
   }
 }
 
+
+
+
+
+
 void loop()
 {
   unsigned long now = millis();
-
+  handleSerialCommands();
   loopMelodies();
 
   updateTrafficLights(now);
@@ -255,6 +260,45 @@ void loop()
   {
     emitirEstado();
     lastEmitTime = now;
+  }
+}
+
+
+void handleSerialCommands() {
+  static char serialBuffer[32];
+  static byte bufferIndex = 0;
+
+  while (Serial.available() > 0) {
+    char incomingChar = Serial.read();
+
+    if (incomingChar == ';') { // Fin del comando
+      serialBuffer[bufferIndex] = '\0'; // Terminar el string
+
+      // --- Parseo del comando ---
+      char* command = strtok(serialBuffer, ":");
+      char* valueStr = strtok(NULL, ""); // El resto es el valor
+
+      if (command != NULL && valueStr != NULL) {
+        // Convertir el valor a un número (índice del buzzer)
+        // Restamos 1 porque los comandos llegan como 1, 2, 3... y los arrays son 0, 1, 2...
+        int buzzerIndex = atoi(valueStr) - 1;
+
+        // Validar que el índice sea correcto
+        if (buzzerIndex >= 0 && buzzerIndex < NUM_BOTONES) { 
+          if (strcmp(command, "armaBlanca") == 0) {
+            startMelody(buzzerIndex, ALARM_ARMABLANCA);
+          } else if (strcmp(command, "antiRobo") == 0) {
+            startMelody(buzzerIndex, ALARM_ANTIROBO);
+          }
+        }
+      }
+      
+      bufferIndex = 0; // Resetear para el próximo comando
+
+    } else if (isprint(incomingChar) && bufferIndex < (sizeof(serialBuffer) - 1)) {
+      // Almacenar caracter si es imprimible y hay espacio
+      serialBuffer[bufferIndex++] = incomingChar;
+    }
   }
 }
 
@@ -526,10 +570,10 @@ void updateTrafficLights(unsigned long now)
 void emitirEstado()
 {
   snprintf(salidaBuffer, sizeof(salidaBuffer),
-           "SEM1=%s;SEM2=%s;PM1=%d;PM2=%d;INC1=%d;INC2=%d;"
-           "PANICO1=%d;PANICO2=%d;PANICO3=%d;PANICO4=%d;PANICO5=%d;"
-           "SISMO=%d;INFRAA=%d;INFRAB=%d;INFRAC=%d;INFRAD=%d;DIST1=%d;DIST2=%d",
-           SEM1.c_str(), SEM2.c_str(),
+         "SEM1=%s;SEM2=%s;PM1=%d;PM2=%d;INC1=%d;INC2=%d;"
+         "PANICO1=%d;PANICO2=%d;PANICO3=%d;PANICO4=%d;PANICO5=%d;"
+         "SISMO=%d;INFRAA=%d;INFRAB=%d;INFRAC=%d;INFRAD=%d;DIST1=%d;DIST2=%d",
+         SEM1, SEM2,
            PM1, PM2, INC1, INC2,
            PANICO[0], PANICO[1], PANICO[2], PANICO[3], PANICO[4],
            SISMO, INFRAA, INFRAB, INFRAC, INFRAD,
