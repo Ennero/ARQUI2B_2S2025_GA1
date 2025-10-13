@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/components/analytical_dashboard_view.dart';
 import 'package:flutter_application/components/summaryCard.dart';
 import 'package:flutter_application/components/buildDataTable.dart';
 import 'package:flutter_application/components/lineChartCard.dart';
@@ -13,14 +14,23 @@ class PanelControlScreen extends StatefulWidget {
   State<PanelControlScreen> createState() => _PanelControlScreenState();
 }
 
-class _PanelControlScreenState extends State<PanelControlScreen> {
+class _PanelControlScreenState extends State<PanelControlScreen>
+    with SingleTickerProviderStateMixin {
+  TabController? _tabController;
   late Future<Map<String, dynamic>> _dashboardDataFuture;
   TimeFilter _selectedFilter = TimeFilter.today;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this); // Dos pesta{as}
     _loadData();
+  }
+
+  @override
+  void dispose() {
+    _tabController?.dispose();
+    super.dispose();
   }
 
   void _loadData() {
@@ -33,97 +43,158 @@ class _PanelControlScreenState extends State<PanelControlScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: FutureBuilder<Map<String, dynamic>>(
-            future: _dashboardDataFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(
-                    color: AppColors.primaryAccent,
+    if (_tabController == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) {
+            return [
+              SliverToBoxAdapter(
+                child: Container(
+                  margin: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                  decoration: BoxDecoration(
+                    color: AppColors.cardBackground.withValues(alpha: 0.8),
+                    borderRadius: BorderRadius.circular(25),
                   ),
-                );
-              }
-              if (snapshot.hasError) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                        child: Text(
-                          'Error: ${snapshot.error}',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: AppColors.notificationRed,
-                          ),
+                  child: TabBar(
+                    controller: _tabController!,
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    indicator: BoxDecoration(
+                      borderRadius: BorderRadius.circular(25),
+                      color: AppColors.notificationRed,
+                    ),
+                    labelColor: Colors.white,
+                    unselectedLabelColor: AppColors.secondaryText,
+                    dividerColor: Colors.transparent,
+                    tabs: const [
+                      Tab(
+                        height: 50,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.show_chart, size: 18),
+                            SizedBox(width: 8),
+                            Text("Operacional", style: TextStyle(fontSize: 14)),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      ElevatedButton.icon(
-                        onPressed: _loadData,
-                        icon: const Icon(Icons.refresh),
-                        label: const Text('Reintentar'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryAccent,
-                          foregroundColor: AppColors.primaryText,
+                      Tab(
+                        height: 50,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.analytics, size: 18),
+                            SizedBox(width: 8),
+                            Text("Analístico", style: TextStyle(fontSize: 14)),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                );
-              }
-              if (snapshot.hasData) {
-                final data = snapshot.data!;
-                final summaryData = data['summary'];
-                return RefreshIndicator(
-                  onRefresh: () async => _loadData(),
-                  backgroundColor: AppColors.cardBackground,
-                  color: AppColors.primaryAccent,
-                  child: ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                    children: [
-                      Container(
-                        margin: EdgeInsets.only(top: 20),
-                        child: Text(
-                          'Panel de Control',
-                          textAlign: TextAlign.center,
-                          style: TextStyles.displayLarge.copyWith(
-                            color: AppColors.vibrantGreen,
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.2,
-                            shadows: [
-                              Shadow(
-                                color: Colors.black.withValues(alpha: .35),
-                                offset: Offset(0, 3),
-                                blurRadius: 8,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      _buildFilterButtons(),
-                      SizedBox(height: 12),
-                      _buildSummaryGrid(summaryData),
-                      const SizedBox(height: 24),
-                      if (_selectedFilter == TimeFilter.week)
-                        _buildWeekDetails(data['detailedMetrics'])
-                      else if (_selectedFilter == TimeFilter.month)
-                        _buildMonthDetails(data['detailedMetrics'])
-                      else
-                        _buildTodayDetails(data['airQualityChart']),
-                    ],
-                  ),
-                );
-              }
-              return const Center(child: Text("No hay datos disponibles."));
-            },
+                ),
+              ),
+            ];
+          },
+          body: TabBarView(
+            controller: _tabController!,
+            children: [
+              _buildOperationalDashboard(),
+              const AnalyticalDashboardView(),
+            ],
           ),
         ),
-      ],
+      ),
+    );
+  }
+
+  // Widget de la Vista Operacional
+  Widget _buildOperationalDashboard() {
+    return FutureBuilder<Map<String, dynamic>>(
+      future: _dashboardDataFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.primaryAccent),
+          );
+        }
+        if (snapshot.hasError) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Text(
+                    'Error: ${snapshot.error}',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: AppColors.notificationRed),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton.icon(
+                  onPressed: _loadData,
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Reintentar'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryAccent,
+                    foregroundColor: AppColors.primaryText,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+        if (snapshot.hasData) {
+          final data = snapshot.data!;
+          final summaryData = data['summary'];
+          return RefreshIndicator(
+            onRefresh: () async => _loadData(),
+            backgroundColor: AppColors.cardBackground,
+            color: AppColors.primaryAccent,
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              children: [
+                Container(
+                  margin: EdgeInsets.only(top: 20),
+                  child: Text(
+                    'Panel de Control',
+                    textAlign: TextAlign.center,
+                    style: TextStyles.displayLarge.copyWith(
+                      color: AppColors.vibrantGreen,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black.withValues(alpha: .35),
+                          offset: Offset(0, 3),
+                          blurRadius: 8,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                _buildFilterButtons(),
+                SizedBox(height: 12),
+                _buildSummaryGrid(summaryData),
+                const SizedBox(height: 24),
+                if (_selectedFilter == TimeFilter.week)
+                  _buildWeekDetails(data['detailedMetrics'])
+                else if (_selectedFilter == TimeFilter.month)
+                  _buildMonthDetails(data['detailedMetrics'])
+                else
+                  _buildTodayDetails(data['airQualityChart']),
+              ],
+            ),
+          );
+        }
+        return const Center(child: Text("No hay datos disponibles."));
+      },
     );
   }
 

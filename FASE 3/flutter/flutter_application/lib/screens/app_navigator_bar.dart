@@ -59,8 +59,8 @@ class _AppNavigatorBarState extends State<AppNavigatorBar> {
             color: AppColors.secondaryText, // Color de íconos y texto inactivos
             activeColor:
                 AppColors.primaryText, // Color de íconos y texto activos
-            tabBackgroundColor: AppColors.primaryAccent.withOpacity(
-              0.3,
+            tabBackgroundColor: AppColors.primaryAccent.withValues(
+              alpha: 0.3,
             ), // Color de fondo de la pestaña activa
             gap: 8, // Espacio entre el ícono y el texto
             padding: const EdgeInsets.all(

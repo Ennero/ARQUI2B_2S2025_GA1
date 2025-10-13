@@ -49,6 +49,7 @@ The recommended way to run the app for development is with uvicorn, as it provid
     uvicorn main:application --reload --port 8000
 ```
 
+
 *You should get an output like this:*
 
 ![Output](./docs/img/run_app_output.png)
