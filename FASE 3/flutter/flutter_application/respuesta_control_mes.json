@@ -1,0 +1,46 @@
+{
+  "summary": {
+    "recorridoTransmetro": 395.3,
+    "recorridoTransurbano": 145.1,
+    "calidadAirePromedio": 170.8,
+    "alertasCriticas": 25.4
+  },
+  "detailedMetrics": [
+    {
+      "title": "Recorrido Transmetro (km)",
+      "timeSeries": [
+        { "label": "Semana 1", "value": 55.8 },
+        { "label": "Semana 2", "value": 68.2 },
+        { "label": "Semana 3", "value": 51.5 },
+        { "label": "Semana 4", "value": 65.1 }
+      ]
+    },
+    {
+      "title": "Recorrido Transurbano (km)",
+      "timeSeries": [
+        { "label": "Semana 1", "value": 22.4 },
+        { "label": "Semana 2", "value": 16.9 },
+        { "label": "Semana 3", "value": 24.8 },
+        { "label": "Semana 4", "value": 19.3 }
+      ]
+    },
+    {
+      "title": "Calidad del Aire (PM)",
+      "timeSeries": [
+        { "label": "Semana 1", "value": 165.7 },
+        { "label": "Semana 2", "value": 188.1 },
+        { "label": "Semana 3", "value": 153.2 },
+        { "label": "Semana 4", "value": 175.9 }
+      ]
+    },
+    {
+      "title": "Alertas Críticas",
+      "timeSeries": [
+        { "label": "Semana 1", "value": 3.1 },
+        { "label": "Semana 2", "value": 4.5 },
+        { "label": "Semana 3", "value": 2.2 },
+        { "label": "Semana 4", "value": 3.9 }
+      ]
+    }
+  ]
+}
