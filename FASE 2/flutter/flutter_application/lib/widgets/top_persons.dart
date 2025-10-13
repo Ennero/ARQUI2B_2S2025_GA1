@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_application/core/api_service.dart';
 import 'package:flutter_application/core/app_colors.dart';
-import 'package:flutter_application/core/moch_api_service.dart';
 import 'dart:math';
 
 class TopPersonsWidget extends StatefulWidget {
@@ -37,7 +36,7 @@ class _TopPersonsWidgetState extends State<TopPersonsWidget>
     );
 
     // Esto solo se ejecuta cuando el widget se crea
-    _topPersonasFuture = MockApiService.fetchTopPersons().then((people) {
+    _topPersonasFuture = ApiService.fetchTopPersonas().then((people) {
       _totalPages = people.length;
       return people;
     });

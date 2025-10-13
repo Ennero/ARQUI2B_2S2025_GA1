@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application/core/app_colors.dart';
 import 'package:flutter_application/core/moch_api_service.dart';
 import 'package:flutter_application/core/text_style.dart';
+import 'package:flutter_application/core/api_service.dart';
 
 class InfractionsWidget extends StatefulWidget {
   const InfractionsWidget({super.key});
@@ -27,7 +28,7 @@ class _InfractionsWidgetState extends State<InfractionsWidget>
   void initState() {
     super.initState();
     // Inicializar el Future solo una vez
-    _infractionsFuture = MockApiService.fetchTodaysInfractions();
+    _infractionsFuture = ApiService.fetchTodaysInfractions();
 
     _scrollController = ScrollController();
     _modalScrollController = ScrollController();
