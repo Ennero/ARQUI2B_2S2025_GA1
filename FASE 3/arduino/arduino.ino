@@ -29,8 +29,8 @@ unsigned long lastPiezoCheck = 0;
 const unsigned long piezoInterval = 500;
 
 // Estados globales
-const char* SEM1 = "ROJO";
-const char* SEM2 = "ROJO";
+const char *SEM1 = "ROJO";
+const char *SEM2 = "ROJO";
 int PM1 = 0;
 int PM2 = 0;
 int INC1 = 0;
@@ -457,52 +457,68 @@ void echoCheck()
 
 void updateTrafficLights(unsigned long now)
 {
+  unsigned long timeInState = now - stateStartTime;
+
   switch (currentCycle)
   {
   case GREEN_A:
-    if (now - stateStartTime >= greenTime)
+    if (timeInState >= greenTime)
     {
       currentCycle = YELLOW_A;
-      trafficA.setState(TrafficLight::YELLOW);
-      trafficB.setState(TrafficLight::RED);
       stateStartTime = now;
     }
-    SEM1 = (currentCycle == GREEN_A) ? "VERDE" : "AMARILLO";
-    SEM2 = "ROJO";
     break;
   case YELLOW_A:
-    if (now - stateStartTime >= yellowTime)
+    if (timeInState >= yellowTime)
     {
       currentCycle = GREEN_B;
-      trafficA.setState(TrafficLight::RED);
-      trafficB.setState(TrafficLight::GREEN);
       stateStartTime = now;
     }
-    SEM1 = "ROJO";
-    SEM2 = (currentCycle == GREEN_B) ? "VERDE" : "AMARILLO";
     break;
   case GREEN_B:
-    if (now - stateStartTime >= greenTime)
+    if (timeInState >= greenTime)
     {
       currentCycle = YELLOW_B;
-      trafficA.setState(TrafficLight::RED);
-      trafficB.setState(TrafficLight::YELLOW);
       stateStartTime = now;
     }
-    SEM1 = "ROJO";
-    SEM2 = (currentCycle == GREEN_B) ? "VERDE" : "AMARILLO";
     break;
   case YELLOW_B:
-    if (now - stateStartTime >= yellowTime)
+    if (timeInState >= yellowTime)
     {
       currentCycle = GREEN_A;
-      trafficA.setState(TrafficLight::GREEN);
-      trafficB.setState(TrafficLight::RED);
       stateStartTime = now;
     }
-    SEM1 = (currentCycle == GREEN_A) ? "VERDE" : "AMARILLO";
-    SEM2 = "ROJO";
     break;
+  }
+
+  // --- Lógica centralizada ---
+  if (currentCycle == GREEN_A)
+  {
+    trafficA.setState(TrafficLight::GREEN);
+    trafficB.setState(TrafficLight::RED);
+    SEM1 = "VERDE";
+    SEM2 = "ROJO";
+  }
+  else if (currentCycle == YELLOW_A)
+  {
+    trafficA.setState(TrafficLight::YELLOW);
+    trafficB.setState(TrafficLight::RED);
+    SEM1 = "AMARILLO";
+    SEM2 = "ROJO";
+  }
+  else if (currentCycle == GREEN_B)
+  {
+    trafficA.setState(TrafficLight::RED);
+    trafficB.setState(TrafficLight::GREEN);
+    SEM1 = "ROJO";
+    SEM2 = "VERDE";
+  }
+  else
+  { // YELLOW_B
+    trafficA.setState(TrafficLight::RED);
+    trafficB.setState(TrafficLight::YELLOW);
+    SEM1 = "ROJO";
+    SEM2 = "AMARILLO";
   }
 }
 
