@@ -1,0 +1,3 @@
+Top Personas: /analytics/top-persons
+Top Armas: /analytics/top-weapons
+Infracciones: /analytics/infractions-today
