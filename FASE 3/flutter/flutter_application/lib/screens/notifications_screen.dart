@@ -26,33 +26,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       final List<NotificationModel> loadedNotifications =
           await NotificationService.getNotifications();
 
-      // [
-      //   NotificationModel(
-      //     id: "id_1234",
-      //     tipo: "PANICO",
-      //     titulo: "Botón de Pánico Activado",
-      //     descripcion: "Se ha recibido una alerta de pánico desde la fuente PANICO3.",
-      //     fuente: "PANICO3",
-      //     timestamp: DateTime.parse("2025-09-05T16:21:15Z") // Formato ISO 8601
-      //   ),
-      //   NotificationModel(
-      //     id: "alrt_7c3a1",
-      //     tipo: "INFRACCION",
-      //     titulo: "Infracción de Semáforo Detectada",
-      //     descripcion: "Un vehículo ha cruzado en rojo en el punto de control INFRAB.",
-      //     fuente: "INFRAB",
-      //     timestamp: DateTime.parse("2025-09-05T16:20:55Z")
-      //   ),
-      //   NotificationModel(
-      //     id: "alrt_b4e22",
-      //     tipo: "SISMO",
-      //     titulo: "Alerta Sísmica",
-      //     descripcion: "Se ha detectado una vibración anómala. Protocolos de seguridad activados.",
-      //     fuente: "SISMO",
-      //     timestamp: DateTime.parse("2025-09-05T15:10:02Z")
-      //   )
-      // ];
-
       setState(() {
         notifications = loadedNotifications;
         isLoading = false;
@@ -66,32 +39,44 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   // Método para obtener el icono según el tipo de notificación
-  IconData _getNotificationIcon(String tipo) {
-    switch (tipo) {
-      case 'PANICO':
-        return Icons.warning_amber_rounded;
-      case 'INFRACCION':
-        return Icons.traffic_rounded;
-      case 'SISMO':
-        return Icons.vibration_rounded;
-      default:
-        return Icons.notifications;
-    }
+IconData _getNotificationIcon(String tipo) {
+  switch (tipo) {
+    case 'PANICO':
+      return Icons.warning_amber_rounded;
+    case 'INFRACCION':
+      return Icons.traffic_rounded;
+    case 'SISMO':
+      return Icons.vibration_rounded;
+    case 'CALIDAD DE AIRE':
+      return Icons.air;
+    case 'PERSONA EN LISTA NEGRA DETECTADA':
+      return Icons.person_off;
+    case 'ARMA BLANCA DETECTADA':
+      return Icons.security;
+    default:
+      return Icons.notifications;
   }
+}
 
   // Método para obtener el color según el tipo de notificación
   Color _getNotificationColor(String tipo) {
-    switch (tipo) {
-      case 'PANICO':
-        return Colors.red;
-      case 'INFRACCION':
-        return Colors.orange;
-      case 'SISMO':
-        return Colors.yellow[700]!;
-      default:
-        return Colors.blue;
-    }
+  switch (tipo) {
+    case 'PANICO':
+      return Colors.red;
+    case 'INFRACCION':
+      return Colors.orange;
+    case 'SISMO':
+      return Colors.yellow[700]!;
+    case 'CALIDAD DE AIRE':
+      return Colors.brown;
+    case 'PERSONA EN LISTA NEGRA DETECTADA':
+      return Colors.purple;
+    case 'ARMA BLANCA DETECTADA':
+      return Colors.deepOrange;
+    default:
+      return Colors.blue;
   }
+}
 
   @override
   Widget build(BuildContext context) {

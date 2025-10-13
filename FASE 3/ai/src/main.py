@@ -23,13 +23,48 @@
 # SOFTWARE.
 
 # For more information, contact https://github.com/marcosbondel
+<<<<<<< HEAD
+=======
+
+# · ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~
+# · 
+
+import asyncio
+>>>>>>> feature/ai
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
 from config.settings import settings
+<<<<<<< HEAD
 
 application = FastAPI(
     title=settings.app_name,
+=======
+from config.database import init_mongo
+from config.seed import seed_services
+from config.worker import Worker
+from routers import services
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Start Mongo Database
+    # await init_mongo()
+
+    # Execute seeds
+    # await seed_services() #! Still have to ensure uniq records
+
+    # Start workers
+    Worker().perform()
+    # asyncio.create_task(Worker().perform())
+
+    yield
+
+
+application = FastAPI(
+    title=settings.app_name,
+    lifespan=lifespan,
+>>>>>>> feature/ai
     default_response_class=ORJSONResponse
 )
 
@@ -44,5 +79,20 @@ application.add_middleware(
 @application.get("/")
 def root_application():
     return {
+<<<<<<< HEAD
         "ok": True
     }
+=======
+        "ok": True,
+        "version": '1.0.0',
+        "company": {
+            "company_name": "Bondel Technologies S. A.",
+            "description": "Building a better future",
+            "github": "https://github.com/bondeltech"
+        },
+        "license": "MIT",
+    }
+
+# Routers
+application.include_router(services.router)
+>>>>>>> feature/ai

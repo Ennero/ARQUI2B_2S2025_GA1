@@ -128,6 +128,146 @@ class MockApiService {
     }
   }
 
+  static Future<List<dynamic>> fetchTopPersons() async {
+    // Simulamos un retraso de red
+    await Future.delayed(const Duration(milliseconds: 800));
+
+    // SImulamos un posible error de conexión
+    if (Random().nextDouble() < 0.1) {
+      throw Exception("Error de conexión simulado al obtener personas");
+    }
+
+    // Generamos una lista de 10 personas con datos aleatorios
+    return List.generate(10, (index) {
+      return {
+        "person_id": "PERSONA_${(index + 1).toString().padLeft(3, '0')}",
+        "detection_count": Random().nextInt(20) + 1, // Detecciones entre 1 y 20
+        "face_image_url": 'assets/image_simulation/${index + 1}.jfif',
+      };
+    });
+  }
+
+  static Future<List<dynamic>> fetchTopWeapons() async {
+    // Simulamos un retraso de red
+    await Future.delayed(const Duration(milliseconds: 800));
+
+    // SImulamos un posible error de conexión
+    if (Random().nextDouble() < 0.1) {
+      throw Exception("Error de conexión simulado al obtener personas");
+    }
+
+    // Datos simulados estático spara consistencia visual
+    final weaponsData = [
+      {
+        "weapon_type": "bayoneta",
+        "detection_count": Random().nextInt(30) + 10, // Entre 10 y 40
+        "last_seen": "2025-09-25T10:15:00Z",
+        "image_url": "assets/weapons/1.jfif",
+      },
+      {
+        "weapon_type": "Cuchillo",
+        "detection_count": Random().nextInt(30) + 10, // Entre 10 y 40
+        "last_seen": "2025-09-25T10:15:00Z",
+        "image_url": "assets/weapons/2.jfif",
+      },
+      {
+        "weapon_type": "Daga",
+        "detection_count": Random().nextInt(30) + 10, // Entre 10 y 40
+        "last_seen": "2025-09-25T10:15:00Z",
+        "image_url": "assets/weapons/3.jfif",
+      },
+      {
+        "weapon_type": "Destornillador",
+        "detection_count": Random().nextInt(30) + 10, // Entre 10 y 40
+        "last_seen": "2025-09-25T10:15:00Z",
+        "image_url": "assets/weapons/4.jfif",
+      },
+      {
+        "weapon_type": "Espada",
+        "detection_count": Random().nextInt(30) + 10, // Entre 10 y 40
+        "last_seen": "2025-09-25T10:15:00Z",
+        "image_url": "assets/weapons/5.jfif",
+      },
+      {
+        "weapon_type": "Esapadín",
+        "detection_count": Random().nextInt(30) + 10, // Entre 10 y 40
+        "last_seen": "2025-09-25T10:15:00Z",
+        "image_url": "assets/weapons/6.jfif",
+      },
+      {
+        "weapon_type": "Flecha",
+        "detection_count": Random().nextInt(30) + 10, // Entre 10 y 40
+        "last_seen": "2025-09-25T10:15:00Z",
+        "image_url": "assets/weapons/7.jfif",
+      },
+      {
+        "weapon_type": "Hacha",
+        "detection_count": Random().nextInt(30) + 10, // Entre 10 y 40
+        "last_seen": "2025-09-25T10:15:00Z",
+        "image_url": "assets/weapons/8.jfif",
+      },
+      {
+        "weapon_type": "Katana",
+        "detection_count": Random().nextInt(30) + 10, // Entre 10 y 40
+        "last_seen": "2025-09-25T10:15:00Z",
+        "image_url": "assets/weapons/9.jfif",
+      },
+      {
+        "weapon_type": "Kunai",
+        "detection_count": Random().nextInt(30) + 10, // Entre 10 y 40
+        "last_seen": "2025-09-25T10:15:00Z",
+        "image_url": "assets/weapons/10.jfif",
+      },
+    ];
+
+    return weaponsData;
+  }
+
+  // Datos simulacdos de las infracciones del día
+  static Future<List<dynamic>> fetchTodaysInfractions() async {
+    // Simulamos un retraso en la red
+    await Future.delayed(const Duration(milliseconds: 700));
+
+    // Simular un error de conexión
+    if (Random().nextDouble() < 0.1) {
+      throw Exception("Error de conexión simulado al obtener personas");
+    }
+
+    final now = DateTime.now();
+    return List.generate(10, (index) {
+      final hour = 18 - index; // Horas hacia atrás desde las 6 PM
+      final minute = Random().nextInt(60);
+      final locationIndex = Random().nextInt(5);
+      final locations = [
+        "16 Av. y 4a Calle, Zona 1",
+        "Calzada Roosevelt, Zona 7",
+        "Blvd. Vista Hermosa, Zona 15",
+        "Av. Las Américas, Zona 13",
+        "Anillo Periférico, Zona 11",
+      ];
+      final plates = [
+        "P-123ABC",
+        "P-789XYZ",
+        "C-456DEF",
+        "M-321GHI",
+        "P-987JKL",
+      ];
+
+      return {
+        "plate": plates[Random().nextInt(plates.length)],
+        // Formato ISO 8601 Z (UTC)
+        "timestamp": DateTime.utc(
+          now.year,
+          now.month,
+          now.day,
+          hour,
+          minute,
+        ).toIso8601String(),
+        "location": locations[locationIndex],
+      };
+    });
+  }
+
   static String getFilterLabel(TimeFilter filter) {
     switch (filter) {
       case TimeFilter.map:

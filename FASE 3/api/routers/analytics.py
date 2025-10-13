@@ -430,4 +430,3 @@ async def analytics_top_persons(
     
     cursor = db.detecciones_personas.aggregate(pipeline)
     return [doc async for doc in cursor]
-

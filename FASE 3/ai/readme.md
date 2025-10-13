@@ -17,7 +17,7 @@
     pip3 install -r requirements.txt
 
     # Run the application
-    fastapi dev main.py
+    fastapi dev src/main.py
 ```
 
 ---
@@ -33,5 +33,14 @@ Then, run this command in the terminal.
 
 ---
 
+
+## Add a new person to the face recognition model
+
+
+```bash
+    python3 src/tools/capture_faces.py --person "fulano" --video 1
+    python src/train/faces.py
+    fastapi dev src/main.py
+```
 
 Built with :blue_heart: by **Bondel Technologies S, A.**

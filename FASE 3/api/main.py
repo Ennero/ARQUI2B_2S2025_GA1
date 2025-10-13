@@ -34,8 +34,6 @@ from fastapi.staticfiles import StaticFiles
 
 mqtt_task: asyncio.Task = None
 
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global mqtt_task
@@ -62,10 +60,9 @@ application = FastAPI(
     default_response_class=ORJSONResponse
 )
 
-# ⭐⭐ SOLUCIÓN CORS - AGREGAR ESTAS 6 LÍNEAS ⭐⭐
 application.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # En producción, cambia a dominios específicos
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
