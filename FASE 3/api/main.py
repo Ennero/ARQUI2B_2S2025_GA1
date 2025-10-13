@@ -30,6 +30,7 @@ from config.settings import settings
 from config.database import connect_to_mongo, close_mongo
 from mqtt.client import run_mqtt
 from routers import readings, events, analytics, live, notifications
+from fastapi.staticfiles import StaticFiles
 
 mqtt_task: asyncio.Task = None
 
@@ -59,10 +60,9 @@ application = FastAPI(
     default_response_class=ORJSONResponse
 )
 
-# ⭐⭐ SOLUCIÓN CORS - AGREGAR ESTAS 6 LÍNEAS ⭐⭐
 application.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # En producción, cambia a dominios específicos
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -71,6 +71,8 @@ application.add_middleware(
 @application.get("/health")
 async def root():
     return {"ok": True}
+
+application.mount("/images", StaticFiles(directory="static/images"), name="images")
 
 # Routers
 application.include_router(readings.router)
