@@ -59,7 +59,6 @@ Notificaciones:
 "fuente": "SISMO",
 "timestamp": "2025-09-05T15:10:02Z"
 }
-<<<<<<< HEAD
 {
 "id": "alrt_b57e9",
 "tipo": "CALIDAD DE AIRE",
@@ -84,6 +83,4 @@ Notificaciones:
 "fuente": "**Sensor que lo detecta",
 "timestamp": "2025-09-27T13:15:45Z"
 }
-=======
->>>>>>> feature/ai
 ]

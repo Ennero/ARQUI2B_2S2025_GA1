@@ -6,16 +6,12 @@
 class TrafficLight
 {
 public:
-<<<<<<< HEAD
     enum State
     {
         RED,
         YELLOW,
         GREEN
     };
-=======
-    enum State { RED, YELLOW, GREEN };
->>>>>>> feature/ai
 
 private:
     int pinRed;
