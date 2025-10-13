@@ -1,7 +1,7 @@
 #include "Melodies.h"
 #include <TimerFreeTone.h>
 
-// --- CONFIGURACIÓN INTERNA DEL MÓDULO DE MELODÍAS ---\
+// --- CONFIGURACIÓN INTERNA DEL MÓDULO DE MELODÍAS ---
 const int PINES_BUZZER[] = { 49, 53, A14, A12, A10 };
 const uint8_t NUM_BUZZERS = sizeof(PINES_BUZZER) / sizeof(PINES_BUZZER[0]);
 
@@ -99,19 +99,63 @@ const uint8_t NUM_BUZZERS = sizeof(PINES_BUZZER) / sizeof(PINES_BUZZER[0]);
 
 // --- Datos de cada melodía (Tempo y Notas) ---
 static const int tempoNokia = 180;
-static const int melodyNokia[] = {NOTE_E5, 8, NOTE_D5, 8, NOTE_FS4, 4, NOTE_GS4, 4, NOTE_CS5, 8, NOTE_B4, 8, NOTE_D4, 4, NOTE_E4, 4, NOTE_B4, 8, NOTE_A4, 8, NOTE_CS4, 4, NOTE_E4, 4, NOTE_A4, 2};
+static const int melodyNokia[] = {
+  NOTE_E5, 8, NOTE_D5, 8, NOTE_FS4, 4, NOTE_GS4, 4, 
+  NOTE_CS5, 8, NOTE_B4, 8, NOTE_D4, 4, NOTE_E4, 4, 
+  NOTE_B4, 8, NOTE_A4, 8, NOTE_CS4, 4, NOTE_E4, 4, NOTE_A4, 2
+};
+
 static const int tempoTetris = 144;
-static const int melodyTetris[] = {NOTE_E5, 4, NOTE_B4, 8, NOTE_C5, 8, NOTE_D5, 4, NOTE_C5, 8, NOTE_B4, 8, NOTE_A4, 4, NOTE_A4, 8, NOTE_C5, 8, NOTE_E5, 4, NOTE_D5, 8, NOTE_C5, 8, NOTE_B4, -4, NOTE_C5, 8, NOTE_D5, 4, NOTE_E5, 4, NOTE_C5, 4, NOTE_A4, 4, NOTE_A4, 4, REST, 4};
+static const int melodyTetris[] = {
+  NOTE_E5, 4, NOTE_B4, 8, NOTE_C5, 8, NOTE_D5, 4, NOTE_C5, 8, NOTE_B4, 8, 
+  NOTE_A4, 4, NOTE_A4, 8, NOTE_C5, 8, NOTE_E5, 4, NOTE_D5, 8, NOTE_C5, 8, 
+  NOTE_B4, -4, NOTE_C5, 8, NOTE_D5, 4, NOTE_E5, 4, 
+  NOTE_C5, 4, NOTE_A4, 4, NOTE_A4, 4, REST, 4
+};
+
 static const int tempoPacman = 105;
-static const int melodyPacman[] = {NOTE_B4, 16, NOTE_B5, 16, NOTE_FS5, 16, NOTE_DS5, 16, NOTE_B5, 32, NOTE_FS5, -16, NOTE_DS5, 8, NOTE_C5, 16, NOTE_C6, 16, NOTE_G6, 16, NOTE_E6, 16, NOTE_C6, 32, NOTE_G6, -16, NOTE_E6, 8, NOTE_B4, 16, NOTE_B5, 16, NOTE_FS5, 16, NOTE_DS5, 16, NOTE_B5, 32, NOTE_FS5, -16, NOTE_DS5, 8, NOTE_DS5, 32, NOTE_E5, 32, NOTE_F5, 32, NOTE_F5, 32, NOTE_FS5, 32, NOTE_G5, 32, NOTE_G5, 32, NOTE_GS5, 32, NOTE_A5, 16, NOTE_B5, 8};
+static const int melodyPacman[] = {
+  NOTE_B4, 16, NOTE_B5, 16, NOTE_FS5, 16, NOTE_DS5, 16, 
+  NOTE_B5, 32, NOTE_FS5, -16, NOTE_DS5, 8, NOTE_C5, 16, 
+  NOTE_C6, 16, NOTE_G6, 16, NOTE_E6, 16, NOTE_C6, 32, 
+  NOTE_G6, -16, NOTE_E6, 8, NOTE_B4, 16, NOTE_B5, 16, 
+  NOTE_FS5, 16, NOTE_DS5, 16, NOTE_B5, 32, NOTE_FS5, -16, 
+  NOTE_DS5, 8, NOTE_DS5, 32, NOTE_E5, 32, NOTE_F5, 32, 
+  NOTE_F5, 32, NOTE_FS5, 32, NOTE_G5, 32, NOTE_G5, 32, 
+  NOTE_GS5, 32, NOTE_A5, 16, NOTE_B5, 8
+};
+
 static const int tempoTakeOnMe = 140;
-static const int melodyTakeOnMe[] = {NOTE_FS5, 8, NOTE_FS5, 8, NOTE_D5, 8, NOTE_B4, 8, REST, 8, NOTE_B4, 8, REST, 8, NOTE_E5, 8, REST, 8, NOTE_E5, 8, REST, 8, NOTE_E5, 8, NOTE_GS5, 8, NOTE_GS5, 8, NOTE_A5, 8, NOTE_B5, 8, NOTE_A5, 8, NOTE_A5, 8, NOTE_A5, 8, NOTE_E5, 8, REST, 8, NOTE_D5, 8, REST, 8, NOTE_FS5, 8, REST, 8, NOTE_FS5, 8, REST, 8, NOTE_FS5, 8, NOTE_E5, 8, NOTE_E5, 8, NOTE_FS5, 8, NOTE_E5, 8};
+static const int melodyTakeOnMe[] = {
+  NOTE_FS5, 8, NOTE_FS5, 8, NOTE_D5, 8, NOTE_B4, 8, REST, 8, 
+  NOTE_B4, 8, REST, 8, NOTE_E5, 8, REST, 8, NOTE_E5, 8, REST, 8, 
+  NOTE_E5, 8, NOTE_GS5, 8, NOTE_GS5, 8, NOTE_A5, 8, NOTE_B5, 8, 
+  NOTE_A5, 8, NOTE_A5, 8, NOTE_A5, 8, NOTE_E5, 8, REST, 8, 
+  NOTE_D5, 8, REST, 8, NOTE_FS5, 8, REST, 8, NOTE_FS5, 8, REST, 8, 
+  NOTE_FS5, 8, NOTE_E5, 8, NOTE_E5, 8, NOTE_FS5, 8, NOTE_E5, 8
+};
+
 static const int tempoMario = 200;
-static const int melodyMario[] = {NOTE_E5, 8, NOTE_E5, 8, REST, 8, NOTE_E5, 8, REST, 8, NOTE_C5, 8, NOTE_E5, 8, NOTE_G5, 4, REST, 4, NOTE_G4, 8, REST, 4, NOTE_C5, -4, NOTE_G4, 8, REST, 4, NOTE_E4, -4, NOTE_A4, 4, NOTE_B4, 4, NOTE_AS4, 8, NOTE_A4, 4, NOTE_G4, -8, NOTE_E5, -8, NOTE_G5, -8, NOTE_A5, 4, NOTE_F5, 8, NOTE_G5, 8, REST, 8, NOTE_E5, 4, NOTE_C5, 8, NOTE_D5, 8, NOTE_B4, -4};
+static const int melodyMario[] = {
+  NOTE_E5, 8, NOTE_E5, 8, REST, 8, NOTE_E5, 8, REST, 8, NOTE_C5, 8, 
+  NOTE_E5, 8, NOTE_G5, 4, REST, 4, NOTE_G4, 8, REST, 4, 
+  NOTE_C5, -4, NOTE_G4, 8, REST, 4, NOTE_E4, -4, NOTE_A4, 4, 
+  NOTE_B4, 4, NOTE_AS4, 8, NOTE_A4, 4, NOTE_G4, -8, NOTE_E5, -8, 
+  NOTE_G5, -8, NOTE_A5, 4, NOTE_F5, 8, NOTE_G5, 8, REST, 8, 
+  NOTE_E5, 4, NOTE_C5, 8, NOTE_D5, 8, NOTE_B4, -4
+};
+
 static const int tempoSiren = 120;
 static const int melodySiren[] = {NOTE_G3, -1};
+
 static const int tempoMerryChristmas = 140;
-static const int melodyMerryChristmas[] = {NOTE_C5, 4, NOTE_F5, 4, NOTE_F5, 8, NOTE_G5, 8, NOTE_F5, 8, NOTE_E5, 8, NOTE_D5, 4, NOTE_D5, 4, NOTE_D5, 4, NOTE_G5, 4, NOTE_G5, 8, NOTE_A5, 8, NOTE_G5, 8, NOTE_F5, 8, NOTE_E5, 4, NOTE_C5, 4, NOTE_C5, 4, NOTE_A5, 4, NOTE_A5, 8, NOTE_AS5, 8, NOTE_A5, 8, NOTE_G5, 8, NOTE_F5, 4, NOTE_D5, 4, NOTE_C5, 8, NOTE_C5, 8, NOTE_D5, 4, NOTE_G5, 4, NOTE_E5, 4, NOTE_F5, 2};
+static const int melodyMerryChristmas[] = {
+  NOTE_C5, 4, NOTE_F5, 4, NOTE_F5, 8, NOTE_G5, 8, NOTE_F5, 8, NOTE_E5, 8, 
+  NOTE_D5, 4, NOTE_D5, 4, NOTE_D5, 4, NOTE_G5, 4, NOTE_G5, 8, NOTE_A5, 8, 
+  NOTE_G5, 8, NOTE_F5, 8, NOTE_E5, 4, NOTE_C5, 4, NOTE_C5, 4, NOTE_A5, 4, 
+  NOTE_A5, 8, NOTE_AS5, 8, NOTE_A5, 8, NOTE_G5, 8, NOTE_F5, 4, NOTE_D5, 4, 
+  NOTE_C5, 8, NOTE_C5, 8, NOTE_D5, 4, NOTE_G5, 4, NOTE_E5, 4, NOTE_F5, 2
+};
 
 // Estructura para almacenar la información de cada canción
 struct SongInfo
@@ -129,7 +173,8 @@ static const SongInfo songbook[] = {
     {melodyTakeOnMe, tempoTakeOnMe, sizeof(melodyTakeOnMe) / sizeof(int) / 2},
     {melodyMario, tempoMario, sizeof(melodyMario) / sizeof(int) / 2},
     {melodySiren, tempoSiren, sizeof(melodySiren) / sizeof(int) / 2},
-    {melodyMerryChristmas, tempoMerryChristmas, sizeof(melodyMerryChristmas) / sizeof(int) / 2}};
+    {melodyMerryChristmas, tempoMerryChristmas, sizeof(melodyMerryChristmas) / sizeof(int) / 2}
+};
 
 // --- Variables de estado para la reproducción no bloqueante ---
 struct BuzzerState
@@ -218,9 +263,9 @@ void loopMelodies()
 
     if (noteIndex >= currentSongInfo.noteCount)
     {
+      // ✅ FIX: Eliminado acoplamiento - solo detiene la melodía
       buzzerStates[i].isPlaying = false;
       buzzerStates[i].currentSong = NO_MELODY;
-      PANICO[i] = 0;
       continue;
     }
 

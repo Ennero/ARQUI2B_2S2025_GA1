@@ -3,7 +3,8 @@
 
 #include <Arduino.h>
 
-extern int PANICO[5];
+// ✅ FIX: Eliminada dependencia de variables externas
+// Ya no se necesita: extern int PANICO[5];
 
 // Enum para identificar las canciones de forma legible.
 enum MelodyID
@@ -15,7 +16,7 @@ enum MelodyID
     SONG_TAKEONME,
     SONG_MARIO,
     SONG_SIREN,
-    SONG_MERRYCHRISTMAS // <-- Nueva canción
+    SONG_MERRYCHRISTMAS
 };
 
 // Enum para los tipos de alarma
@@ -29,7 +30,6 @@ enum AlarmType
     ALARM_ANTIROBO,   
     ALARM_ARMABLANCA  
 };
-
 
 // --- FUNCIONES PÚBLICAS ---
 void setupMelodies();
