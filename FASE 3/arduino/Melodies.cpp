@@ -170,7 +170,7 @@ vvoid startMelody(int buzzerIndex, AlarmType type) {
 
 void stopMelody(int buzzerIndex) {
   if (buzzerIndex < 0 || buzzerIndex >= NUM_BUZZERS) return;
-  TimerFreeTone(PINES_BUZZER[i], 0, 0); // Detener el sonido inmediatamente
+  TimerFreeTone(PINES_BUZZER[buzzerIndex], 0, 0); // ¡Corregido!
   buzzerStates[buzzerIndex].isPlaying = false;
   buzzerStates[buzzerIndex].currentSong = NO_MELODY;
 }
