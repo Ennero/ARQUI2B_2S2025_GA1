@@ -11,6 +11,7 @@ class PlateDetection(Document):
     plate_text: str = Field(..., description="Texto de la placa detectada")
     source: str = Field(..., description="ID de la cámara o fuente que hizo la detección")
     location: Optional[str] = Field(default=None, description="Ubicación como texto (ej. '16 Av. Zona 1')")
+    image_b64: Optional[str] = None
     created_at: datetime = Field(default_factory=utcnow_aware)
     updated_at: datetime = Field(default_factory=utcnow_aware)
     deleted_at: Optional[datetime] = None
@@ -22,7 +23,7 @@ class PersonDetection(Document):
     person_id: str = Field(..., description="ID de la persona (vinculado a una lista negra)")
     source: str = Field(..., description="ID de la cámara o fuente que hizo la detección")
     location: Optional[str] = Field(default=None, description="Ubicación como texto")
-    image_url: Optional[str] = Field(default=None, description="URL de la imagen del rostro detectado")
+    image_b64: Optional[str] = None
     created_at: datetime = Field(default_factory=utcnow_aware)
     updated_at: datetime = Field(default_factory=utcnow_aware)
     deleted_at: Optional[datetime] = None
@@ -35,6 +36,7 @@ class WeaponDetection(Document):
     source: str = Field(..., description="ID de la cámara o fuente que hizo la detección")
     location: Optional[str] = Field(default=None, description="Ubicación como texto")
     image_url: Optional[str] = Field(default=None, description="URL de la imagen del arma detectada")
+    image_b64: Optional[str] = None
     created_at: datetime = Field(default_factory=utcnow_aware)
     updated_at: datetime = Field(default_factory=utcnow_aware)
     deleted_at: Optional[datetime] = None

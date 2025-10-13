@@ -1,32 +1,48 @@
-# api/router.py
+# ia_api/api/router.py
+
 from fastapi import APIRouter, Body, HTTPException
 from models.detection import PlateDetection, PersonDetection, WeaponDetection
 
 router = APIRouter()
 
-@router.get("/")
-def root():
-    return {"status": "IA Coordinator API is running"}
-
 @router.post("/api/info")
 async def save_ia_detection(payload: dict = Body(...)):
-    print(f"Received request on /api/info: {payload}")
+    """
+    Receives detection data from AI laptops and stores it directly in MongoDB.
+    """
+    print(f"Received request on /api/info: {payload.get('type')}")
 
-    detection_type = payload.get("tipo")
-    data = payload.get("data")
+    detection_type = payload.get("type")
+    meta = payload.get("meta", {})
+    image_b64 = payload.get("img_b64")
 
-    if not detection_type or not data:
-        raise HTTPException(status_code=400, detail="Payload must include 'tipo' and 'data' fields.")
+    if not detection_type or not meta:
+        raise HTTPException(status_code=400, detail="Payload must include 'type' and 'meta' fields.")
 
     try:
-        if detection_type == "plates":
-            detection = PlateDetection(**data)
-        elif detection_type == "persons":
-            detection = PersonDetection(**data)
-        elif detection_type == "weapons":
-            detection = WeaponDetection(**data)
+        if detection_type == "vehicle":
+            detection = PlateDetection(
+                plate_text=meta.get("texto"),
+                source="ia-cam-plates",
+                location=meta.get("location"),
+                image_b64=image_b64
+            )
+        elif detection_type == "person":
+            detection = PersonDetection(
+                person_id=meta.get("name"),
+                source="ia-cam-persons",
+                location=meta.get("location"),
+                image_b64=image_b64
+            )
+        elif detection_type == "weapon":
+            detection = WeaponDetection(
+                weapon_type=meta.get("name"),
+                source="ia-cam-weapons",
+                location=meta.get("location"),
+                image_b64=image_b64
+            )
         else:
-            raise HTTPException(status_code=400, detail=f"Unknown detection type: {detection_type}")
+            raise HTTPException(status_code=400, detail=f"Unknown detection type: '{detection_type}'")
 
         await detection.insert()
         print(f"Successfully saved {detection_type} detection to the database.")
