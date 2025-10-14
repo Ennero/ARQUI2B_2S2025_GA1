@@ -24,14 +24,6 @@
 
 # For more information, contact https://github.com/marcosbondel
 
-<<<<<<< HEAD
-from pydantic_settings import BaseSettings
-
-class Settings(BaseSettings):
-
-    app_name: str = "My API"
-
-=======
 # · ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~     ~·~
 # · 
 
@@ -71,6 +63,5 @@ class Settings(BaseSettings):
         env_prefix="",
         extra="ignore"
     )
->>>>>>> feature/ai
 
 settings = Settings()
