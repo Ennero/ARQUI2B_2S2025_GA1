@@ -10,7 +10,7 @@
     python3 -m venv ./.venv
 
     # Activate env
-    source ./.venv/bin/activate # Linux/MacOS
+    source ./.venv/bin/activates # Linux/MacOS
     deactivate # Just in case you need to deactivate the env
 
     # Install Python dependencies
