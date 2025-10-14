@@ -45,7 +45,7 @@ Universidad de San Carlos de Guatemala
 
 5. JUAN JOSE SANDOVAL RUIZ:
 
-    
+    El integrante
 #
 
 6. DAVID ESTUARDO BARRIOS RAMIREZ:
