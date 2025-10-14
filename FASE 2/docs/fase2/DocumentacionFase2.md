@@ -146,6 +146,8 @@ La visualización de los datos se realiza a través de una aplicación móvil en
 #
 ![](/FASE%202/docs/img/fase%202/Doc-15.jpg)
 #
+![](/FASE%202/docs/img/fase%202/Doc-15.jpg)
+#
 
 #### 4.3. Flujo de Datos y Comunicación
 

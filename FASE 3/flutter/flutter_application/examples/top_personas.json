@@ -1,0 +1,12 @@
+[
+    {
+        "person_id": "PERSONA_001",
+        "detection_count": 15,
+        "face_image_url": "http://<ip_servidor>:8000/images/faces/persona_001.jpg"
+    },
+    {
+        "person_id": "PERSONA_007",
+        "detection_count": 9,
+        "face_image_url": "http://<ip_servidor>:8000/images/faces/persona_007.jpg"
+    }
+]

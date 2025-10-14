@@ -59,7 +59,11 @@ Este documento presenta de manera detallada el desarrollo, resultados y aprendiz
 
 Durante las tres semanas de trabajo, se abordaron retos técnicos y logísticos que requirieron una coordinación constante y la adaptación de estrategias. Se logró implementar una arquitectura distribuida basada en microcontroladores Arduino y Raspberry Pi, conectados a una red de sensores y actuadores que permitieron la recolección y procesamiento de datos en tiempo real. Además, se desarrolló una aplicación móvil en Flutter para la visualización remota y local de información relevante, y se integró un sistema de comunicación MQTT junto a una API y base de datos en MongoDB para la gestión eficiente de los datos.
 
+<<<<<<< HEAD
 ![2](../img/fase%202/S2-7.jpg)
+=======
+
+>>>>>>> develop
 
 El equipo trabajó en la optimización del cableado y encapsulamiento de la maqueta física, facilitando el acceso y mantenimiento de los componentes electrónicos. Se realizaron pruebas exhaustivas de integración, depuración de errores y validación de funcionalidades, asegurando que el sistema respondiera correctamente ante eventos críticos como alertas de sismo, incendios y activación de botones de pánico. Cada componente, desde los sensores ultrasónicos y de gas, hasta los zumbadores y LEDs, fue seleccionado y configurado para cumplir con los objetivos planteados.
 
@@ -76,7 +80,11 @@ La Fase 2 del proyecto surge como respuesta a la necesidad de mejorar la gestió
 
 El proyecto se justifica en la exploración y validación de un modelo de ciudad inteligente, donde la tecnología IoT nos ayudará en la comunicación en tiempo real y la visualización avanzada para crear un entorno urbano más seguro, eficiente y de calidad. La integración de sensores y microcontroladores (una raspberry pi), plataformas móviles (Flutter) y sistemas de comunicación permite abordar los retos actuales y sentar las bases para futuras expansiones y mejoras. Esta fase representa un avance significativo en la aplicación práctica de conceptos de smart cities, adaptados a las necesidades y recursos locales.
 
+<<<<<<< HEAD
 ![2](../img/fase%202/2.jpg)
+=======
+
+>>>>>>> develop
 #
 
 #### 2.2. Objetivos del Proyecto
@@ -100,7 +108,11 @@ Diseñar, construir e implementar un sistema inteligente de monitoreo y gestión
 
 Todos los dispositivos que se habian interconectado y configurado en la Fase 1 del proyecto, están ahora conectados a una arquitectura distribuida basada en Arduino y Raspberry Pi, permitiendo la adquisición, procesamiento y transmisión eficiente de datos.
 #
+<<<<<<< HEAD
 ![2](../img/fase%202/3.png)
+=======
+
+>>>>>>> develop
 #
 
 El sistema de alertas fue optimizado para activar alarmas sonoras y visuales tanto en la maqueta física como en la aplicación móvil. La información recolectada se visualiza en tiempo real a través de interfaces desarrolladas en Flutter, facilitando la supervisión y toma de decisiones por parte de los usuarios. Además, se implementó una base de datos en MongoDB y comunicación MQTT para asegurar la persistencia y el flujo confiable de los datos entre los diferentes componentes del sistema.
@@ -121,7 +133,11 @@ La arquitectura de hardware en la Fase 2 está compuesto por microcontroladores 
 
 El cableado y encapsulamiento fueron optimizados para facilitar el acceso y la reparación de componentes, reduciendo el riesgo de fallos a la hora de dañar o desconectar cables y mejorando la eficiencia en las pruebas. La comunicación entre los microcontroladores se realiza mediante protocolos seriales y MQTT, asegurando la transmisión confiable de datos hacia la base de datos y las interfaces de usuario. Esta arquitectura permite la integración de nuevos dispositivos y la expansión del sistema sin afectar la funcionalidad principal.
 #
+<<<<<<< HEAD
 ![](../img/fase%202/Doc-2.jpg)
+=======
+
+>>>>>>> develop
 #
 
 
@@ -131,6 +147,7 @@ El software del sistema se compone de varios módulos que interactúan de manera
 
 La visualización de los datos se realiza a través de una aplicación móvil en Flutter, el cual esta diseñado para mostrar en tiempo real una pagina de inicio, una pestaña del control de datos de los sensores, rutas de transporte, notificaciones, etc. 
 #
+<<<<<<< HEAD
 ![](../img/fase%202/S2-7.jpg)
 #
 ![](../img/fase%202/S3-8.jpg)
@@ -145,6 +162,9 @@ La visualización de los datos se realiza a través de una aplicación móvil en
 **NOTA:** Si no se configura bien correctamente la API, entonces no va a funcionar en su totalidad la app movil. 
 #
 ![](../img/fase%202/Doc-15.jpg)
+=======
+
+>>>>>>> develop
 #
 
 #### 4.3. Flujo de Datos y Comunicación
@@ -154,21 +174,33 @@ El flujo de datos en la Fase 2 se diseñó para ser eficiente, seguro y escalabl
 La Raspberry Pi actúa como intermediario, consolidando los datos y transmitiéndolos mediante MQTT y API al backend y la base de datos MongoDB. El backend procesa y almacena los datos, permitiendo su consulta y visualización en tiempo real a través de la aplicación móvil. Este flujo asegura que los usuarios reciban alertas inmediatas y puedan supervisar el estado del sistema desde cualquier dispositivo autorizado, facilitando la gestión eficiente de la seguridad y movilidad urbana.
 
 #
+<<<<<<< HEAD
 ![](../img/fase%202/1.jpg)
 #
 ![](../img/fase%202/S3-6.jpg)
+=======
+
+>>>>>>> develop
 #
 
 ## Diagramas 
 
 1. Arquitectura general (Fase 2)
 #
+<<<<<<< HEAD
 ![](../img/fase%202/diagrama1.png)
+=======
+
+>>>>>>> develop
 #
 
 2. Flujo de mensajes
 #
+<<<<<<< HEAD
 ![](../img/fase%202/diagrama%202.png)
+=======
+
+>>>>>>> develop
 #
 
 ## Link de Github
@@ -177,7 +209,11 @@ https://github.com/Ennero/ARQUI2B_2S2025_GA1
 
 ## Modelo 3D implementado en Maqueta Física
 #
+<<<<<<< HEAD
 ![](../img/fase%202/Doc-1.jpg)
+=======
+
+>>>>>>> develop
 #
 
 ## 6. Descripción Del trabajo de Software implementado
@@ -204,6 +240,7 @@ El prototipo desarrollado en la Fase 2 ofrece múltiples usos y beneficios que d
 
 #### Anexos: 
 #
+<<<<<<< HEAD
 ![](../img/fase%202/Doc-3.jpg)
 #
 ![](../img/fase%202/Doc-5.jpg)
@@ -221,4 +258,7 @@ El prototipo desarrollado en la Fase 2 ofrece múltiples usos y beneficios que d
 ![](../img/fase%202/Doc-13.jpg)
 #
 ![](../img/fase%202/Doc-14.jpg)
+=======
+
+>>>>>>> develop
 #

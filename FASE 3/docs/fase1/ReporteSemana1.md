@@ -15,9 +15,13 @@
   - 2 puntos históricos
 
 **Captura del avance:**  
-![Foto de maqueta - ](../img/fase%201/1.jpg)
-![Foto de maqueta - ](../img/fase%201/2.jpg)
-![Foto de maqueta - ](../img/fase%201/3.jpg)
+<<<<<<< HEAD
+
+=======
+![Foto de maqueta - ](../img/1.jpg)
+![Foto de maqueta - ](../img/2.jpg)
+![Foto de maqueta - ](../img/3.jpg)
+>>>>>>> develop
 
 ---
 
@@ -28,14 +32,21 @@
 **Vista preliminar del modelo:**  
 https://app.sketchup.com/share/tc/northAmerica/aJ2IbRWgOl0?stoken=XyzgiDlDwOA2tYNCufjUEXr-pC4gbiujco70CVSAYh1IWYxRf9vRuN2l5BS9yo0-&source=web
 
-![Foto de modelo ](../img/fase%201/4.jpg)
-![Foto de modelo ](../img/fase%201/5.jpg)
+<<<<<<< HEAD
+
+=======
+![Foto de modelo ](../img/4.jpg)
+![Foto de modelo ](../img/5.jpg)
+>>>>>>> develop
 
 ---
 
 ### 🛒 3. Componentes Electrónicos
 
-![Foto de componentes](../img/fase%201/6.jpg)
+<<<<<<< HEAD
+=======
+![Foto de componentes](../img/6.jpg)
+>>>>>>> develop
 
 
 
