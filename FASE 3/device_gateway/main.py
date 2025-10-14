@@ -19,9 +19,7 @@ async def lifespan(app: FastAPI):
     await init_db()
     
     mqtt_publisher.connect()
-    
     serial_controller.connect()
-    
     serial_controller.start_reading(mqtt_publisher)
     
     yield
