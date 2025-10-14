@@ -74,14 +74,18 @@ Durante esta semana se alcanzaron los siguientes resultados:
 
 ## 📸 Evidencias
 
-![evidencia4](../img/fase%201/evidencia4.jpg)
-![evidencia5](../img/fase%201/evidencia5.jpg)
-![evidencia6](../img/fase%201/evidencia6.jpg)
-![evidencia7](../img/fase%201/evidencia7.jpg)
-![evidencia8](../img/fase%201/evidencia8.jpg)
-![evidencia9](../img/fase%201/evidencia9.jpg)
-![evidencia10](../img/fase%201/evidencia10.jpg)
-![evidencia11](../img/fase%201/evidencia11.jpg)
-![evidencia12](../img/fase%201/evidencia12.jpg)
+<<<<<<< HEAD
+
+=======
+![evidencia4](../img/evidencia4.jpg)
+![evidencia5](../img/evidencia5.jpg)
+![evidencia6](../img/evidencia6.jpg)
+![evidencia7](../img/evidencia7.jpg)
+![evidencia8](../img/evidencia8.jpg)
+![evidencia9](../img/evidencia9.jpg)
+![evidencia10](../img/evidencia10.jpg)
+![evidencia11](../img/evidencia11.jpg)
+![evidencia12](../img/evidencia12.jpg)
+>>>>>>> develop
 
 ---
