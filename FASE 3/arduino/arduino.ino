@@ -336,7 +336,10 @@ void startBuzzerPattern(int buzzerIndex, unsigned long now, SoundPattern pattern
   state.currentPattern = pattern;
   state.patternStep = 0;
   state.lastStepTime = now;
-  PANICO[buzzerIndex] = (pattern == PATTERN_PANIC) ? 1: PANICO[buzzerIndex]; // Ajuste para que solo pánico active la variable PANICO
+
+  // >>>>> ESTA ES LA LÍNEA CORREGIDA <<<<<
+  // Establecer el estado de PÁNICO SÓLO si el patrón es de pánico.
+  PANICO[buzzerIndex] = (pattern == PATTERN_PANIC) ? 1 : 0;
 
   switch (pattern) {
     case PATTERN_PANIC:
@@ -394,10 +397,9 @@ void controlarBuzzer() {
       if (state.patternStep >= state.patternLength) {
         digitalWrite(PINES_BUZZER[i], LOW);
         state.currentPattern = PATTERN_NONE;
-        PANICO[i] = 0;
+        PANICO[i] = 0; // También se limpia aquí al finalizar
       } else {
         // Alternar el estado del buzzer (ON/OFF)
-        // Los pasos pares (0, 2, 4...) son ON, los impares (1, 3, 5...) son OFF
         digitalWrite(PINES_BUZZER[i], (state.patternStep % 2 == 0) ? HIGH : LOW);
       }
     }
