@@ -11,7 +11,9 @@ const int ROUTE1_PINS[] = { 5, 6, A3, A4, A5, A6, A7, A8 };
 const int ROUTE2_PINS[] = { 17, 16, 15, 14, 2, 13 };
 const uint8_t ROUTE1_COUNT = sizeof(ROUTE1_PINS) / sizeof(ROUTE1_PINS[0]);
 const uint8_t ROUTE2_COUNT = sizeof(ROUTE2_PINS) / sizeof(ROUTE2_PINS[0]);
+// --- MODIFICADO --- Único pin para el piezo, configurado como PULLUP para una detección estable
 const int PIN_PIEZ = A9;
+
 // Parámetros distancia
 #define DIST1_INCREMENT 40  // cm por "paso" (40, 80, 120...)
 #define DIST2_INCREMENT 20  // cm por "paso" (20, 40, 60...)
@@ -22,9 +24,10 @@ int dist1 = 0;
 int dist2 = 0;
 
 // --- PIEZO ---
-#define PIEZO_PIN 3
+// #define PIEZO_PIN 3 // --- ELIMINADO --- Se elimina la definición duplicada y confusa.
 unsigned long lastPiezoCheck = 0;
-const unsigned long piezoInterval = 500;
+const unsigned long piezoInterval = 500; // Intervalo para revisar el sensor
+
 // Estados globales
 String SEM1 = "ROJO";
 String SEM2 = "ROJO";
@@ -45,18 +48,18 @@ struct Sensor {
   uint8_t group;
 };
 NewPing sonar[] = {
-  NewPing(22, 23, MAX_DISTANCE),   // 1
-  NewPing(24, 25, MAX_DISTANCE),   // 2
-  NewPing(26, 27, MAX_DISTANCE),   // 3
-  NewPing(28, 29, MAX_DISTANCE),   // 4
-  NewPing(30, 31, MAX_DISTANCE),   // 5
-  NewPing(32, 33, MAX_DISTANCE),   // 6
-  NewPing(34, 35, MAX_DISTANCE),   // 7
-  NewPing(36, 37, MAX_DISTANCE),   // 8
-  NewPing(38, 39, MAX_DISTANCE),   // 9
-  NewPing(40, 41, MAX_DISTANCE),   // 10
-  NewPing(42, 43, MAX_DISTANCE),   // 11
-  NewPing(44, 45, MAX_DISTANCE),   // 12
+  NewPing(22, 23, MAX_DISTANCE),  // 1
+  NewPing(24, 25, MAX_DISTANCE),  // 2
+  NewPing(26, 27, MAX_DISTANCE),  // 3
+  NewPing(28, 29, MAX_DISTANCE),  // 4
+  NewPing(30, 31, MAX_DISTANCE),  // 5
+  NewPing(32, 33, MAX_DISTANCE),  // 6
+  NewPing(34, 35, MAX_DISTANCE),  // 7
+  NewPing(36, 37, MAX_DISTANCE),  // 8
+  NewPing(38, 39, MAX_DISTANCE),  // 9
+  NewPing(40, 41, MAX_DISTANCE),  // 10
+  NewPing(42, 43, MAX_DISTANCE),  // 11
+  NewPing(44, 45, MAX_DISTANCE),  // 12
   NewPing(46, 47, MAX_DISTANCE)   // 13
 };
 Sensor sensors[] = {
@@ -97,26 +100,23 @@ const unsigned long debounceTime = 50;
 // -------------------- NUEVO SISTEMA DE PATRONES DE SONIDO --------------------
 const int PINES_BUZZER[NUM_BOTONES] = { 49, 53, A14, A12, A10 };
 
-// 1. Enumeración para los tipos de patrones
 enum SoundPattern {
   PATTERN_NONE,
   PATTERN_PANIC,
   PATTERN_SMOKE,
   PATTERN_INFRA,
   PATTERN_SEISMIC,
-  PATTERN_ARMABLANCA, // Nuevo para arma blanca
-  PATTERN_ANTIROBO    // Nuevo para anti robo
+  PATTERN_ARMABLANCA,
+  PATTERN_ANTIROBO
 };
 
-// 2. Definición de los patrones (ms ON, ms OFF, ms ON, ms OFF...)
 const int PATTERN_PANIC_DURATIONS[] = {100, 100, 100, 100, 100, 300, 300, 100, 300, 100, 300, 300, 100, 100, 100, 100, 100, 800};
 const int PATTERN_SMOKE_DURATIONS[] = {800, 400, 800, 400};
 const int PATTERN_INFRA_DURATIONS[] = {250, 250, 250, 1000};
 const int PATTERN_SEISMIC_DURATIONS[] = {2000, 0}; // 2 segundos continuos
-const int PATTERN_ARMABLANCA_DURATIONS[] = {60, 60, 60, 60, 60, 60, 60, 1000}; // Pitidos muy rápidos
-const int PATTERN_ANTIROBO_DURATIONS[] = {500, 250, 500, 1000}; // Tono tipo sirena
+const int PATTERN_ARMABLANCA_DURATIONS[] = {60, 60, 60, 60, 60, 60, 60, 1000};
+const int PATTERN_ANTIROBO_DURATIONS[] = {500, 250, 500, 1000};
 
-// Estructura para almacenar el estado de cada buzzer
 struct BuzzerState {
   SoundPattern currentPattern;
   int patternStep;
@@ -133,7 +133,7 @@ String serialBuffer = "";
 // --- MQ2 ---
 #define MQ2_SENSOR_1 A0
 #define MQ2_SENSOR_2 A1
-#define SMOKE_THRESHOLD 5000
+#define SMOKE_THRESHOLD 600
 
 unsigned long lastSmokeCheck = 0;
 const unsigned long smokeInterval = 1000;
@@ -148,14 +148,23 @@ int lastStateRoute2[ROUTE2_COUNT];
 // --- Reset reed ---
 int lastStateReset = HIGH;
 
-// Lógica del piezoeléctrico (SIN MODIFICAR)
-void leerPiezoelectrico(bool makeItSound = false) {
-  int piezoState = digitalRead(PIEZO_PIN);
-  SISMO = (piezoState == HIGH) ? 1 : 0;
-  if (makeItSound) {
-    unsigned long now = millis();
-    // Esta llamada permanece intacta. La función 'sonarBuzzer' ahora iniciará el patrón sísmico.
-    for (int i = 0; i < NUM_BOTONES; i++) sonarBuzzer(i, now);
+// --- ELIMINADO --- La función original `leerPiezoelectrico` se elimina.
+// Su lógica se ha refactorizado y mejorado en `activarAlarmaSismica` y `controlarBuzzer`.
+
+// +++ NUEVA FUNCIÓN PARA CENTRALIZAR LA ALARMA SÍSMICA +++
+void activarAlarmaSismica() {
+  // Solo activa la alarma si no está ya activa, para evitar reinicios constantes
+  // mientras el sensor sigue vibrando.
+  if (SISMO == 1) return;
+
+  // 1. Poner la bandera global de SISMO en 1. Ahora SISMO=1 se enviará
+  //    porque la alarma ha comenzado.
+  SISMO = 1; 
+  unsigned long now = millis();
+
+  // 2. Activar el patrón sísmico en TODOS los buzzers.
+  for (int i = 0; i < NUM_BOTONES; i++) {
+    startBuzzerPattern(i, now, PATTERN_SEISMIC);
   }
 }
 
@@ -175,13 +184,13 @@ void setup() {
     distances[i] = 0;
   }
 
-  pinMode(PIEZO_PIN, INPUT);
-
   // RESET reed
   pinMode(RESET1_PIN, INPUT_PULLUP);
   lastStateReset = digitalRead(RESET1_PIN);
 
+  // --- MODIFICADO --- Se asegura que el pin del piezo esté configurado correctamente.
   pinMode(PIN_PIEZ, INPUT_PULLUP);
+
   // reeds rutas (solo lectura inicial)
   for (uint8_t i = 0; i < ROUTE1_COUNT; i++) {
     pinMode(ROUTE1_PINS[i], INPUT_PULLUP);
@@ -196,8 +205,9 @@ void setup() {
 void loop() {
   unsigned long now = millis();
 
-  manejarSerial(); // <--- NUEVA FUNCIÓN PARA LEER COMANDOS
+  manejarSerial();
   updateTrafficLights(now);
+  
   // sonar round-robin
   for (uint8_t i = 0; i < NUM_SENSORS; i++) {
     if (now >= pingTimer[i]) {
@@ -212,17 +222,21 @@ void loop() {
   manejarReeds();
   manejarResetReed();
   manejarBotones();
-  controlarBuzzer(); // Nueva función que gestiona los patrones
+  controlarBuzzer(); // Gestiona patrones Y AHORA TAMBIÉN apaga SISMO=0 cuando corresponde
+
   if (now - lastSmokeCheck >= smokeInterval) {
     leerSensoresHumo();
     lastSmokeCheck = now;
   }
+
+  // +++ LÓGICA DE PIEZO MODIFICADA Y SIMPLIFICADA +++
+  // Se revisa el sensor piezoeléctrico en intervalos regulares.
   if (now - lastPiezoCheck >= piezoInterval) {
-    leerPiezoelectrico();
-    lastPiezoCheck = now;
-  }else if(digitalRead(PIN_PIEZ) == LOW){
-    leerPiezoelectrico(true);
-    lastPiezoCheck = now;
+    // Si el pin está en BAJO (activado, ya que es PULLUP), se inicia la alarma.
+    if (digitalRead(PIN_PIEZ) == LOW) {
+      activarAlarmaSismica(); // Llama a la nueva función que activa los buzzers y pone SISMO=1
+    }
+    lastPiezoCheck = now; // Actualiza el tiempo de la última revisión en cualquier caso.
   }
 
   // emitir estado periódicamente (único Serial.println)
@@ -237,17 +251,15 @@ void manejarSerial() {
     char receivedChar = Serial.read();
 
     if (receivedChar == ';') {
-      // --- Comando recibido, hora de procesar ---
-      serialBuffer.trim(); // Limpiar espacios
+      serialBuffer.trim();
       int colonIndex = serialBuffer.indexOf(':');
 
       if (colonIndex > 0) {
         String command = serialBuffer.substring(0, colonIndex);
         int value = serialBuffer.substring(colonIndex + 1).toInt();
 
-        // Asegurarse que el valor es un buzzer válido (1 a 5)
         if (value > 0 && value <= NUM_BOTONES) {
-          int buzzerIndex = value - 1; // Convertir a índice de array (0 a 4)
+          int buzzerIndex = value - 1;
           SoundPattern patternToPlay = PATTERN_NONE;
 
           if (command.equalsIgnoreCase("armaBlanca")) {
@@ -262,9 +274,8 @@ void manejarSerial() {
         }
       }
       
-      serialBuffer = ""; // Limpiar el buffer para el próximo comando
+      serialBuffer = "";
     } else {
-      // Añadir caracter al buffer si no es un salto de línea
       if (receivedChar != '\n' && receivedChar != '\r') {
         serialBuffer += receivedChar;
       }
@@ -272,9 +283,7 @@ void manejarSerial() {
   }
 }
 
-// ---------- Manejo de reads SIN debounce (solo flanco HIGH->LOW) ----------
 void manejarReeds() {
-  // Ruta 1: si activa el reed en índice i -> dist1 = (i+1) * DIST1_INCREMENT
   for (uint8_t i = 0; i < ROUTE1_COUNT; i++) {
     int pin = ROUTE1_PINS[i];
     int lectura = digitalRead(pin);
@@ -287,7 +296,6 @@ void manejarReeds() {
     lastStateRoute1[i] = lectura;
   }
 
-  // Ruta 2: lógica con caso especial 16(index 1) -> 14(index 2)
   for (uint8_t i = 0; i < ROUTE2_COUNT; i++) {
     int pin = ROUTE2_PINS[i];
     int lectura = digitalRead(pin);
@@ -295,7 +303,6 @@ void manejarReeds() {
       int newDist = (i + 1) * DIST2_INCREMENT;
       if (i > 3) {
         newDist = newDist + 20;
-        // aplica el salto extra sólo en ese caso
       }
 
       if (newDist != dist2) {
@@ -306,11 +313,9 @@ void manejarReeds() {
   }
 }
 
-// manejar RESET1_PIN como reed (HIGH->LOW), resetea ambas distancias
 void manejarResetReed() {
   int lectura = digitalRead(RESET1_PIN);
   if (lastStateReset == HIGH && lectura == LOW) {
-    // reset manual por reed: resetea distancias
     dist1 = 0;
     dist2 = 0;
   }
@@ -322,13 +327,12 @@ void inicializarPerifericos() {
     pinMode(PINES_BOTONES[i], INPUT_PULLUP);
     pinMode(PINES_BUZZER[i], OUTPUT);
     digitalWrite(PINES_BUZZER[i], LOW);
-    buzzerStates[i].currentPattern = PATTERN_NONE; // Inicializar patrones
+    buzzerStates[i].currentPattern = PATTERN_NONE;
   }
   pinMode(MQ2_SENSOR_1, INPUT);
   pinMode(MQ2_SENSOR_2, INPUT);
 }
 
-// Función para iniciar un patrón de sonido
 void startBuzzerPattern(int buzzerIndex, unsigned long now, SoundPattern pattern) {
   if (buzzerIndex < 0 || buzzerIndex >= NUM_BOTONES) return;
 
@@ -337,8 +341,6 @@ void startBuzzerPattern(int buzzerIndex, unsigned long now, SoundPattern pattern
   state.patternStep = 0;
   state.lastStepTime = now;
 
-  // >>>>> ESTA ES LA LÍNEA CORREGIDA <<<<<
-  // Establecer el estado de PÁNICO SÓLO si el patrón es de pánico.
   PANICO[buzzerIndex] = (pattern == PATTERN_PANIC) ? 1 : 0;
 
   switch (pattern) {
@@ -358,11 +360,11 @@ void startBuzzerPattern(int buzzerIndex, unsigned long now, SoundPattern pattern
       state.durations = PATTERN_SEISMIC_DURATIONS;
       state.patternLength = sizeof(PATTERN_SEISMIC_DURATIONS) / sizeof(int);
       break;
-    case PATTERN_ARMABLANCA: // <-- Nuevo caso
+    case PATTERN_ARMABLANCA:
       state.durations = PATTERN_ARMABLANCA_DURATIONS;
       state.patternLength = sizeof(PATTERN_ARMABLANCA_DURATIONS) / sizeof(int);
       break;
-    case PATTERN_ANTIROBO: // <-- Nuevo caso
+    case PATTERN_ANTIROBO:
       state.durations = PATTERN_ANTIROBO_DURATIONS;
       state.patternLength = sizeof(PATTERN_ANTIROBO_DURATIONS) / sizeof(int);
       break;
@@ -373,35 +375,49 @@ void startBuzzerPattern(int buzzerIndex, unsigned long now, SoundPattern pattern
       return;
   }
   
-  digitalWrite(PINES_BUZZER[buzzerIndex], HIGH); // Iniciar el primer pulso del patrón
+  digitalWrite(PINES_BUZZER[buzzerIndex], HIGH);
 }
 
-// Sobrecarga de la función para mantener compatibilidad con la lógica del piezo
 void sonarBuzzer(int buzzerIndex, unsigned long now) {
   startBuzzerPattern(buzzerIndex, now, PATTERN_SEISMIC);
 }
 
-// Nueva función que gestiona la secuencia de los patrones de sonido
+// --- MODIFICADO --- Se añade la lógica para apagar la bandera SISMO.
 void controlarBuzzer() {
   unsigned long now = millis();
   for (int i = 0; i < NUM_BOTONES; i++) {
     BuzzerState& state = buzzerStates[i];
     if (state.currentPattern == PATTERN_NONE) continue;
 
-    // Verificar si ha pasado el tiempo para el paso actual del patrón
     if (now - state.lastStepTime >= state.durations[state.patternStep]) {
       state.patternStep++;
       state.lastStepTime = now;
 
-      // Si el patrón ha terminado, apagar y resetear
       if (state.patternStep >= state.patternLength) {
         digitalWrite(PINES_BUZZER[i], LOW);
         state.currentPattern = PATTERN_NONE;
-        PANICO[i] = 0; // También se limpia aquí al finalizar
+        PANICO[i] = 0;
       } else {
-        // Alternar el estado del buzzer (ON/OFF)
         digitalWrite(PINES_BUZZER[i], (state.patternStep % 2 == 0) ? HIGH : LOW);
       }
+    }
+  }
+
+  // +++ NUEVA LÓGICA PARA APAGAR LA BANDERA SISMO +++
+  // Después de actualizar todos los buzzers, verificamos si la alarma sísmica debe terminar.
+  if (SISMO == 1) {
+    bool sismoSigueActivo = false;
+    for (int i = 0; i < NUM_BOTONES; i++) {
+      if (buzzerStates[i].currentPattern == PATTERN_SEISMIC) {
+        sismoSigueActivo = true;
+        break; // Si encontramos al menos un buzzer sísmico, no necesitamos buscar más.
+      }
+    }
+    
+    // Si recorrimos todos los buzzers y ninguno tiene el patrón sísmico,
+    // significa que la alarma ha terminado y podemos poner la bandera en 0.
+    if (!sismoSigueActivo) {
+      SISMO = 0;
     }
   }
 }
@@ -412,7 +428,6 @@ void manejarBotones() {
     bool estadoActual = digitalRead(PINES_BOTONES[i]) == LOW;
     if (estadoActual != estadoAnteriorBotones[i] && (now - ultimaLecturaBoton[i] >= debounceTime)) {
       if (estadoActual) {
-        // Iniciar el patrón de pánico
         startBuzzerPattern(i, now, PATTERN_PANIC);
       }
       estadoAnteriorBotones[i] = estadoActual;
@@ -428,9 +443,8 @@ void leerSensoresHumo() {
   INC2 = (PM2 > SMOKE_THRESHOLD) ? 1 : 0;
 
   unsigned long now = millis();
-  // activar buzzer correspondiente si hay humo con el patrón de humo
-  if (INC1) startBuzzerPattern(2, now, PATTERN_SMOKE); // buzzer más cercano al sensor 1
-  if (INC2) startBuzzerPattern(3, now, PATTERN_SMOKE); // buzzer más cercano al sensor 2
+  if (INC1) startBuzzerPattern(2, now, PATTERN_SMOKE);
+  if (INC2) startBuzzerPattern(3, now, PATTERN_SMOKE);
 }
 
 void echoCheck() {
@@ -464,7 +478,6 @@ void echoCheck() {
     if (buzzerIdx >= 0) startBuzzerPattern(buzzerIdx, millis(), PATTERN_INFRA);
   }
 
-  // Si el sensor es el RESET_SENSOR_ID y lee cerca (<=3 cm) -> resetea dist2 inmediatamente
   if (sensors[currentSensor].purpose == SENSOR_ARRIVAL) {
     if (sensors[currentSensor].id == RESET_SENSOR_ID) {
       dist2 = 0;
@@ -519,7 +532,6 @@ void updateTrafficLights(unsigned long now) {
   }
 }
 
-// ÚNICO Serial.println: emitir todo el estado
 void emitirEstado() {
   snprintf(salidaBuffer, sizeof(salidaBuffer),
            "SEM1=%s;SEM2=%s;BUS1=%d;BUS2=%d;PM1=%d;PM2=%d;INC1=%d;INC2=%d;"
