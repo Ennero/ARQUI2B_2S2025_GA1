@@ -6,12 +6,7 @@
 class TrafficLight
 {
 public:
-    enum State
-    {
-        RED,
-        YELLOW,
-        GREEN
-    };
+    enum State { RED, YELLOW, GREEN };
 
 private:
     int pinRed;
