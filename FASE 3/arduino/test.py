@@ -3,9 +3,13 @@ import time
 
 # Asegúrate de que el puerto ('/dev/ttyACM0') y el baudrate (9600) coincidan
 try:
-    arduino = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+    time.sleep(8) # Espera para evitar problemas de conexión
+    arduino = serial.Serial('COM3', 9600, timeout=1)
     time.sleep(2) # Espera a que se establezca la conexión
     print("Conexión con Arduino establecida.")
+
+
+    time.sleep(8) # Espera para evitar problemas de conexión
 
     # --- Envía los comandos ---
     print("Enviando alerta ANTI-ROBO al buzzer 2...")
