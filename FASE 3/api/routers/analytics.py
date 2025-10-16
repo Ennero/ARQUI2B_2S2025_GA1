@@ -22,11 +22,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
 
-from fastapi import APIRouter, Query, Depends, HTTPException
+# imports
+from fastapi import APIRouter, Query, Depends, HTTPException, Request
 from typing import Dict, Any, List, Optional, Tuple
 from datetime import datetime, date, time, timedelta, timezone
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from config.database import get_db
+import re
 
 router = APIRouter(prefix="/analytics", tags=["analytics"])
 
@@ -46,6 +48,7 @@ def parse_iso_dt(v: Any) -> Optional[datetime]:
             return None
     return None
 
+# ---------- Helpers de rangos de tiempo ----------
 def day_range_utc(day_local: date) -> Tuple[datetime, datetime]:
     start_local = datetime.combine(day_local, time.min, tzinfo=GT_TZ)
     end_local = start_local + timedelta(days=1)
@@ -83,9 +86,18 @@ def split_days_into_weeks(days: List[date]) -> List[List[date]]:
         weeks.append(bucket)
     return weeks
 
+# ---------- Helpers varios ----------
+def _sanitize_filename(name: str) -> str:
+    """
+    Convierte un string a un formato seguro para nombres de archivo.
+    """
+    name = name.lower()
+    name = re.sub(r'\s+', '_', name)
+    name = re.sub(r'[^a-z0-9_\.]', '', name)
+    return name
+
 # ---------- Lectura de Mongo ----------
 async def find_events_in_range(db: AsyncIOMotorDatabase, start_utc: datetime, end_utc: datetime) -> List[Dict[str, Any]]:
-    # Tus timestamps se guardan como ISO8601 string -> filtramos por string ISO
     cur = db.events.find({
         "created_at": {
             "$gte": start_utc.isoformat(),
@@ -95,7 +107,6 @@ async def find_events_in_range(db: AsyncIOMotorDatabase, start_utc: datetime, en
     return [doc async for doc in cur]
 
 async def find_readings_in_range(db: AsyncIOMotorDatabase, start_utc: datetime, end_utc: datetime) -> List[Dict[str, Any]]:
-    # algunos podrían tener 'ts', pero seguro tienen 'created_at'
     cur = db.readings.find({
         "created_at": {
             "$gte": start_utc.isoformat(),
@@ -106,10 +117,6 @@ async def find_readings_in_range(db: AsyncIOMotorDatabase, start_utc: datetime, 
 
 # ---------- Extracciones ----------
 def extract_pm_values_from_reading(doc: Dict[str, Any]) -> List[float]:
-    """
-    Retorna los valores de PM (PM1, PM2) si existen en reading.frame.
-    Los strings "0" también se convierten a float.
-    """
     vals: List[float] = []
     frame = doc.get("frame") or {}
     for key in ("PM1", "PM2"):
@@ -120,11 +127,8 @@ def extract_pm_values_from_reading(doc: Dict[str, Any]) -> List[float]:
                 pass
     return vals
 
+# ---------- Detección de recorridos ----------
 def detect_bus_hits(doc: Dict[str, Any]) -> Tuple[int, int]:
-    """
-    Aprox. de 'recorridos':
-    cuenta 1 si BUS1 != "0" (Transmetro) y 1 si BUS2 != "0" (Transurbano) en esta lectura.
-    """
     frame = doc.get("frame") or {}
     tm = 1 if str(frame.get("BUS1", "0")).strip() not in ("", "0", "0.0") else 0
     tu = 1 if str(frame.get("BUS2", "0")).strip() not in ("", "0", "0.0") else 0
@@ -136,26 +140,18 @@ def is_critical(ev: Dict[str, Any]) -> bool:
 # ---------- Métrica por DÍA ----------
 async def compute_daily(db: AsyncIOMotorDatabase, day_local: date) -> Dict[str, float]:
     start_utc, end_utc = day_range_utc(day_local)
-
-    events  = await find_events_in_range(db, start_utc, end_utc)
+    events   = await find_events_in_range(db, start_utc, end_utc)
     readings = await find_readings_in_range(db, start_utc, end_utc)
-
-    # PM promedio (promedio simple de todos los PM1/PM2 del día)
     pm_vals: List[float] = []
     for r in readings:
         pm_vals.extend(extract_pm_values_from_reading(r))
     pm_avg = round(sum(pm_vals)/len(pm_vals), 1) if pm_vals else 0.0
-
-    # Recorridos (aprox por lectura)
     tm = tu = 0
     for r in readings:
         x, y = detect_bus_hits(r)
         tm += x
         tu += y
-
-    # Alertas críticas
     crit = sum(1 for e in events if is_critical(e))
-
     return {
         "recorrido_transmetro": float(tm),
         "recorrido_transurbano": float(tu),
@@ -177,15 +173,11 @@ async def analytics_daily(
             raise HTTPException(status_code=400, detail="Formato de 'day' inválido. Usa YYYY-MM-DD.")
     else:
         dlocal = datetime.now(GT_TZ).date()
-
     start_utc, end_utc = day_range_utc(dlocal)
     res = await compute_daily(db, dlocal)
-
-    # Gráfica cada 2 horas
     readings = await find_readings_in_range(db, start_utc, end_utc)
     buckets: Dict[int, List[float]] = {h: [] for h in range(0, 24, 2)}
     for r in readings:
-        # mejor esfuerzo: usa created_at como ts
         ts = parse_iso_dt(r.get("ts")) or parse_iso_dt(r.get("created_at"))
         if not ts:
             continue
@@ -199,14 +191,11 @@ async def analytics_daily(
             continue
         hour_even = (ts_utc.hour // 2) * 2
         buckets[hour_even].extend(vals)
-
     datapoints = []
     for h in range(0, 24, 2):
         v = round(sum(buckets[h])/len(buckets[h]), 1) if buckets[h] else 0.0
         datapoints.append({"hour": h, "value": v})
-
     label = "Calidad del Aire (Hoy)" if day is None else f"Calidad del Aire ({dlocal.isoformat()})"
-
     return {
         "summary": {
             "recorridoTransmetro": round(res["recorrido_transmetro"], 1),
@@ -234,17 +223,13 @@ async def analytics_weekly(
             raise HTTPException(status_code=400, detail="Formato de 'day' inválido. Usa YYYY-MM-DD.")
     else:
         dlocal = datetime.now(GT_TZ).date()
-
     days = week_days_from(dlocal)
     daily_vals = [await compute_daily(db, d) for d in days]
-
-    # Summary semanal
     sum_tm = sum(x["recorrido_transmetro"] for x in daily_vals)
     sum_tu = sum(x["recorrido_transurbano"] for x in daily_vals)
     pm_days = [x["pm_avg"] for x in daily_vals if x["pm_avg"] > 0]
     pm_week = round(sum(pm_days)/len(pm_days), 1) if pm_days else 0.0
     sum_crit = sum(x["crit_alerts"] for x in daily_vals)
-
     def mk_series(title: str, key: str) -> Dict[str, Any]:
         return {
             "title": title,
@@ -252,7 +237,6 @@ async def analytics_weekly(
                 {"label": f"Día {i+1}", "value": round(daily_vals[i][key], 1)} for i in range(7)
             ],
         }
-
     return {
         "summary": {
             "recorridoTransmetro": round(sum_tm, 1),
@@ -278,10 +262,8 @@ async def analytics_monthly(
     now_local = datetime.now(GT_TZ)
     y = year or now_local.year
     m = month or now_local.month
-
     days = month_days(y, m)
-    weeks = split_days_into_weeks(days)  # semanas del mes (4 o 5 según caiga)
-
+    weeks = split_days_into_weeks(days)
     weekly_vals = []
     for wk in weeks:
         vals = [await compute_daily(db, d) for d in wk]
@@ -296,13 +278,11 @@ async def analytics_monthly(
             "pm_avg": pm,
             "crit_alerts": crit,
         })
-
     sum_tm = sum(x["recorrido_transmetro"] for x in weekly_vals)
     sum_tu = sum(x["recorrido_transurbano"] for x in weekly_vals)
     pm_weeks = [x["pm_avg"] for x in weekly_vals if x["pm_avg"] > 0]
     pm_month = round(sum(pm_weeks)/len(pm_weeks), 1) if pm_weeks else 0.0
     sum_crit = sum(x["crit_alerts"] for x in weekly_vals)
-
     def mk_series(title: str, key: str) -> Dict[str, Any]:
         return {
             "title": title,
@@ -310,7 +290,6 @@ async def analytics_monthly(
                 {"label": f"Semana {i+1}", "value": round(weekly_vals[i][key], 1)} for i in range(len(weekly_vals))
             ],
         }
-
     return {
         "summary": {
             "recorridoTransmetro": round(sum_tm, 1),
@@ -326,78 +305,128 @@ async def analytics_monthly(
         ],
     }
 
+# ---------- /analytics/infractions ----------
+@router.get("/infractions", response_model=List[Dict[str, Any]])
+async def analytics_infractions(
+    limit: int = Query(25, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    db: AsyncIOMotorDatabase = Depends(get_db)
+):
+    """
+    Devuelve un listado de las últimas detecciones de placas desde la colección 'plate_detections'.
+    """
+    pipeline = [
+        {
+            "$sort": {"meta.timestamp": -1} 
+        },
+        {
+            "$skip": offset
+        },
+        {
+            "$limit": limit
+        },
+        {
+            "$project": {
+                "_id": 0,
+                "plate": "$meta.texto",          
+                "timestamp": "$meta.timestamp",  
+                "ubication": "$meta.location"   
+            }
+        }
+    ]
+    cursor = db.plate_detections.aggregate(pipeline)
+    return await cursor.to_list(length=limit)
 
 # ---------- /analytics/infractions-today ----------
 @router.get("/infractions-today")
 async def analytics_infractions_today(db: AsyncIOMotorDatabase = Depends(get_db)):
     """
-    Devuelve las infracciones de semáforo detectadas hoy.
-    ASUNCIÓN: El evento de tipo 'infraction' contiene la placa en ev['data']['plate'].
+    Devuelve las detecciones de placas del día de hoy desde la colección 'plate_detections'.
     """
     start_utc, end_utc = day_range_utc(datetime.now(GT_TZ).date())
+    
+    start_iso = start_utc.isoformat()
+    end_iso = end_utc.isoformat()
+
+    # Convertimos a string Z para que coincida con el formato de la BD
+    if start_iso.endswith('+00:00'):
+        start_iso = start_iso.replace('+00:00', 'Z')
+    if end_iso.endswith('+00:00'):
+        end_iso = end_iso.replace('+00:00', 'Z')
 
     q = {
-        "type": "infraction",
-        "created_at": {
-            "$gte": start_utc.isoformat(),
-            "$lt": end_utc.isoformat(),
+        "meta.timestamp": {
+            "$gte": start_iso,
+            "$lt": end_iso,
         }
     }
     
-    cursor = db.events.find(q).sort("created_at", -1)
+    cursor = db.plate_detections.find(q).sort("meta.timestamp", -1) 
     
     infractions = []
-    async for ev in cursor:
-        data = ev.get("data") or {}
+    async for doc in cursor:
+        meta = doc.get("meta", {})
         infractions.append({
-            "plate": data.get("plate", "N/A"),
-            "timestamp": ev.get("created_at"),
-            "ubication": ev.get("source", "Ubicación Desconocida") 
+            "plate": meta.get("texto", "N/A"),            
+            "timestamp": meta.get("timestamp"),           
+            "ubication": meta.get("location", "Ubicación Desconocida") 
         })
         
     return infractions
 
-
 # ---------- /analytics/top-weapons ----------
-@router.get("/top-weapons")
+@router.get("/top-weapons", response_model=List[Dict[str, Any]])
 async def analytics_top_weapons(
+    request: Request,
     limit: int = Query(10, ge=1, le=50),
     db: AsyncIOMotorDatabase = Depends(get_db)
 ):
     """
-    Devuelve un ranking de los tipos de armas más detectados.
+    Devuelve un ranking de los tipos de arma más detectados.
     """
     pipeline = [
         {
-            "$group": {
-                "_id": "$weapon_type",  # Agrupar por tipo de arma
-                "detection_count": {"$sum": 1},  # Contar cuántas veces aparece cada tipo
-                "representative_image_url": {"$first": "$image_url"} # Tomar la URL de la primera detección como representativa
+            "$match": {
+                "subtype": {"$exists": True, "$ne": None}
             }
         },
         {
-            "$sort": {"detection_count": -1} # Ordenar de más a menos detectadas
+            "$group": {
+                "_id": "$subtype",
+                "detection_count": {"$sum": 1}
+            }
         },
         {
-            "$limit": limit # Limitar al top N
+            "$sort": {"detection_count": -1}
+        },
+        {
+            "$limit": limit
         },
         {
             "$project": {
-                "_id": 0, # No incluir el campo _id
+                "_id": 0,
                 "weapon_type": "$_id",
-                "detection_count": "$detection_count",
-                "representative_image_url": "$representative_image_url"
+                "detection_count": "$detection_count"
             }
         }
     ]
+    cursor = db.weapon_detections.aggregate(pipeline)
+    results = await cursor.to_list(length=limit)
     
-    cursor = db.detecciones_armas.aggregate(pipeline)
-    return [doc async for doc in cursor]
-
+    base_url = str(request.base_url)
+    final_results = []
+    for item in results:
+        if item.get("weapon_type"):
+            sanitized_name = _sanitize_filename(item["weapon_type"])
+            item["representative_image_url"] = f"{base_url}images/weapons/{sanitized_name}.jpg"
+            final_results.append(item)
+            
+    return final_results
 
 # ---------- /analytics/top-persons ----------
-@router.get("/top-persons")
+@router.get("/top-persons", response_model=List[Dict[str, Any]])
 async def analytics_top_persons(
+    request: Request,
     limit: int = Query(10, ge=1, le=50),
     db: AsyncIOMotorDatabase = Depends(get_db)
 ):
@@ -406,10 +435,14 @@ async def analytics_top_persons(
     """
     pipeline = [
         {
+            "$match": {
+                "meta.name": {"$exists": True, "$ne": None}
+            }
+        },
+        {
             "$group": {
-                "_id": "$person_id", # Agrupar por el ID de la persona
-                "detection_count": {"$sum": 1},
-                "face_image_url": {"$first": "$image_url"}
+                "_id": "$meta.name",
+                "detection_count": {"$sum": 1}
             }
         },
         {
@@ -422,11 +455,19 @@ async def analytics_top_persons(
             "$project": {
                 "_id": 0,
                 "person_id": "$_id",
-                "detection_count": "$detection_count",
-                "face_image_url": "$face_image_url"
+                "detection_count": "$detection_count"
             }
         }
     ]
+    cursor = db.person_detections.aggregate(pipeline)
+    results = await cursor.to_list(length=limit)
     
-    cursor = db.detecciones_personas.aggregate(pipeline)
-    return [doc async for doc in cursor]
+    base_url = str(request.base_url)
+    final_results = []
+    for item in results:
+        if item.get("person_id"):
+            sanitized_id = _sanitize_filename(item["person_id"])
+            item["face_image_url"] = f"{base_url}images/faces/{sanitized_id}.jpg"
+            final_results.append(item)
+            
+    return final_results
