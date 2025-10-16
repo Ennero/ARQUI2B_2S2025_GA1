@@ -1,4 +1,3 @@
-# device_gateway/services/serial_controller.py
 import os
 import serial
 import time
