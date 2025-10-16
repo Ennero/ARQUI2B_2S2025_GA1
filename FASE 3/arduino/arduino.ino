@@ -142,9 +142,7 @@ int INFRAA = 0, INFRAB = 0, INFRAC = 0, INFRAD = 0;
 unsigned long lastEmitTime = 0;
 const unsigned long emitInterval = 500;
 char salidaBuffer[320];
-// --- Arrays de estado (solo flanco, sin debounce) ---
-int lastStateRoute1[ROUTE1_COUNT];
-int lastStateRoute2[ROUTE2_COUNT];
+
 // --- Reset reed ---
 int lastStateReset = HIGH;
 
@@ -194,11 +192,9 @@ void setup() {
   // reeds rutas (solo lectura inicial)
   for (uint8_t i = 0; i < ROUTE1_COUNT; i++) {
     pinMode(ROUTE1_PINS[i], INPUT_PULLUP);
-    lastStateRoute1[i] = digitalRead(ROUTE1_PINS[i]);
   }
   for (uint8_t i = 0; i < ROUTE2_COUNT; i++) {
     pinMode(ROUTE2_PINS[i], INPUT_PULLUP);
-    lastStateRoute2[i] = digitalRead(ROUTE2_PINS[i]);
   }
 }
 
@@ -287,29 +283,20 @@ void manejarReeds() {
   for (uint8_t i = 0; i < ROUTE1_COUNT; i++) {
     int pin = ROUTE1_PINS[i];
     int lectura = digitalRead(pin);
-    if (lastStateRoute1[i] == HIGH && lectura == LOW) {
+    if (lectura == LOW) {
       int newDist = (i + 1) * DIST1_INCREMENT;
-      if (newDist != dist1) {
-        dist1 = newDist;
-      }
+      if (newDist != dist1) dist1 = newDist;
     }
-    lastStateRoute1[i] = lectura;
   }
 
   for (uint8_t i = 0; i < ROUTE2_COUNT; i++) {
     int pin = ROUTE2_PINS[i];
     int lectura = digitalRead(pin);
-    if (lastStateRoute2[i] == HIGH && lectura == LOW) {
+    if (lectura == LOW) {
       int newDist = (i + 1) * DIST2_INCREMENT;
-      if (i > 3) {
-        newDist = newDist + 20;
-      }
-
-      if (newDist != dist2) {
-        dist2 = newDist;
-      }
+      if (i > 2) newDist = newDist + 20;
+      if (newDist != dist2) dist2 = newDist;
     }
-    lastStateRoute2[i] = lectura;
   }
 }
 
