@@ -179,30 +179,30 @@ def run_plates_yolo(video_source: str, conf_plate: float, target_classes: List[s
                     print(f"[plates] Detected {name} conf={conf:.2f} ocr='{plate_text}' ({ocr_conf:.2f})")
 
                     # POST (si OCR válido + cooldown)
-                    # if plate_text:
-                    #     now = time.time()
-                    #     if (plate_text != last_sent_text) or (now - last_sent_t > SEND_COOLDOWN_S):
-                    #         payload_meta = {
-                    #             "texto": plate_text,
-                    #             "det_conf": conf,
-                    #             "ocr_conf": ocr_conf,
-                    #             "timestamp": datetime.datetime.utcnow().isof ormat(),
-                    #             "location": "zone1_camera1",
-                    #         }
-                    #         try:
-                    #             post_event(
-                    #                 settings.api_url,
-                    #                 'vehicle',
-                    #                 'license_plate',
-                    #                 payload_meta,
-                    #                 roi  # recorte de la placa
-                    #             )
-                    #             print(f"[plates] POST {plate_text} det={conf:.2f} ocr={ocr_conf:.2f}")
-                    #         except Exception as e:
-                    #             print("[plates] WARN POST:", e)
-                    #         last_sent_text, last_sent_t = plate_text, now
+                    if plate_text:
+                        now = time.time()
+                        if (plate_text != last_sent_text) or (now - last_sent_t > SEND_COOLDOWN_S):
+                            payload_meta = {
+                                "texto": plate_text,
+                                "det_conf": conf,
+                                "ocr_conf": ocr_conf,
+                                "timestamp": datetime.datetime.utcnow().isoformat(),
+                                "location": "zone1_camera1",
+                            }
+                            try:
+                                post_event(
+                                    settings.api_url,
+                                    'vehicle',
+                                    'license_plate',
+                                    payload_meta,
+                                    roi  # recorte de la placa
+                                )
+                                print(f"[plates] POST {plate_text} det={conf:.2f} ocr={ocr_conf:.2f}")
+                            except Exception as e:
+                                print("[plates] WARN POST:", e)
+                            last_sent_text, last_sent_t = plate_text, now
 
-                    # detected_any = True
+                    detected_any = True
 
         # Visualización
         win_name = "Detección de Placas YOLO + OCR"
