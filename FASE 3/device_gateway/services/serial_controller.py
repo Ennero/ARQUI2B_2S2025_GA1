@@ -83,12 +83,20 @@ class SerialController:
                 "data": {"sensor": "SISMO"},
             })
 
-        if str(state.get("INCENDIO", "0")) == "1":
+        if str(state.get("INC1", "0")) == "1":
             events_to_publish.append({
                 "source": "arduino-mega-01",
                 "type": "fire",
                 "severity": "critical",
-                "data": {"sensor": "INCENDIO"},
+                "data": {"sensor": "INC1"},
+            })
+
+        if str(state.get("INC2", "0")) == "1":
+            events_to_publish.append({
+                "source": "arduino-mega-01",
+                "type": "fire",
+                "severity": "critical",
+                "data": {"sensor": "INC2"},
             })
             
         for code in ["INFRAA", "INFRAB", "INFRAC", "INFRAD"]:
