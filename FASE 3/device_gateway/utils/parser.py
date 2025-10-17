@@ -1,4 +1,3 @@
-# device_gateway/utils/parser.py
 def parse_serial_data(line: str) -> dict:
     """
     Converts a string of serial data (e.g. 'KEY1=V1;KEY2=V2') into a Python dictionary.

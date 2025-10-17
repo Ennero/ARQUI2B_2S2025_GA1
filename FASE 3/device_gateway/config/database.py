@@ -1,10 +1,9 @@
-
 import os
 from motor.motor_asyncio import AsyncIOMotorClient
 from beanie import init_beanie
 from dotenv import load_dotenv
 
-from models.detection import PlateDetection, PersonDetection, WeaponDetection
+from models.detection import PlateDetection, PersonDetection, WeaponDetection, Event
 
 load_dotenv()
 
@@ -19,6 +18,6 @@ async def init_db():
     
     await init_beanie(
         database=client[database_name],
-        document_models=[PlateDetection, PersonDetection, WeaponDetection]
+        document_models=[PlateDetection, PersonDetection, WeaponDetection, Event]
     )
     print("Database connection initialized successfully.")
