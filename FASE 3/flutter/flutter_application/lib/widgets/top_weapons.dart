@@ -292,7 +292,7 @@ class _TopWeaponsWidgetState extends State<TopWeaponsWidget> {
 
     showDialog(
       context: context,
-      barrierDismissible: true, // Cerrar tocando fuera
+      barrierDismissible: true,
       builder: (BuildContext context) {
         return Dialog(
           backgroundColor: Colors.transparent,
@@ -312,55 +312,59 @@ class _TopWeaponsWidgetState extends State<TopWeaponsWidget> {
                 ),
               ],
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Header del modal
-                Container(
-                  padding: const EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryAccent.withValues(alpha: 0.1),
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Header del modal
+                  Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryAccent.withValues(alpha: 0.1),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            weaponType,
+                            style: TextStyles.headline.copyWith(
+                              color: AppColors.primaryText,
+                              fontSize: 20,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          icon: const Icon(
+                            Icons.close,
+                            color: AppColors.secondaryText,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          weaponType,
-                          style: TextStyles.headline.copyWith(
-                            color: AppColors.primaryText,
-                            fontSize: 20,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        icon: const Icon(
-                          Icons.close,
-                          color: AppColors.secondaryText,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // Imagen grande con zoom
-                Flexible(
-                  child: InteractiveViewer(
-                    panEnabled: true, // Permitir arrastrar
-                    scaleEnabled: true, // Permitir zoom
-                    minScale: 0.5,
-                    maxScale: 4.0,
-                    child: Container(
-                      padding: const EdgeInsets.all(20),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(15),
+                  // Imagen grande con zoom
+                  Container(
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height * 0.5,
+                      maxWidth: MediaQuery.of(context).size.width * 0.8,
+                    ),
+                    padding: const EdgeInsets.all(20),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: InteractiveViewer(
+                        panEnabled: true,
+                        scaleEnabled: true,
+                        minScale: 0.5,
+                        maxScale: 4.0,
                         child: Image.network(
                           imageURL,
-                          fit: BoxFit.contain, // Mostrar toda la imagen
+                          fit: BoxFit.contain,
                           errorBuilder: (context, error, stackTrace) {
                             return SizedBox(
                               height: 200,
@@ -389,30 +393,32 @@ class _TopWeaponsWidgetState extends State<TopWeaponsWidget> {
                       ),
                     ),
                   ),
-                ),
-                // Footer con información adicional
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.zoom_in,
-                        size: 16,
-                        color: AppColors.secondaryText,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Pellizca para hacer zoom • Arrastra para mover',
-                        style: TextStyles.caption.copyWith(
+                  // Footer con información adicional
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    child: Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 8,
+                      alignment: WrapAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.zoom_in,
+                          size: 16,
                           color: AppColors.secondaryText,
-                          fontSize: 12,
                         ),
-                      ),
-                    ],
+                        Text(
+                          'Pellizca para hacer zoom\nArrastra para mover',
+                          style: TextStyles.caption.copyWith(
+                            color: AppColors.secondaryText,
+                            fontSize: 12,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
