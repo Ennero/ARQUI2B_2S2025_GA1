@@ -101,6 +101,7 @@ class ApiService {
       print('📡 [ApiService-Fase3] Status Top Armas: ${response.statusCode}');
 
       if (response.statusCode == 200) {
+        print('La respuesta es: ${utf8.decode(response.bodyBytes)}');
         return json.decode(utf8.decode(response.bodyBytes));
       } else {
         throw Exception(
@@ -118,11 +119,9 @@ class ApiService {
     print('🔄 [ApiService-Fase3] Conectando a: $url');
     try {
       final response = await http.get(url).timeout(const Duration(seconds: 15));
-      print(
-        '📡 [ApiService-Fase3] Infracciones del día: ${response.statusCode}',
-      );
 
       if (response.statusCode == 200) {
+        print('La respuesta es: ${utf8.decode(response.bodyBytes)}');
         return json.decode(utf8.decode(response.bodyBytes));
       } else {
         throw Exception(

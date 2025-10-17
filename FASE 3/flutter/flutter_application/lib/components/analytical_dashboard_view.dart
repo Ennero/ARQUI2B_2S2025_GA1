@@ -13,7 +13,7 @@ class AnalyticalDashboardView extends StatefulWidget {
 }
 
 class _AnalyticalDashboardViewState extends State<AnalyticalDashboardView> {
-  // ✅ Contador para forzar rebuild
+  // Contador para forzar rebuild
   int _refreshKey = 0;
 
   @override

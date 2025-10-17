@@ -233,8 +233,8 @@ class _InfractionsWidgetState extends State<InfractionsWidget>
     required bool isLast,
   }) {
     final plate = infraction['plate'] ?? 'N/A';
-    final location = infraction['location'] ?? 'Ubicación Desconocida';
-    final time = _formatTimestamp(infraction['timestamp'] ?? '');
+    final ubication = infraction['ubication'] ?? 'Ubicación Desconocida';
+    final timestamp = _formatTimestamp(infraction['timestamp'] ?? '');
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -276,7 +276,7 @@ class _InfractionsWidgetState extends State<InfractionsWidget>
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            location,
+                            ubication,
                             style: TextStyles.caption.copyWith(
                               color: AppColors.secondaryText,
                             ),
@@ -294,7 +294,7 @@ class _InfractionsWidgetState extends State<InfractionsWidget>
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          time,
+                          timestamp,
                           style: TextStyles.caption.copyWith(
                             color: AppColors.secondaryText,
                           ),
