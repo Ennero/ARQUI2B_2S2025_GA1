@@ -53,112 +53,118 @@ class _TopWeaponsWidgetState extends State<TopWeaponsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Text(
-                "Top de Armas Detectadas",
-                style: TextStyles.displayLarge.copyWith(
-                  color: AppColors.primaryText,
-                ),
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: AppColors.vibrantGreen.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: AppColors.vibrantGreen.withValues(alpha: 0.3),
-                  width: 1,
-                ),
-              ),
-              child: Text(
-                'Página ${_currentPage + 1} de ${_getTotalPages()}',
-                style: TextStyles.caption.copyWith(
-                  color: AppColors.primaryText,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        // Paginación
-        FutureBuilder<List<dynamic>>(
-          future: _topWeaponsFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return SizedBox(
-                height: 300,
-                child: Center(
-                  child: CircularProgressIndicator(
-                    color: AppColors.primaryAccent,
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  "Top de Armas Detectadas",
+                  style: TextStyles.displayLarge.copyWith(
+                    color: AppColors.primaryText,
                   ),
                 ),
-              );
-            }
-            if (snapshot.hasError) {
-              return Center(
-                child: Text(
-                  "Error ${snapshot.error}",
-                  style: const TextStyle(color: AppColors.notificationRed),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
                 ),
-              );
-            }
-            if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return const Center(
-                child: Text(
-                  "No se ha dectecado armas.",
-                  style: TextStyle(color: AppColors.secondaryText),
-                ),
-              );
-            }
-
-            // Configurar Paginación
-            _allWeapons = snapshot.data!;
-            _updateCurrentPageWeapons();
-
-            // Diseño de rejilla
-            return Column(
-              children: [
-                // Flechas de navegación
-                GridView.builder(
-                  // shrinkWrap y physics son necesarios cuando un GridView está dentro
-                  // de otro elemento desplazable como un ListView.
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _currentPageWeapons.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2, // columnas
-                    crossAxisSpacing: 16, // Espaciado horizontal
-                    mainAxisSpacing: 16, // Espaciado vertical
-                    childAspectRatio: 0.85, // Proporción (ancho / alto)
+                decoration: BoxDecoration(
+                  color: AppColors.vibrantGreen.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: AppColors.vibrantGreen.withValues(alpha: 0.3),
+                    width: 1,
                   ),
-                  itemBuilder: (context, index) {
-                    final weapon = _currentPageWeapons[index];
-                    return _buildWeaponCard(context, weapon);
-                  },
                 ),
-                const SizedBox(height: 16),
+                child: Text(
+                  'Página ${_currentPage + 1} de ${_getTotalPages()}',
+                  style: TextStyles.caption.copyWith(
+                    color: AppColors.primaryText,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          // Paginación
+          FutureBuilder<List<dynamic>>(
+            future: _topWeaponsFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return SizedBox(
+                  height: 300,
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.primaryAccent,
+                    ),
+                  ),
+                );
+              }
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text(
+                    "Error ${snapshot.error}",
+                    style: const TextStyle(color: AppColors.notificationRed),
+                  ),
+                );
+              }
+              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(
+                  child: Text(
+                    "No se ha dectecado armas.",
+                    style: TextStyle(color: AppColors.secondaryText),
+                  ),
+                );
+              }
 
-                // Indicador de página y flechas de navegación
-                if (_getTotalPages() > 1) _buildBottomNavigation(),
-              ],
-            );
-          },
-        ),
-      ],
+              // Configurar Paginación
+              _allWeapons = snapshot.data!;
+              _updateCurrentPageWeapons();
+
+              // Diseño de rejilla
+              return Column(
+                children: [
+                  // Flechas de navegación
+                  GridView.builder(
+                    // shrinkWrap y physics son necesarios cuando un GridView está dentro
+                    // de otro elemento desplazable como un ListView.
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _currentPageWeapons.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2, // columnas
+                          crossAxisSpacing: 16, // Espaciado horizontal
+                          mainAxisSpacing: 16, // Espaciado vertical
+                          childAspectRatio: 0.85, // Proporción (ancho / alto)
+                        ),
+                    itemBuilder: (context, index) {
+                      final weapon = _currentPageWeapons[index];
+                      return _buildWeaponCard(context, weapon);
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Indicador de página y flechas de navegación
+                  if (_getTotalPages() > 1) _buildBottomNavigation(),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 
   // Widget para las tarjeta de rejilla
   Widget _buildWeaponCard(BuildContext context, Map<String, dynamic> weapon) {
-    final imageURL = weapon['image_url'] ?? '';
+    final imageURL = weapon['representative_image_url'] ?? '';
     final weaponType = weapon['weapon_type'] ?? 'Desconocido';
     final count = weapon['detection_count'] ?? 0;
 
@@ -174,14 +180,13 @@ class _TopWeaponsWidgetState extends State<TopWeaponsWidget> {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          // Gradiente que combina con tu fondo appBackground
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              accentColor.withValues(alpha: 0.8), // Color de acento
-              AppColors.cardBackground.withValues(alpha: 0.9), // Tu color base
-              primaryColor.withValues(alpha: 0.1), // Toque del color principal
+              accentColor.withValues(alpha: 0.8),
+              AppColors.cardBackground.withValues(alpha: 0.9),
+              primaryColor.withValues(alpha: 0.1),
             ],
             stops: const [0.0, 0.6, 1.0],
           ),
@@ -200,51 +205,48 @@ class _TopWeaponsWidgetState extends State<TopWeaponsWidget> {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.max,
             children: [
-              // Avatar clickleable
-              GestureDetector(
-                onTap: () => _showImageModal(
-                  context,
-                  imageURL,
-                  weaponType,
-                ), // Activa modal al tocar
-                child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    // Sombra del color principal
-                    boxShadow: [
-                      BoxShadow(
-                        color: primaryColor.withValues(alpha: 0.4),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: CircleAvatar(
-                    radius: 50,
-                    backgroundColor: accentColor.withValues(alpha: 0.6),
-                    child: imageURL.isNotEmpty
-                        ? ClipOval(
-                            child: Image.asset(
-                              imageURL,
-                              width: 90,
-                              height: 90,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Icon(
-                                  Icons.warning,
-                                  color: primaryColor,
-                                  size: 40,
-                                );
-                              },
+              Flexible(
+                child: GestureDetector(
+                  onTap: () => _showImageModal(context, imageURL, weaponType),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: primaryColor.withValues(alpha: 0.4),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundColor: accentColor.withValues(alpha: 0.6),
+                      child: imageURL.isNotEmpty
+                          ? ClipOval(
+                              child: Image.network(
+                                imageURL,
+                                width: 90,
+                                height: 90,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Icon(
+                                    Icons.warning,
+                                    color: primaryColor,
+                                    size: 40,
+                                  );
+                                },
+                              ),
+                            )
+                          : Icon(
+                              Icons.help_outline,
+                              color: primaryColor,
+                              size: 40,
                             ),
-                          )
-                        : Icon(
-                            Icons.help_outline,
-                            color: primaryColor,
-                            size: 40,
-                          ),
+                    ),
                   ),
                 ),
               ),
@@ -356,7 +358,7 @@ class _TopWeaponsWidgetState extends State<TopWeaponsWidget> {
                       padding: const EdgeInsets.all(20),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(15),
-                        child: Image.asset(
+                        child: Image.network(
                           imageURL,
                           fit: BoxFit.contain, // Mostrar toda la imagen
                           errorBuilder: (context, error, stackTrace) {
@@ -464,14 +466,14 @@ class _TopWeaponsWidgetState extends State<TopWeaponsWidget> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // ✅ Botón Anterior
+          // Botón Anterior
           _buildBottomNavigationButton(
             icon: Icons.arrow_back_ios,
             label: 'Anterior',
             onPressed: _currentPage > 0 ? _goToPreviousPage : null,
           ),
 
-          // ✅ Indicador de páginas en el centro
+          // Indicador de páginas en el centro
           Expanded(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -510,7 +512,7 @@ class _TopWeaponsWidgetState extends State<TopWeaponsWidget> {
             ),
           ),
 
-          // ✅ Botón Siguiente
+          // Botón Siguiente
           _buildBottomNavigationButton(
             icon: Icons.arrow_forward_ios,
             label: 'Siguiente',

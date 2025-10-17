@@ -198,7 +198,7 @@ class _TopPersonsWidgetState extends State<TopPersonsWidget>
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           image: DecorationImage(
-            image: AssetImage(person['face_image_url'] ?? ''),
+            image: NetworkImage(person['face_image_url'] ?? ''),
             fit: BoxFit.cover,
           ),
           boxShadow: [
