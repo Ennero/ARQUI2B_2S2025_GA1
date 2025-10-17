@@ -82,6 +82,14 @@ class SerialController:
                 "severity": "critical",
                 "data": {"sensor": "SISMO"},
             })
+
+        if str(state.get("INCENDIO", "0")) == "1":
+            events_to_publish.append({
+                "source": "arduino-mega-01",
+                "type": "fire",
+                "severity": "critical",
+                "data": {"sensor": "INCENDIO"},
+            })
             
         for code in ["INFRAA", "INFRAB", "INFRAC", "INFRAD"]:
             if str(state.get(code, "0")) == "1":
