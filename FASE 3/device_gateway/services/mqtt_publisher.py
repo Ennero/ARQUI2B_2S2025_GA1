@@ -1,4 +1,3 @@
-# device_gateway/services/mqtt_publisher.py
 import os
 import random
 from paho.mqtt import client as mqtt_client
