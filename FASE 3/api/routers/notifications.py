@@ -61,24 +61,19 @@ def _title_and_description(ev: Dict[str, Any]) -> (str, str, str):
 
     # PERSONA EN LISTA NEGRA
     if t == "PERSON_ON_BLACKLIST":
-        person_id = _upper(data.get("person_id"))
-        location = data.get("location", "ubicación desconocida")
         return (
-            "PERSONA_EN_LISTA_NEGRA",
-            "Persona de Interés Detectada",
-            f"Se ha detectado a la persona con ID {person_id} en {location}."
+            "PERSONA EN LISTA NEGRA DETECTADA",
+            "Persona en lista negra detectada",
+            "Se detectó una persona con record criminal en la ciudad."
         )
     
     # ARMA BLANCA
     if t == "BLADED_WEAPON":
-        weapon_type = (data.get("weapon_type") or "arma blanca").capitalize()
-        location = data.get("location", "ubicación desconocida")
         return (
-            "ARMA_BLANCA",
-            "Posible Amenaza: Arma Blanca Detectada",
-            f"{weapon_type} detectada en {location}. Se requiere atención inmediata."
+            "ARMA BLANCA DETECTADA",
+            "Arma blanca detectada",
+            "Se detectó un arma blanca en la ciudad."
         )
-
 
     # PANICO
     if t == "PANIC":
@@ -88,6 +83,7 @@ def _title_and_description(ev: Dict[str, Any]) -> (str, str, str):
             "Botón de Pánico Activado",
             f"Se ha recibido una alerta de pánico desde la fuente {btn or 'PANICO'}."
         )
+        
     # INFRACCION
     if t == "INFRACTION":
         code = _upper(data.get("code"))
@@ -96,6 +92,7 @@ def _title_and_description(ev: Dict[str, Any]) -> (str, str, str):
             "Infracción de Semáforo Detectada",
             f"Un vehículo ha cruzado en rojo en el punto de control {code or 'INFRA'}."
         )
+        
     # SISMO
     if t == "EARTHQUAKE":
         return (
@@ -103,6 +100,7 @@ def _title_and_description(ev: Dict[str, Any]) -> (str, str, str):
             "Alerta Sísmica",
             "Se ha detectado una vibración anómala. Protocolos de seguridad activados."
         )
+        
     # LLEGADA DE BUS (si la usas)
     if t == "BUS_ARRIVAL":
         route = _upper((data.get("route") or "BUS"))
@@ -111,13 +109,13 @@ def _title_and_description(ev: Dict[str, Any]) -> (str, str, str):
             "Arribo de Bus",
             f"Se registró arribo de unidad en la ruta {route}."
         )
-    # INCENDIO (si en algún momento envían 'fire')
+        
+    # CALIDAD DE AIRE (antes incendio)
     if t == "FIRE":
-        sensor = _upper(data.get("sensor") or "INCENDIO")
         return (
-            "INCENDIO",
-            "Alerta de Incendio",
-            f"Se ha detectado posible incendio en el sensor {sensor}."
+            "CALIDAD DE AIRE",
+            "Alerta de calidad de aire",
+            "La calidad del aire en el entorno no es la adecuada."
         )
 
     # default genérico
@@ -170,7 +168,8 @@ async def list_notifications(
     for ev in events:
         tipo, titulo, descripcion = _title_and_description(ev)
         data = ev.get("data") or {}
-        fuente = _upper(data.get("button") or data.get("code") or data.get("sensor") or ev.get("source"))
+        # Para la 'fuente', extraemos el sensor o usamos el source principal
+        fuente = _upper(data.get("sensor") or ev.get("source"))
 
         out.append({
             "id": _mk_id(ev),
