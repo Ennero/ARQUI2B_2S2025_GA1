@@ -27,4 +27,39 @@ class AppColors {
 
   /// Naranja usado en el logo de "Xiaomi".
   static const Color miOrange = Color(0xFFFF6900);
+
+  /// Azul océano profundo
+  static const Color deepOcean = Color(0xFF2A5A8A);
+
+  /// Azul acero
+  static const Color steelBlue = Color(0xFF4A6985);
+
+  /// Verde esmeralda oscuro
+  static const Color darkEmerald = Color(0xFF1B4D3E);
+
+  /// Púrpura espacial
+  static const Color spacePurple = Color(0xFF4A3B6B);
+
+  /// Rojo profundo
+  static const Color deepRed = Color(0xFF8B2635);
+
+  /// Naranja quemado
+  static const Color burntOrange = Color(0xFF8B4513);
+
+  /// Teal oscuro
+  static const Color darkTeal = Color(0xFF2B5B5A);
+
+  /// Índigo profundo - Azul violáceo
+  static const Color deepIndigo = Color(0xFF3D4B87);
+
+  // Background y bordess
+
+  static const Color deepOceanLight = Color(0xFF1A2F42);
+  static const Color steelBlueLight = Color(0xFF252E3A);
+  static const Color darkEmeraldLight = Color(0xFF1A2B26);
+  static const Color spacePurpleLight = Color(0xFF2A243A);
+  static const Color deepRedLight = Color(0xFF3A1A1F);
+  static const Color burntOrangeLight = Color(0xFF3A271A);
+  static const Color darkTealLight = Color(0xFF1F2E2D);
+  static const Color deepIndigoLight = Color(0xFF222842);
 }

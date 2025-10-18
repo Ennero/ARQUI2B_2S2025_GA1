@@ -1,0 +1,109 @@
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(180deg, #00334d, #005577);
+  color: #fff;
+  line-height: 1.6;
+}
+
+/* Encabezado */
+header {
+  background: rgba(0, 0, 0, 0.5);
+  text-align: center;
+  padding: 2rem 1rem;
+  box-shadow: 0 0 25px rgba(0, 255, 255, 0.3);
+}
+
+header h1 {
+  margin: 0;
+  font-size: 2rem;
+  color: #00e6ff;
+}
+
+header p {
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+/* Imagen principal */
+.hero {
+  width: 100%;
+  overflow: hidden;
+}
+
+.hero img {
+  width: 100%;
+  height: 380px;
+  object-fit: cover;
+  filter: brightness(0.85);
+  border-bottom: 4px solid #00e6ff;
+}
+
+/* Secciones */
+.info, .tour, .datos {
+  max-width: 900px;
+  margin: 2rem auto;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2rem;
+  border-radius: 15px;
+  border-left: 4px solid #00e6ff;
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+}
+
+.info h2, .tour h2, .datos h2 {
+  color: #00ffff;
+  margin-bottom: 1rem;
+}
+
+.info p, .tour p {
+  color: #e0f7ff;
+  text-align: justify;
+}
+
+/* Lista de datos */
+.datos ul {
+  list-style: none;
+  padding: 0;
+}
+
+.datos li {
+  background: rgba(0, 255, 255, 0.1);
+  margin: 0.5rem 0;
+  padding: 0.8rem;
+  border-radius: 10px;
+  color: #cceeff;
+}
+
+/* Botón volver */
+.boton-volver {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.btn {
+  display: inline-block;
+  background: #008fb3;
+  color: #fff;
+  padding: 0.9rem 1.8rem;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  background: #00ffff;
+  color: #00334d;
+  transform: scale(1.05);
+}
+
+/* Pie de página */
+footer {
+  background: rgba(0, 0, 0, 0.6);
+  text-align: center;
+  padding: 1rem;
+  color: #cceeff;
+  font-size: 0.9rem;
+  border-top: 1px solid rgba(0, 255, 255, 0.3);
+}
