@@ -43,7 +43,9 @@ class SerialController:
         while self._is_running:
             if self.connection and self.connection.in_waiting > 0:
                 try:
-                    line = self.connection.readline().decode('utf-8').rstrip()
+                    raw_line = self.connection.readline()
+                    line = raw_line.decode('utf-8', errors='ignore').rstrip()
+
                     if not line: continue
                     
                     state = parse_serial_data(line)

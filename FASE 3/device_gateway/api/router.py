@@ -6,9 +6,9 @@ router = APIRouter()
 serial_controller = SerialController()
 
 LOCATION_TO_BUZZER_MAP = {
-    "camara_palacio": 1,
+    "camara_portal": 5,
     "camara_parque": 2,
-    "camara_campero": 3,
+    "camara_campero": 4,
 }
 
 @router.post("/api/info", status_code=201)
