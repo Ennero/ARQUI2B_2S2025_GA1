@@ -1,0 +1,12 @@
+[
+    {
+        "weapon_type": "Cuchillo",
+        "detection_count": 23,
+        "representative_image_url": "http://<ip_servidor>:8000/images/weapons/cuchillo.png"
+    },
+    {
+        "weapon_type": "Daga",
+        "detection_count": 11,
+        "representative_image_url": "http://<ip_servidor>:8000/images/weapons/daga.png"
+    }
+]
