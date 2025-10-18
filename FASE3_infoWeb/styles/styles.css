@@ -1,0 +1,95 @@
+/* Estilo general */
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(180deg, #003366, #004d66);
+  color: #fff;
+  text-align: center;
+}
+
+/* Encabezado */
+header {
+  background: rgba(0, 0, 0, 0.4);
+  padding: 2rem 1rem;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+header h1 {
+  font-size: 2rem;
+  margin: 0.2rem 0;
+  color: #00e6e6;
+}
+
+header p {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+/* Contenedor de tarjetas */
+.cards-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  padding: 3rem 2rem;
+}
+
+/* Tarjetas */
+.card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  overflow: hidden;
+  width: 320px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 0 30px rgba(0, 230, 230, 0.4);
+}
+
+.card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.card h2 {
+  margin-top: 1rem;
+  color: #00ffff;
+}
+
+.card p {
+  padding: 0 1.2rem;
+  font-size: 0.95rem;
+  color: #e6e6e6;
+}
+
+/* Botón */
+.btn {
+  display: inline-block;
+  margin: 1rem 0 1.5rem;
+  padding: 0.8rem 1.5rem;
+  border-radius: 50px;
+  background: #00b3b3;
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.btn:hover {
+  background: #00ffff;
+  color: #003366;
+  transform: scale(1.05);
+}
+
+/* Pie de página */
+footer {
+  background: rgba(0, 0, 0, 0.5);
+  padding: 1rem;
+  font-size: 0.9rem;
+  color: #cceeff;
+}
