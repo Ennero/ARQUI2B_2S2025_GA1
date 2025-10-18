@@ -40,6 +40,13 @@ int INC2 = 0;
 int PANICO[5] = { 0, 0, 0, 0, 0 };
 int SISMO = 0;
 
+// Banderitas para el coso a enviar
+int SISMO_a_enviar = 0;
+int INC1_a_enviar = 0;
+int INC2_a_enviar = 0;
+int PANICO_a_enviar[5] = { 0, 0, 0, 0, 0 };
+
+
 enum SensorPurpose { SENSOR_PASS, SENSOR_ARRIVAL };
 struct Sensor {
   NewPing* sonar;
@@ -158,6 +165,7 @@ void activarAlarmaSismica() {
   // 1. Poner la bandera global de SISMO en 1. Ahora SISMO=1 se enviará
   //    porque la alarma ha comenzado.
   SISMO = 1; 
+  SISMO_a_enviar = 1; // Marcar para que se envíe una vez
   unsigned long now = millis();
 
   // 2. Activar el patrón sísmico en TODOS los buzzers.
@@ -328,7 +336,18 @@ void startBuzzerPattern(int buzzerIndex, unsigned long now, SoundPattern pattern
   state.patternStep = 0;
   state.lastStepTime = now;
 
-  PANICO[buzzerIndex] = (pattern == PATTERN_PANIC) ? 1 : 0;
+  if (pattern == PATTERN_PANIC) {
+    PANICO[buzzerIndex] = 1;
+    PANICO_a_enviar[buzzerIndex] = 1; // Marcar para envío
+  } else {
+    // Si se activa otro patrón, el estado de pánico se apaga.
+    // El apagado final se gestiona en controlarBuzzer.
+    PANICO[buzzerIndex] = 0; 
+  }
+
+  
+
+  // PANICO[buzzerIndex] = (pattern == PATTERN_PANIC) ? 1 : 0;
 
   switch (pattern) {
     case PATTERN_PANIC:
@@ -426,12 +445,26 @@ void manejarBotones() {
 void leerSensoresHumo() {
   PM1 = analogRead(MQ2_SENSOR_1);
   PM2 = analogRead(MQ2_SENSOR_2);
-  INC1 = (PM1 > SMOKE_THRESHOLD) ? 1 : 0;
-  INC2 = (PM2 > SMOKE_THRESHOLD) ? 1 : 0;
-
   unsigned long now = millis();
-  if (INC1) startBuzzerPattern(2, now, PATTERN_SMOKE);
-  if (INC2) startBuzzerPattern(3, now, PATTERN_SMOKE);
+
+  // +++ CAMBIO 4: Lógica para detectar el cambio de estado de 0 a 1 en el humo +++
+  bool smoke1_detected = (PM1 > SMOKE_THRESHOLD);
+  if (smoke1_detected && INC1 == 0) { // Si se detecta humo y ANTES no había...
+    INC1 = 1;                         // ...activa el estado interno...
+    INC1_a_enviar = 1;                // ...marca para envío...
+    startBuzzerPattern(2, now, PATTERN_SMOKE); // ...y suena la alarma.
+  } else if (!smoke1_detected) {
+    INC1 = 0; // Si no hay humo, resetea el estado interno.
+  }
+
+  bool smoke2_detected = (PM2 > SMOKE_THRESHOLD);
+  if (smoke2_detected && INC2 == 0) {
+    INC2 = 1;
+    INC2_a_enviar = 1;
+    startBuzzerPattern(3, now, PATTERN_SMOKE);
+  } else if (!smoke2_detected) {
+    INC2 = 0;
+  }
 }
 
 void echoCheck() {
@@ -520,14 +553,23 @@ void updateTrafficLights(unsigned long now) {
 }
 
 void emitirEstado() {
+  // Usar las variables _a_enviar para la salida serial +++
   snprintf(salidaBuffer, sizeof(salidaBuffer),
            "SEM1=%s;SEM2=%s;BUS1=%d;BUS2=%d;PM1=%d;PM2=%d;INC1=%d;INC2=%d;"
            "PANICO1=%d;PANICO2=%d;PANICO3=%d;PANICO4=%d;PANICO5=%d;"
            "SISMO=%d;INFRAA=%d;INFRAB=%d;INFRAC=%d;INFRAD=%d;DIST1=%d;DIST2=%d",
            SEM1.c_str(), SEM2.c_str(),
-           BUS1, BUS2, PM1, PM2, INC1, INC2,
-           PANICO[0], PANICO[1], PANICO[2], PANICO[3], PANICO[4],
-           SISMO, INFRAA, INFRAB, INFRAC, INFRAD,
+           BUS1, BUS2, PM1, PM2, INC1_a_enviar, INC2_a_enviar,
+           PANICO_a_enviar[0], PANICO_a_enviar[1], PANICO_a_enviar[2], PANICO_a_enviar[3], PANICO_a_enviar[4],
+           SISMO_a_enviar, INFRAA, INFRAB, INFRAC, INFRAD,
            dist1, dist2);
   Serial.println(salidaBuffer);
+
+  // Resetear las banderas de envío después de mandarlas +++
+  SISMO_a_enviar = 0;
+  INC1_a_enviar = 0;
+  INC2_a_enviar = 0;
+  for (int i = 0; i < 5; i++) {
+    PANICO_a_enviar[i] = 0;
+  }
 }
