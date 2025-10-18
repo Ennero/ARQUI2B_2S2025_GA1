@@ -187,7 +187,7 @@ def run_plates_yolo(video_source: str, conf_plate: float, target_classes: List[s
                                 "det_conf": conf,
                                 "ocr_conf": ocr_conf,
                                 "timestamp": datetime.datetime.utcnow().isoformat(),
-                                "location": "zone1_camera1",
+                                "location": "camara_parque",
                             }
                             try:
                                 post_event(

@@ -97,7 +97,7 @@ def run_weapons(video_source: str, conf_weapon: float, target_classes: List[str]
                             {
                                 "name": name,
                                 "conf": conf,
-                                "location": "zone1_camera1"
+                                "location": "camara_palacio"
                             },
                             frame[y1:y2, x1:x2]
                         )

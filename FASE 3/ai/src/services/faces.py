@@ -105,7 +105,7 @@ def run_faces(video_source: str,
                             "name": person,
                             "conf": float(conf),
                             "dist": float(dist),
-                            "location": "zone1_camera1"
+                            "location": "camara_campero"
                         },
                         frame[y:y+h, x:x+w]
                     )
