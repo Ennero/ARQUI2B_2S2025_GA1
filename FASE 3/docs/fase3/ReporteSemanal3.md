@@ -45,7 +45,7 @@ Universidad de San Carlos de Guatemala
 
 5. JUAN JOSE SANDOVAL RUIZ:
 
-    El integrante
+    El integrante realizó la lógica trabajada en conjunto junto al integrante David Barrios para la app de Flutter sobre las nuevas instrucciones dadas a implementar y realizó el manual de Flutter. 
 #
 
 6. DAVID ESTUARDO BARRIOS RAMIREZ:
@@ -59,22 +59,36 @@ Universidad de San Carlos de Guatemala
 #
 
 ## Conclusiones: 
-1. Se avanzó significativamente en la integración de la capa de IA. Las IAs de personas y armas estan cerca de finalizarse. Las pruebas iniciales de detección de listas negras y armas blancas muestran resultados positivos.
+1. Finalización de Componentes Clave: El equipo ha logrado la finalización de todos los componentes de software (IA, API Backend, Frontend, Grafana, Web de Turismo) y las correcciones de código que se tenian en Arduino.
 
-2. El trabajo en la maqueta y el hardware (encapsulado y corrección de buzzers) mejoró la facilidad física del sistema, lo cual permite enfocarse ahora en la integración software–hardware sin interrupciones por errores eléctricos. 
- 
-3. Se inició la implementación del backend/API y las mejoras en la app de Flutter (notificaciones y nuevas vistas), y la coordinación del equipo garantizó que cada integrante avanzara en sus parte; aun así, queda pendiente concatenar la comunicación entre módulos (API, MQTT, bases de datos y frontend).
+2. Cumplimiento de Objetivos Específicos: Se ha completado el diseño e implementación de las tres IAs, el desarrollo de la API centralizada con base de datos, la ampliación de la aplicación móvil (Flutter), la integración de la IA mediante computadoras externas y la Raspberry Pi como nodo central y la implementación del sistema de códigos QR para el turismo.
+
+3. Para finalizar, el foco del proyecto en todo el semestre fue el realizar las verificaciones del flujo completo de datos desde la primera fase. En esta fase la que se dió a mas destacar fue la verificación de la captura de video por la Laptop hasta la alerta física en el Arduino y la visualización en Flutter/Grafana, teniendo una funcionalidad estable como un sistema integral de ciudad inteligente. 
 
 #
-
-
 ## Observaciones:
-1. Las pruebas de IA muestran detecciones prometedoras; aun así, es necesario ampliar,  balancear y mejorar las detecciones de cámaras de los objetos/personas para obtener mejores resultados finales, lo cual se obtendra con pruebas futuras a realizar. 
+1. Integración y Comunicación: A pesar de que todos los módulos estaban siendo desarrollados individualmente, la observación previa de que "queda pendiente concatenar la comunicación entre módulos" fue la prioridad técnica. La comunicación entre la API de la Laptop (IA), la API de la Raspberry Pi, la base de datos, y el Flutter logró ser validada y probada rigurosamente para asegurar un flujo de datos sin interrupciones.
 
-2. Se requiere mayor coordinación en la integración entre los módulos (API, MQTT, Raspberry Pi y la app Flutter) para poder realizar la comunicación de los mismos correctamente y de forma organizada. 
+2. Refinamiento de la IA: La necesidad de ampliar, balancear y mejorar las detecciones de cámaras para obtener mejores resultados finales fue un proceso crítico, ya que la precisión de la IA afectaria directamente la funcionalidad del sistema. 
 
-3. La próxima semana se tiene plasmado finalizar el proyecto y unir todos los módulos de sistemas a realizar que se especificaron en el enunciado. 
+3. Complejidad del Backend: La API en la Raspberry Pi juega un papel crucial para el proyecto, siendo así como una pasarela y coordinador, siendo capaz de  manejar la recepción de datos de IA, la persistencia en la base de datos y el envío de comandos seriales. Su robustez y eficiencia son clave para la comunicación interconectada inalambricamente entre los dispositivos mencionados. 
 
 
 ## Evidencia de trabajo realizado por integrantes: 
 ![IA implementada](../img/fase%203/reporteS2/s2-1.jpg)
+#
+![reunion](../img/fase%203/reporteS3/s3-1.png)
+#
+![](../img/fase%203/reporteS3/s3-2.png)
+#
+![IA funcional](../img/fase%203/reporteS3/s3-3.png)
+#
+![IA pruebas](../img/fase%203/reporteS3/s3-4.png)
+#
+![reunion grupo xd](../img/fase%203/reporteS3/s3-5.png)
+#
+![grafana](../img/fase%203/reporteS3/s3-6.png)
+#
+![GITHUB DE PAG WEB INFORMATIVA](../img/fase%203/reporteS3/s3-7.png)
+#
+![](../img/fase%203/reporteS3/s3-8.png)
