@@ -7,7 +7,7 @@ class NotificationService {
   static String get baseUrl =>
       dotenv.env['NOTIF_BASE_URL'] ??
       dotenv.env['BASE_URL'] ??
-      'http://54.160.158.12:8000';
+      'http://54.82.168.41:8000';
 
   static const Map<String, String> headers = {
     'Content-Type': 'application/json',
