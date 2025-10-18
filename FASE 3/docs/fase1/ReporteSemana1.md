@@ -15,9 +15,13 @@
   - 2 puntos históricos
 
 **Captura del avance:**  
+<<<<<<< HEAD
+
+=======
 ![Foto de maqueta - ](../img/1.jpg)
 ![Foto de maqueta - ](../img/2.jpg)
 ![Foto de maqueta - ](../img/3.jpg)
+>>>>>>> develop
 
 ---
 
@@ -28,14 +32,21 @@
 **Vista preliminar del modelo:**  
 https://app.sketchup.com/share/tc/northAmerica/aJ2IbRWgOl0?stoken=XyzgiDlDwOA2tYNCufjUEXr-pC4gbiujco70CVSAYh1IWYxRf9vRuN2l5BS9yo0-&source=web
 
+<<<<<<< HEAD
+
+=======
 ![Foto de modelo ](../img/4.jpg)
 ![Foto de modelo ](../img/5.jpg)
+>>>>>>> develop
 
 ---
 
 ### 🛒 3. Componentes Electrónicos
 
+<<<<<<< HEAD
+=======
 ![Foto de componentes](../img/6.jpg)
+>>>>>>> develop
 
 
 

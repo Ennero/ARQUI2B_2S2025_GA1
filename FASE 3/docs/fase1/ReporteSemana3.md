@@ -70,6 +70,9 @@ Durante esta semana se alcanzaron los siguientes resultados:
 
 ## 📸 Evidencias
 
+<<<<<<< HEAD
+
+=======
 ![evidencia1](../img/evidencia1sem3.jpg)
 
 ![evidencia2](../img/evidencia2sem3.jpg)
@@ -77,4 +80,5 @@ Durante esta semana se alcanzaron los siguientes resultados:
 ![evidencia3](../img/evidencia3sem3.jpg)
 
 ![evidencia3](../img/final.jpeg)
+>>>>>>> develop
 ---
