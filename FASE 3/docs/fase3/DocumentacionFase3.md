@@ -253,6 +253,10 @@ El flujo es estable, modular y escalable, permitiendo futuras expansiones de IA 
 ## 8. Link de GitHub (Repositorio general y de Sitio Web)
 
 ### Repositorio del proyecto con código fuente y documentación:  
+#
+https://github.com/agarcia17948/ARQUI2_F3
+
+#
 
 #### Sitio Web: 
 
