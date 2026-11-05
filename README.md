@@ -1,68 +1,50 @@
-<div align="center">
+# Sistema por fases de sensores, visión artificial y aplicación móvil
 
-# 📱 Edge AI, Computer Vision & Mobile Surveillance Platform (ARQUI2)
+Tres fases de Arquitectura de Computadoras 2 con control Arduino, dashboards Processing, API Python/MongoDB/MQTT y, en la tercera fase, reconocimiento visual y una aplicación Flutter.
 
-**Plataforma de vigilancia inteligente: Computer Vision en Python, comunicación con Arduino, Docker y app móvil en Flutter.**
+## Requisitos
 
-[![Language](https://img.shields.io/badge/Language-Python,%20Flutter,%20C++,%20Docker-blue?style=for-the-badge)](https://github.com/Ennero/ARQUI2B_2S2025_GA1)
-[![Course](https://img.shields.io/badge/Course-Arquitectura%20de%20Computadoras%202-003366?style=for-the-badge)](https://ingenieria.usac.edu.gt/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
+Arduino IDE y hardware de cada fase; Processing para archivos .pde; Python y dependencias propias de cada API/servicio; MongoDB y MQTT. Fase3 también requiere Flutter y recursos de cámara/inferencia indicados en sus manuales.
 
-</div>
+## Ejecución
 
----
+Los comandos parten de la raíz del repositorio, salvo donde se indica otra terminal.
 
+```bash
+# API de Fase2: copiar .env.example a .env y ajustar valores
+cd "FASE 2/api"
+python -m pip install -r requirements.txt
+python -m uvicorn main:app --host 127.0.0.1 --port 8000
 
-## 📌 Descripción General
-
-Este repositorio contiene la implementación y entrega de **📱 Edge AI, Computer Vision & Mobile Surveillance Platform (ARQUI2)**, desarrollado en el curso de **Arquitectura de Computadoras 2** en la Universidad de San Carlos de Guatemala.
-
-- **Objetivo:** Plataforma de vigilancia inteligente: Computer Vision en Python, comunicación con Arduino, Docker y app móvil en Flutter.
-- **Stack Principal:** `Python, Flutter, C++, Docker`.
-- **Área:** Ciencias de la Computación, Algoritmos y Desarrollo de Software.
-
----
-
-## 🚀 Características y Componentes
-
-- Implementación modular y buenas prácticas de codificación.
-- Manejo estructurado de datos, control de flujo y validaciones.
-- Documentación y scripts de soporte para compilación o ejecución.
-
----
-
-## 📦 Estructura del Proyecto
-
-```
-ARQUI2B_2S2025_GA1/
-├── src/ o archivos de código fuente
-├── docs/ (si aplica)
-├── .gitignore
-├── LICENSE
-└── README.md
+# Aplicación móvil, desde la raíz:
+cd "FASE 3/flutter/flutter_application"
+flutter pub get
+flutter run
 ```
 
----
+## Recorrido de demostración
 
-## ⚙️ Requisitos y Ejecución
+Elegir una fase completa: cargar su sketch Arduino, iniciar MQTT/API y abrir el dashboard o cliente correspondiente. Consultar DocumentacionFase y los reportes semanales para el montaje y las pruebas; el manual Flutter explica el cliente de la tercera fase.
 
-1. Clonar el repositorio:
-   ```bash
-   git clone https://github.com/Ennero/ARQUI2B_2S2025_GA1.git
-   cd ARQUI2B_2S2025_GA1
-   ```
-2. Ejecutar según el entorno (`Python, Flutter, C++, Docker`):
-   - Consultar los scripts o archivos principales del proyecto para parámetros específicos.
+## Organización
 
----
+Carpetas de la entrega: [`FASE 1/`](FASE%201/), [`FASE 2/`](FASE%202/), [`FASE 3/`](FASE%203/).
 
-## 📄 Licencia
+## Documentación
 
-Este proyecto está bajo la Licencia **MIT**. Consulta el archivo [LICENSE](LICENSE) para más detalles.
+- [DocumentacionFase1](FASE%201/docs/DocumentacionFase1.md)
+- [DocumentacionFase2](FASE%202/docs/fase2/DocumentacionFase2.md)
+- [DocumentacionFase3](FASE%203/docs/fase3/DocumentacionFase3.md)
+- [ManualFlutter](FASE%203/docs/fase3/ManualFlutter.md)
 
----
+## Alcance y límites
 
-## 👨‍💻 Autor
+No todas las fases comparten entorno ni plataforma. Los modelos de visión incluidos se conservan como recursos de la entrega; deben revisarse su procedencia y las condiciones de uso antes de redistribuirlos fuera del proyecto académico. No se incluyen entornos virtuales.
 
-- **Enner Mendizabal** - [@Ennero](https://github.com/Ennero)  
-- *Facultad de Ingeniería, Universidad de San Carlos de Guatemala.*
+## Contexto y licencia
+
+Trabajo académico o de aprendizaje conservado en el portafolio de [Enner Mendizabal](https://github.com/Ennero). Los créditos de los trabajos en grupo se conservan en sus entregas y manuales.
+
+Consultar [LICENSE](LICENSE) para la licencia de la raíz. Las dependencias y los componentes con avisos o licencias propios conservan sus condiciones.
+
+Para el servicio de visión de Fase3, copiar `FASE 3/ai/.env.example` a `.env` en esa carpeta. El target Docker disponible se llama `development`; después seguir FASE 3/ai/readme.md para cámara, modelos y servicios relacionados.

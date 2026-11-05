@@ -33,24 +33,13 @@
 
 ## Índice
 
-- [1. Resumen](#1-resumen)  
-- [2. Introducción](#2-introducción)  
-  - [2.1. Justificación y Planteamiento del Problema](#21-justificación-y-planteamiento-del-problema)  
-  - [2.2. Objetivos del Proyecto](#22-objetivos-del-proyecto)  
-- [3. Alcance y Delimitaciones (Fase 3)](#3-alcance-y-delimitaciones-fase-3)  
-  - [3.1. Alcance Funcional](#31-alcance-funcional)  
-  - [3.2. Delimitaciones y Exclusiones](#32-delimitaciones-y-exclusiones)  
-- [4. Arquitectura del Sistema](#4-arquitectura-del-sistema)  
-  - [4.1. Arquitectura de Hardware](#41-arquitectura-de-hardware)  
-  - [4.2. Visualización de datos en Grafana](#42-visualizacion-de-datos-en-grafana)  
-  - [4.3. Flujo de Datos y Comunicación](#43-flujo-de-datos-y-comunicación)  
-- [5. Descripción del Trabajo de Software Implementado](#5-descripción-del-trabajo-de-software-implementado)  
-  - [5.1. Detalles de Funcionamiento](#51-detalles-de-funcionamiento)  
-  - [5.2. Usos y Beneficios del Prototipo (Fase 3)](#52-usos-y-beneficios-del-prototipo-fase-3)  
-- [6. Diagramas](#6-diagramas)  
-- [7. Modelo 3D Implementado en Maqueta Física](#7-modelo-3d-implementado-en-maqueta-física)  
-- [8. Link de GitHub (Repositorio general y de Sitio Web)](#8-link-de-github-repositorio-general-y-de-sitio-web)  
-- [9. Anexos](#9-anexos)  
+- [Introducción](#introducci%C3%B3n)
+- [Pestaña "Principal" (Acerca del Proyecto)](#pesta%C3%B1a-principal-acerca-del-proyecto)
+- [Pestaña "Control" (Panel de Control)](#pesta%C3%B1a-control-panel-de-control)
+  - [Panel Operacional](#panel-operacional)
+  - [Panel Analítico](#panel-anal%C3%ADtico)
+- [Pestaña "Notificaciones" (Alertas y Notificaciones)](#pesta%C3%B1a-notificaciones-alertas-y-notificaciones)
+- [Pestaña "Mapa"](#pesta%C3%B1a-mapa)
 
 ---
 
